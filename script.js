@@ -9,6 +9,16 @@ window.scrollTo(0, 10);
 
 document.addEventListener("DOMContentLoaded", () => {
   gsap.registerPlugin(ScrollTrigger);
+  // Duplicate marquee list for seamless loop
+  try {
+    const track = document.querySelector('.marquee__wrapper');
+    if (track) {
+      const firstList = track.querySelector('.list');
+      const clone = firstList.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      track.appendChild(clone);
+    }
+  } catch (e) {}
   const stickySection = document.querySelector(".sticky");
   const totalStickyHeight = window.innerHeight * 6; // ensure enough height for looping
 

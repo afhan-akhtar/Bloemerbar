@@ -13,6 +13,81 @@ body {
   font-family: "Oswald", sans-serif;
 }
 
+/* ===== Top Marquee ===== */
+.top-marquee {
+  position: relative;
+  width: 100vw;
+  background: #03442B;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+/* Top nav links */
+.bb-top .nav-hero {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  padding: 50px 0;
+  justify-content: space-around
+}
+
+.bb-top .small-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2rem;
+  color: #9dd0d4;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.bb-top .small-link .link-arrow {
+  width: 14px;
+  height: 22px;
+  color: #9dd0d4;
+}
+
+/* Scrolling marquee cities */
+.marquee__wrapper {
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+}
+
+.marquee__wrapper .list {
+  display: inline-flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.75rem 1rem 1rem;
+  animation: marquee-scroll 60s linear infinite;
+  will-change: transform;
+}
+.small-link-text {
+  font-size: 26px;
+}
+.marquee__wrapper .collection-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.heading-city {
+  font-size: clamp(48px, 18vw, 220px);
+  font-weight: 900;
+  color: #f6c2d3;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.img-ville {
+  width: 300px;
+  height: auto;
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
 /* Hide scrollbar UI but keep scrolling (cross-browser) */
 html,
 body {

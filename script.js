@@ -238,6 +238,148 @@ document.addEventListener("DOMContentLoaded", () => {
     duration: 1,
   });
 
+  // ===== Gallery (Pinned Cards) =====
+  const pinnedSection = document.querySelector(".pinned");
+  if (pinnedSection) {
+    const stickyHeader = pinnedSection.querySelector(".sticky-header");
+    const cards = pinnedSection.querySelectorAll(".card");
+    const progressBarContainer = pinnedSection.querySelector(".progress-bar");
+    const progressBar = pinnedSection.querySelector(".progress");
+    const indicesContainer = pinnedSection.querySelector(".indices");
+    const indices = pinnedSection.querySelectorAll(".index");
+    const cardCount = cards.length;
+    const pinnedHeight = window.innerHeight * (cardCount + 1);
+
+    const startRotations = [0, 5, 0, -5];
+    const endRotations = [-10, -5, 10, 5];
+    const progressColors = ["#FFD1DC", "#AEC6CF", "#77DD77", "#C5BBDE"];
+    const gifFiles = [
+      "./assets/Animation1.gif",
+      "./assets/Animation2.gif",
+      "./assets/Animation1.gif",
+      "./assets/Animation2.gif",
+    ];
+
+    let isProgressBarVisible = false;
+    let currentActiveIndex = -1;
+
+    cards.forEach((card, index) => {
+      gsap.set(card, { rotation: startRotations[index] });
+      const img = document.createElement("img");
+      img.src = gifFiles[index] || "./assets/Animation1.gif";
+      img.alt = `Card ${index + 1}`;
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "cover";
+      img.style.position = "absolute";
+      img.style.top = 0;
+      img.style.left = 0;
+      img.style.zIndex = 0;
+      card.appendChild(img);
+    });
+
+    function animateIndexOpacity(newIndex) {
+      if (newIndex !== currentActiveIndex) {
+        indices.forEach((indexElem, i) => {
+          gsap.to(indexElem, {
+            opacity: i === newIndex ? 1 : 0.25,
+            duration: 0.5,
+            ease: "power2.out",
+          });
+        });
+        currentActiveIndex = newIndex;
+      }
+    }
+
+    function showProgressAndIndices() {
+      gsap.to([progressBarContainer, indicesContainer], {
+        opacity: 1,
+        duration: 0.5,
+        ease: "power2.out",
+      });
+      isProgressBarVisible = true;
+    }
+
+    function hideProgressAndIndices() {
+      gsap.to([progressBarContainer, indicesContainer], {
+        opacity: 0,
+        duration: 0.5,
+        ease: "power2.out",
+      });
+      isProgressBarVisible = false;
+      animateIndexOpacity(-1);
+    }
+
+    ScrollTrigger.create({
+      trigger: pinnedSection,
+      start: "top top",
+      end: `+=${pinnedHeight}`,
+      pin: true,
+      pinSpacing: true,
+      onLeave: () => {
+        hideProgressAndIndices();
+      },
+      onEnterBack: () => {
+        showProgressAndIndices();
+      },
+      onUpdate: (self) => {
+        const progress = self.progress * (cardCount + 1);
+        const currentCard = Math.floor(progress);
+
+        if (progress <= 1) {
+          gsap.to(stickyHeader, {
+            opacity: 1 - progress,
+            duration: 0.1,
+            ease: "none",
+          });
+        } else {
+          gsap.set(stickyHeader, { opacity: 0 });
+        }
+
+        if (progress > 1 && !isProgressBarVisible) {
+          showProgressAndIndices();
+        } else if (progress <= 1 && isProgressBarVisible) {
+          hideProgressAndIndices();
+        }
+
+        let progressHeight = 0;
+        let colorIndex = -1;
+        if (progress > 1) {
+          progressHeight = ((progress - 1) / cardCount) * 100;
+          colorIndex = Math.min(Math.floor(progress - 1), cardCount - 1);
+        }
+
+        gsap.to(progressBar, {
+          height: `${progressHeight}%`,
+          backgroundColor: progressColors[colorIndex],
+          duration: 0.3,
+          ease: "power1.out",
+        });
+
+        if (isProgressBarVisible) {
+          animateIndexOpacity(colorIndex);
+        }
+
+        cards.forEach((card, index) => {
+          if (index < currentCard) {
+            gsap.set(card, { top: "50%", rotation: endRotations[index] });
+          } else if (index === currentCard) {
+            const cardProgress = progress - currentCard;
+            const newTop = gsap.utils.interpolate(150, 50, cardProgress);
+            const newRotation = gsap.utils.interpolate(
+              startRotations[index],
+              endRotations[index],
+              cardProgress
+            );
+            gsap.set(card, { top: `${newTop}%`, rotation: newRotation });
+          } else {
+            gsap.set(card, { top: "150%", rotation: startRotations[index] });
+          }
+        });
+      },
+    });
+  }
+
   // --- Fixed Infinite Loop ---
 // --- Fixed Infinite Loop with Lenis-native detection ---
 const threshold = 5;

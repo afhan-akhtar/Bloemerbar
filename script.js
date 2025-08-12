@@ -415,19 +415,19 @@ lenis.on("scroll", ({ scroll, limit }) => {
 });
 
 
-// Inject a Tripletta-like loader without changing existing HTML/CSS
+  // Inject a Tripletta-like loader without changing existing HTML/CSS
 (function () {
   try {
     const body = document.body;
     if (!body) return;
 
-    // Show loader only on real reloads, not during infinite scroll or bfcache restores
+    // Show loader on first navigation and reload, but skip bfcache/back-forward restores
     const navEntry = performance && performance.getEntriesByType
       ? performance.getEntriesByType("navigation")[0]
       : null;
-    const isReload = navEntry && navEntry.type === "reload";
-    const isBFCache = false; // pageshow handler below guards bfcache; keep simple here
-    if (!isReload) {
+    const navType = (navEntry && navEntry.type) || (performance.navigation && performance.navigation.type);
+    const isBackForward = navType === "back_forward" || navType === 2; // 2 is legacy back_forward
+    if (isBackForward) {
       return;
     }
 

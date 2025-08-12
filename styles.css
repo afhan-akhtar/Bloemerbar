@@ -342,8 +342,8 @@ section {
   top: 150%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(0deg);
-  width: 40%;
-  height: 50%;
+  width: min(92vw, 1100px);
+  height: min(72vh, 820px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -373,7 +373,7 @@ section {
 }
 
 .card-phase p {
-  font-size: 24px;
+  font-size: clamp(14px, 2.4vw, 24px);
 }
 
 #card-1 .card-phase { background-color: #ffd1dc; }
@@ -387,9 +387,9 @@ section {
   z-index: 1;
 }
 
-.card-title p { font-size: 36px; }
+.card-title p { font-size: clamp(18px, 3.5vw, 32px); }
 .card-title h1 {
-  font-size: 80px;
+  font-size: clamp(48px, 12vw, 96px);
   font-weight: 300;
   line-height: 90%;
 }
@@ -457,11 +457,7 @@ section {
 #index-4 p { color: #c5bbde; }
 
 @media (max-width: 900px) {
-  .card { width: 75%; height: 40%; }
-  .card-phase p { font-size: 18px; }
-  .card-title p { font-size: 24px; }
-  .card-title h1 { font-size: 40px; }
-  .card-title h1 span { -webkit-text-stroke: 0.75px #fff; }
+  .card { width: 92vw; height: 72vh; }
   .indices { right: 15px; }
   .index p:nth-child(2), .index p:nth-child(3) { display: none; }
 }

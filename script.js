@@ -465,14 +465,10 @@ lenis.on("scroll", ({ scroll, limit }) => {
     overlay.appendChild(frame);
     body.appendChild(overlay);
 
-    // Lock scroll and offset content for entrance
+    // Lock scroll during loader
     const previousOverflow = body.style.overflow;
     body.style.overflow = "hidden";
-    const container = document.querySelector(".container");
-    if (container) {
-      container.style.transform = "translateY(-40px)";
-      container.style.opacity = "0";
-    }
+    // Do not fade or offset the main content; leave it as-is under the overlay
 
     const localThreshold = 5;
 
@@ -541,9 +537,9 @@ lenis.on("scroll", ({ scroll, limit }) => {
       if (timerId) clearTimeout(timerId);
       if (window.gsap) {
         gsap.to(overlay, {
-          opacity: 0,
+          yPercent: -100,
           duration: 0.6,
-          ease: "power2.out",
+          ease: "power2.inOut",
           onComplete: () => {
             overlay.remove();
             body.style.overflow = previousOverflow;
@@ -551,42 +547,18 @@ lenis.on("scroll", ({ scroll, limit }) => {
             try {
               window.scrollTo(0, localThreshold + 1);
             } catch (e) {}
-            if (container) {
-              gsap.fromTo(
-                container,
-                { y: -40, opacity: 0 },
-                {
-                  y: 0,
-                  opacity: 1,
-                  duration: 0.8,
-                  ease: "power2.out",
-                  onComplete: () => {
-                    container.style.transform = "";
-                    container.style.opacity = "";
-                  },
-                }
-              );
-            }
           },
         });
       } else {
-        overlay.style.opacity = "0";
+        // Fallback: slide the overlay up using CSS transitions
+        overlay.style.transition = "transform 0.6s ease";
+        overlay.style.transform = "translateY(-100%)";
         setTimeout(() => {
           overlay.remove();
           body.style.overflow = previousOverflow;
           try {
             window.scrollTo(0, localThreshold + 1);
           } catch (e) {}
-          if (container) {
-            container.style.transition = "transform 0.8s ease, opacity 0.8s ease";
-            container.style.transform = "translateY(0)";
-            container.style.opacity = "1";
-            setTimeout(() => {
-              container.style.transition = "";
-              container.style.transform = "";
-              container.style.opacity = "";
-            }, 850);
-          }
         }, 600);
       }
     }

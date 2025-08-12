@@ -303,7 +303,6 @@ lenis.on("scroll", ({ scroll, limit }) => {
       "align-items:center",
       "justify-content:center",
       "padding:6px 18px",
-      "border:6px solid #0d47a1",
       "border-radius:999px",
       "background:transparent",
     ].join(";");
@@ -316,7 +315,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
       "letter-spacing:0.01em",
       "text-transform:uppercase",
       "line-height:1",
-      "font-weight:800",
+      "font-weight:900",
       "will-change:transform,opacity",
     ].join(";");
 
@@ -336,63 +335,68 @@ lenis.on("scroll", ({ scroll, limit }) => {
     const localThreshold = 5;
 
     const cityData = [
-      { name: "Bordeaux", bg: "#e3f2fd", fg: "#0d47a1", border: "#0d47a1" },
-      { name: "Versailles", bg: "#fff3e0", fg: "#e65100", border: "#e65100" },
-      { name: "Lille", bg: "#f3e5f5", fg: "#6a1b9a", border: "#6a1b9a" },
-      { name: "Rennes", bg: "#ede7f6", fg: "#311b92", border: "#311b92" },
-      { name: "Toulouse", bg: "#f1f8e9", fg: "#1b5e20", border: "#1b5e20" },
-      { name: "Lyon", bg: "#fff8e1", fg: "#f57f17", border: "#f57f17" },
-      { name: "Marseille", bg: "#e0f7fa", fg: "#006064", border: "#006064" },
-      { name: "Paris", bg: "#ffebee", fg: "#b71c1c", border: "#b71c1c" },
+      { name: "Bordeaux", bg: "#e3f2fd", fg: "#0d47a1" },
+      { name: "Versailles", bg: "#fff3e0", fg: "#e65100" },
+      { name: "Lille", bg: "#f3e5f5", fg: "#6a1b9a" },
+      { name: "Rennes", bg: "#ede7f6", fg: "#311b92" },
+      { name: "Toulouse", bg: "#f1f8e9", fg: "#1b5e20" },
+      { name: "Lyon", bg: "#fff8e1", fg: "#f57f17" },
+      { name: "Marseille", bg: "#e0f7fa", fg: "#006064" },
+      { name: "Paris", bg: "#ffebee", fg: "#b71c1c" },
     ];
 
     let index = 0;
     function applyCity(city) {
       overlay.style.backgroundColor = city.bg;
-      frame.style.borderColor = city.border;
       label.style.color = city.fg;
       label.textContent = city.name;
     }
     applyCity(cityData[0]);
 
-    // Animate ticker every ~350ms
-    let intervalId = null;
-    intervalId = setInterval(() => {
-      index = (index + 1) % cityData.length;
+    // Animate ticker once over the city list (no repeats)
+    let timerId = null;
+    const stepMs = 200;
+    function step() {
+      index += 1;
+      if (index >= cityData.length) {
+        timerId = null;
+        // Briefly show the last city, then hide the overlay
+        if (typeof hideOverlay === "function") {
+          setTimeout(hideOverlay, 400);
+        }
+        return;
+      }
       const next = cityData[index];
       if (window.gsap) {
         gsap.to(label, {
           y: 10,
           opacity: 0,
-          duration: 0.12,
+          duration: 0.08,
           ease: "power1.in",
           onComplete: () => {
             applyCity(next);
             gsap.fromTo(
               label,
               { y: -10, opacity: 0 },
-              { y: 0, opacity: 1, duration: 0.18, ease: "power1.out" }
+              { y: 0, opacity: 1, duration: 0.12, ease: "power1.out" }
             );
           },
         });
         gsap.to(overlay, {
           backgroundColor: next.bg,
-          duration: 0.2,
-          ease: "power1.out",
-        });
-        gsap.to(frame, {
-          borderColor: next.border,
-          duration: 0.2,
+          duration: 0.15,
           ease: "power1.out",
         });
       } else {
         applyCity(next);
       }
-    }, 350);
+      timerId = setTimeout(step, stepMs);
+    }
+    timerId = setTimeout(step, stepMs);
 
-    // Hide overlay after window load + 5s
+    // Hide overlay when ticker finishes
     function hideOverlay() {
-      if (intervalId) clearInterval(intervalId);
+      if (timerId) clearTimeout(timerId);
       if (window.gsap) {
         gsap.to(overlay, {
           opacity: 0,
@@ -444,14 +448,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
         }, 600);
       }
     }
-
-    if (document.readyState === "complete") {
-      setTimeout(hideOverlay, 5000);
-    } else {
-      window.addEventListener("load", () => setTimeout(hideOverlay, 5000), {
-        once: true,
-      });
-    }
+    // hideOverlay is invoked by the ticker when it completes one full pass
   } catch (err) {
     const existing = document.getElementById("preloader");
     if (existing) existing.remove();

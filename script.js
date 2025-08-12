@@ -1,3 +1,12 @@
+// Ensure we don't start at absolute 0 to avoid immediate wrap flicker
+try {
+  if ("scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+} catch (e) {}
+// Small nudge away from 0 before DOM is ready
+window.scrollTo(0, 10);
+
 document.addEventListener("DOMContentLoaded", () => {
   gsap.registerPlugin(ScrollTrigger);
   const stickySection = document.querySelector(".sticky");
@@ -231,5 +240,29 @@ document.addEventListener("DOMContentLoaded", () => {
     rotateY: 0,
     scale: 1,
     duration: 1,
+  });
+
+  // --- Infinite loop using GSAP ScrollTrigger (non-intrusive) ---
+  const threshold = 5;
+
+  // Ensure we don't start at absolute 0 which could immediately wrap
+  requestAnimationFrame(() => {
+    if ((window.scrollY || window.pageYOffset) <= threshold) {
+      lenis.scrollTo(threshold + 1, { immediate: true });
+    }
+  });
+
+  ScrollTrigger.create({
+    start: 0,
+    end: () => ScrollTrigger.maxScroll(window),
+    onUpdate: () => {
+      const max = ScrollTrigger.maxScroll(window);
+      const y = window.scrollY || window.pageYOffset;
+      if (y <= threshold) {
+        lenis.scrollTo(max - threshold - 1, { immediate: true });
+      } else if (y >= max - threshold) {
+        lenis.scrollTo(threshold + 1, { immediate: true });
+      }
+    },
   });
 });

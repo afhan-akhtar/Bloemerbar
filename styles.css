@@ -46,6 +46,59 @@ body {
   color: #9dd0d4;
 }
 
+/* Contact hover mailto badge */
+.small-link-contact { position: relative; }
+.small-link-contact::after {
+  content: attr(data-email);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) rotate(-6deg) scale(0.98);
+  background: #c0392b;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.85);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+  font-size: clamp(12px, 1.6vw, 16px);
+  font-weight: 800;
+  letter-spacing: .5px;
+  white-space: nowrap;
+  max-width: min(80vw, 320px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 10;
+}
+.small-link-contact:hover::after,
+.small-link-contact:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) rotate(-6deg) scale(1);
+}
+
+@media (max-width: 600px) {
+  .small-link-contact::after {
+    font-size: clamp(11px, 3.2vw, 14px);
+    padding: 5px 9px;
+    bottom: calc(100% + 8px);
+    max-width: 88vw;
+    transform: translateX(-50%) rotate(-4deg) scale(0.98);
+  }
+  .small-link-contact:hover::after,
+  .small-link-contact:focus-visible::after {
+    transform: translateX(-50%) rotate(-4deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .small-link-contact::after {
+    transition: opacity .001s linear;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
 /* Scrolling marquee cities */
 .marquee__wrapper {
   display: flex;

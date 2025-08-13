@@ -43,7 +43,36 @@ body {
 .bb-top .small-link .link-arrow {
   width: 14px;
   height: 22px;
-  color: #9dd0d4;
+  color: currentColor;
+}
+
+/* Hover interactions for top nav links */
+.bb-top .small-link {
+  transition: color .25s ease;
+}
+
+.bb-top .small-link:hover {
+  color: #ff9700;
+}
+
+.bb-top .small-link .link-arrow {
+  display: inline-block;
+}
+
+.bb-top .small-link:hover .link-arrow {
+  animation: arrow-hide-show .6s ease both;
+}
+
+@keyframes arrow-hide-show {
+  0%   { opacity: 1; transform: translateX(0) scale(1); }
+  40%  { opacity: 0; transform: translateX(8px) scale(0.9); }
+  60%  { opacity: 0; transform: translateX(-8px) scale(0.9); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-top .small-link { transition: none; }
+  .bb-top .small-link:hover .link-arrow { animation: none; }
 }
 
 /* Contact hover mailto badge */

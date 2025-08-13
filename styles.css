@@ -140,6 +140,11 @@ body {
   align-items: center;
   gap: 2rem;
   padding: 0.75rem 1rem 1rem;
+  /* Animation moved to parent track for seamless loop */
+}
+.top-marquee .track {
+  display: flex;
+  width: max-content;
   animation: marquee-scroll 60s linear infinite;
   will-change: transform;
 }
@@ -202,7 +207,7 @@ body {
 
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
-  to { transform: translateX(-100%); }
+  to { transform: translateX(-50%); }
 }
 
 /* Hide scrollbar UI but keep scrolling (cross-browser) */

@@ -9,15 +9,25 @@ window.scrollTo(0, 10);
 
 document.addEventListener("DOMContentLoaded", () => {
   gsap.registerPlugin(ScrollTrigger);
-  // Duplicate marquee list for seamless loop
+  // Prepare all marquees for a seamless infinite loop (two identical lists per track)
   try {
-    const track = document.querySelector('.marquee__wrapper');
-    if (track) {
-      const firstList = track.querySelector('.list');
-      const clone = firstList.cloneNode(true);
-      clone.setAttribute('aria-hidden', 'true');
-      track.appendChild(clone);
-    }
+    document.querySelectorAll('.marquee__wrapper').forEach((track) => {
+      const lists = Array.from(track.querySelectorAll('.list'));
+      if (!lists.length) return;
+      const source = lists[0];
+      let second = lists[1];
+      if (!second) {
+        second = source.cloneNode(true);
+        second.setAttribute('aria-hidden', 'true');
+        track.appendChild(second);
+      } else {
+        second.innerHTML = source.innerHTML;
+        second.setAttribute('aria-hidden', 'true');
+      }
+      for (let i = 2; i < lists.length; i++) {
+        lists[i].remove();
+      }
+    });
   } catch (e) {}
   const stickySection = document.querySelector(".sticky");
   const totalStickyHeight = window.innerHeight * 6; // ensure enough height for looping

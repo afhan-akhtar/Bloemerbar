@@ -385,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
             gsap.set(card, { top: "50%", rotation: endRotations[index] });
           } else if (index === currentCard) {
             const cardProgress = progress - currentCard;
-            const newTop = gsap.utils.interpolate(150, 50, cardProgress);
+            const newTop = gsap.utils.interpolate(115, 50, cardProgress);
             const newRotation = gsap.utils.interpolate(
               startRotations[index],
               endRotations[index],
@@ -393,7 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
             gsap.set(card, { top: `${newTop}%`, rotation: newRotation });
           } else {
-            gsap.set(card, { top: "150%", rotation: startRotations[index] });
+            gsap.set(card, { top: "115%", rotation: startRotations[index] });
           }
         });
       },

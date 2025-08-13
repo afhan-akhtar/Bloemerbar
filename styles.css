@@ -572,7 +572,7 @@ section {
 
 .card {
   position: absolute;
-  top: 150%;
+  top: 115%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(0deg);
   width: min(92vw, 1100px);

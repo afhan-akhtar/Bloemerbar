@@ -9,6 +9,20 @@ window.scrollTo(0, 10);
 
 document.addEventListener("DOMContentLoaded", () => {
   gsap.registerPlugin(ScrollTrigger);
+  // Duplicate the full main wrapper for long page length (Lenis will wrap)
+  try {
+    const main = document.querySelector('.main-wrapper');
+    if (main) {
+      const fragment = document.createDocumentFragment();
+      // create several copies to ensure enough scroll distance
+      const copies = 5; // adjust as needed
+      for (let i = 0; i < copies; i++) {
+        const clone = main.cloneNode(true);
+        fragment.appendChild(clone);
+      }
+      document.body.appendChild(fragment);
+    }
+  } catch (e) {}
   // Prepare all marquees for a seamless infinite loop (two identical lists per track)
   try {
     document.querySelectorAll('.marquee__wrapper').forEach((track) => {
@@ -259,8 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ===== Gallery (Pinned Cards) =====
-  const pinnedSection = document.querySelector(".pinned");
-  if (pinnedSection) {
+  document.querySelectorAll(".pinned").forEach((pinnedSection) => {
     const stickyHeader = pinnedSection.querySelector(".sticky-header");
     const cards = pinnedSection.querySelectorAll(".card");
     const progressBarContainer = pinnedSection.querySelector(".progress-bar");
@@ -276,7 +289,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Image sequences per card for fast hover animation (Pub, Club, Terrace, Streetfood)
     const cardImageSequences = [
       [
-       
         "./assets/pub_1.jpg",
         "./assets/pub_2.jpg",
         "./assets/pub_3.jpg",
@@ -334,7 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Fast hover animation: cycle through category images
       let frameIndex = 0;
       let intervalId = null;
-      const frameMs = 300; // speed per frame (slower)
+      const frameMs = 300;
 
       function startHoverAnimation() {
         if (!sequence || sequence.length <= 1 || intervalId) return;
@@ -459,7 +471,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       },
     });
-  }
+  });
 
   // --- Fixed Infinite Loop ---
 // --- Fixed Infinite Loop with Lenis-native detection ---

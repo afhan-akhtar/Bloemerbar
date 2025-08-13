@@ -272,6 +272,54 @@ document.addEventListener("DOMContentLoaded", () => {
     duration: 1,
   });
 
+  // --- Minimalist SVG Animation on the first brand-splash ---
+  try {
+    const brandSplash = document.querySelector('.brand-splash');
+    if (brandSplash) {
+      const pieces = brandSplash.querySelectorAll('.svg-piece');
+      if (pieces && pieces.length) {
+        const partyColors = ['#d946ef', '#06b6d4', '#34d399', '#f59e0b', '#ef4444', '#6366f1'];
+
+        gsap.set(pieces, {
+          autoAlpha: 0,
+          scale: 0.2,
+          transformOrigin: '50% 50%',
+          x: () => (Math.random() - 0.5) * 400,
+          y: () => (Math.random() - 0.5) * 400,
+          rotation: () => (Math.random() - 0.5) * 360,
+        });
+
+        const assembleTl = gsap.timeline({ onComplete: startPartyLights });
+        assembleTl.to(pieces, {
+          duration: 2,
+          autoAlpha: 1,
+          scale: 1,
+          x: 0,
+          y: 0,
+          rotation: 0,
+          ease: 'power3.out',
+          stagger: { each: 0.05, from: 'random' },
+        });
+
+        function startPartyLights() {
+          const colorsTl = gsap.timeline({ repeat: -1 });
+          partyColors.forEach((color) => {
+            colorsTl.to(
+              pieces,
+              {
+                duration: 0.7,
+                fill: color,
+                ease: 'power1.inOut',
+                stagger: { each: 0.03, from: 'random' },
+              },
+              '+=0.2'
+            );
+          });
+        }
+      }
+    }
+  } catch (e) {}
+
   // ===== Gallery (Pinned Cards) =====
   document.querySelectorAll(".pinned").forEach((pinnedSection) => {
     const stickyHeader = pinnedSection.querySelector(".sticky-header");

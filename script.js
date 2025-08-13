@@ -9,20 +9,21 @@ window.scrollTo(0, 10);
 
 document.addEventListener("DOMContentLoaded", () => {
   gsap.registerPlugin(ScrollTrigger);
-  // Duplicate the full main wrapper for long page length (Lenis will wrap)
-  try {
-    const main = document.querySelector('.main-wrapper');
-    if (main) {
-      const fragment = document.createDocumentFragment();
-      // create several copies to ensure enough scroll distance
-      const copies = 5; // adjust as needed
-      for (let i = 0; i < copies; i++) {
-        const clone = main.cloneNode(true);
-        fragment.appendChild(clone);
-      }
-      document.body.appendChild(fragment);
-    }
-  } catch (e) {}
+  // Use Lenis-based wrap for infinite experience without duplicating the main wrapper
+    // Duplicate the full main wrapper for long page length (Lenis will wrap)
+    // try {
+    //   const main = document.querySelector('.main-wrapper');
+    //   if (main) {
+    //     const fragment = document.createDocumentFragment();
+    //     // create several copies to ensure enough scroll distance
+    //     const copies = 5; // adjust as needed
+    //     for (let i = 0; i < copies; i++) {
+    //       const clone = main.cloneNode(true);
+    //       fragment.appendChild(clone);
+    //     }
+    //     document.body.appendChild(fragment);
+    //   }
+    // } catch (e) {}
   // Prepare all marquees for a seamless infinite loop (two identical lists per track)
   try {
     document.querySelectorAll('.marquee__wrapper').forEach((track) => {

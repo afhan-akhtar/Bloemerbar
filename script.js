@@ -77,9 +77,11 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   });
 
-  // flicker animation: intro text
+  // flicker animation: intro text (safeguarded if targets missing)
   function flickerAnimation(targets, toOpacity) {
-    gsap.to(targets, {
+    const elements = typeof targets === "string" ? document.querySelectorAll(targets) : targets;
+    if (!elements || elements.length === 0) return;
+    gsap.to(elements, {
       opacity: toOpacity,
       duration: 0.05,
       stagger: {
@@ -468,14 +470,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const progress = self.progress * (cardCount + 1);
         const currentCard = Math.floor(progress);
 
-        if (progress <= 1) {
-          gsap.to(stickyHeader, {
-            opacity: 1 - progress,
-            duration: 0.1,
-            ease: "none",
-          });
-        } else {
-          gsap.set(stickyHeader, { opacity: 0 });
+        if (stickyHeader) {
+          if (progress <= 1) {
+            gsap.to(stickyHeader, {
+              opacity: 1 - progress,
+              duration: 0.1,
+              ease: "none",
+            });
+          } else {
+            gsap.set(stickyHeader, { opacity: 0 });
+          }
         }
 
         if (progress > 1 && !isProgressBarVisible) {

@@ -9,7 +9,7 @@
 html,
 body {
   width: 100%;
-  height: 700vh !important;
+  height: 800vh !important;
   font-family: "Oswald", sans-serif;
 }
 
@@ -165,6 +165,41 @@ body {
   height: auto;
 }
 
+/* ===== City story (8/4 flex layout) ===== */
+.city-story {
+  padding: 3rem 7rem;
+}
+
+.city-story__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.city-story__text {
+  flex: 0 0 66.6667%;
+  max-width: 66.6667%;
+}
+
+.city-story__badge {
+  flex: 0 0 33.3333%;
+  max-width: 33.3333%;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .city-story__inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .city-story__text,
+  .city-story__badge {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
   to { transform: translateX(-100%); }
@@ -217,6 +252,85 @@ section {
   height: 100vh;
 }
 
+/* ===== Brand Splash (Section 2) ===== */
+.brand-splash {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: #fff3d7;
+  overflow: hidden;
+}
+
+.brand-splash .bg-title {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 300px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #f6c2d3;
+  opacity: 0.9;
+  user-select: none;
+  pointer-events: none;
+}
+
+.brand-illustration {
+  width: 300px;
+  height: auto;
+  z-index: 1;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.18));
+}
+
+.sticker {
+  position: absolute;
+  right: clamp(10px, 4vw, 40px);
+  top: 50%;
+  transform: translateY(-40%) rotate(-2deg);
+  background: #0b5b40;
+  color: #def2ff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+  border: 3px solid #e7f7f8;
+  z-index: 2;
+}
+
+.sticker-line {
+  display: block;
+  font-size: clamp(18px, 2.8vw, 36px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 900px) {
+  .brand-illustration { width: min(72vw, 520px); }
+  .sticker { transform: translateY(-40%) rotate(-2deg) scale(0.95); }
+}
+
+/* Corners: recruitment and socials on Brand Splash */
+.corner-left,
+.corner-right { position: absolute; bottom: 24px; display: flex; align-items: center; gap: 16px; }
+.corner-left { left: 24px; }
+.corner-right { right: 24px; }
+
+.brand-link { color: #0b5b40; display: inline-flex; align-items: center; gap: 10px; transition: color .25s ease; text-decoration: none; }
+.brand-link .small-link-text { color: #0b5b40; font-weight: 700; }
+.brand-link:hover .small-link-text { color: #ff9700; }
+.brand-link .link-arrow { width: 20px; height: 20px; color: currentColor; display: inline-block; }
+.brand-link:hover, .brand-link:focus { color: #ff9700; text-decoration: none; }
+.brand-link:hover .link-arrow { animation: arrow-hide-show .6s ease both; }
+
+.social-icons { color: #0b5b40; gap: 18px; }
+.social-link { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 8px; background: rgba(13,94,64,0.06); border: 2px solid rgba(13,94,64,0.2); transition: transform .15s ease, background .2s ease; }
+.social-link:hover { transform: translateY(-2px); background: rgba(13,94,64,0.14); }
+
+@media (max-width: 700px) {
+  .corner-left { left: 14px; bottom: 16px; }
+  .corner-right { right: 14px; bottom: 16px; }
+}
+
 .hero {
   padding: 4em;
   display: flex;
@@ -256,7 +370,7 @@ section {
 }
 
 .vision-display {
-  font-size: clamp(42px, 9vw, 120px);
+  font-size: 90px;
   line-height: 0.9;
   text-transform: uppercase;
   color: #def2ff;

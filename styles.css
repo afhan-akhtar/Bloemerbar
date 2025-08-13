@@ -551,7 +551,7 @@ section {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #03442B;
+  background-color: #000;
 }
 
 .sticky-header {

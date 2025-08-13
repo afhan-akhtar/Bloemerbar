@@ -467,13 +467,13 @@ document.addEventListener("DOMContentLoaded", () => {
         showProgressAndIndices();
       },
       onUpdate: (self) => {
-        const progress = self.progress * (cardCount + 1);
-        const currentCard = Math.floor(progress);
+        const sectionProgress = self.progress * (cardCount + 1);
 
+        // Handle sticky header fade during the intro phase (0 → 1)
         if (stickyHeader) {
-          if (progress <= 1) {
+          if (sectionProgress <= 1) {
             gsap.to(stickyHeader, {
-              opacity: 1 - progress,
+              opacity: 1 - sectionProgress,
               duration: 0.1,
               ease: "none",
             });
@@ -482,18 +482,33 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        if (progress > 1 && !isProgressBarVisible) {
-          showProgressAndIndices();
-        } else if (progress <= 1 && isProgressBarVisible) {
-          hideProgressAndIndices();
+        // Keep cards offscreen during the intro/empty phase
+        if (sectionProgress <= 1) {
+          if (isProgressBarVisible) hideProgressAndIndices();
+          cards.forEach((card, index) => {
+            if (index === 0) {
+              // Keep the first card visible and centered during intro
+              gsap.set(card, { top: "50%", rotation: endRotations[0] });
+            } else {
+              gsap.set(card, { top: "115%", rotation: startRotations[index] });
+            }
+          });
+          return;
         }
 
-        let progressHeight = 0;
-        let colorIndex = -1;
-        if (progress > 1) {
-          progressHeight = ((progress - 1) / cardCount) * 100;
-          colorIndex = Math.min(Math.floor(progress - 1), cardCount - 1);
+        // After intro, show progress/indices and drive cards
+        if (!isProgressBarVisible) {
+          showProgressAndIndices();
         }
+
+        const progress = sectionProgress - 1; // 0 → cardCount
+        const currentCardRaw = Math.floor(progress);
+        // Treat the first card as already completed once we enter the gallery section
+        const currentCard = Math.max(1, currentCardRaw);
+
+        let progressHeight = (progress / cardCount) * 100;
+        progressHeight = Math.max(0, Math.min(progressHeight, 100));
+        const colorIndex = Math.min(Math.floor(progress), cardCount - 1);
 
         gsap.to(progressBar, {
           height: `${progressHeight}%`,
@@ -510,7 +525,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (index < currentCard) {
             gsap.set(card, { top: "50%", rotation: endRotations[index] });
           } else if (index === currentCard) {
-            const cardProgress = progress - currentCard;
+            const cardProgress = progress - currentCard; // 0 → 1 within the current card
             const newTop = gsap.utils.interpolate(115, 50, cardProgress);
             const newRotation = gsap.utils.interpolate(
               startRotations[index],

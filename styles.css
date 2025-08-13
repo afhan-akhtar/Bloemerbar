@@ -172,7 +172,7 @@ body {
 
 /* ===== City story (8/4 flex layout) ===== */
 .city-story {
-  padding: 3rem 7rem;
+  padding: 3rem 7rem 7rem 4rem;
 }
 
 .city-story__inner {
@@ -271,17 +271,18 @@ section {
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: 300px;
+  font-size: 170px;
   font-weight: 900;
   letter-spacing: 0.02em;
   color: #f6c2d3;
-  opacity: 0.9;
+  opacity: 0.3;
   user-select: none;
   pointer-events: none;
+  
 }
 
 .brand-illustration {
-  width: 300px;
+  width: 380px;
   height: auto;
   z-index: 1;
   filter: drop-shadow(0 8px 24px rgba(0,0,0,0.18));
@@ -551,7 +552,7 @@ section {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #000;
+  background-color: #fef8dd;
 }
 
 .sticky-header {

@@ -634,14 +634,14 @@ lenis.on("scroll", ({ scroll, limit }) => {
     const localThreshold = 5;
 
     const cityData = [
-      { name: "Bordeaux", bg: "#e3f2fd", fg: "#0d47a1" },
-      { name: "Versailles", bg: "#fff3e0", fg: "#e65100" },
-      { name: "Lille", bg: "#f3e5f5", fg: "#6a1b9a" },
-      { name: "Rennes", bg: "#ede7f6", fg: "#311b92" },
-      { name: "Toulouse", bg: "#f1f8e9", fg: "#1b5e20" },
-      { name: "Lyon", bg: "#fff8e1", fg: "#f57f17" },
-      { name: "Marseille", bg: "#e0f7fa", fg: "#006064" },
-      { name: "Paris", bg: "#ffebee", fg: "#b71c1c" },
+      { name: "Bordeaux", bg: "#0d47a1", fg: "#e3f2fd" },
+      { name: "Versailles", bg: "#e65100", fg: "#fff3e0" },
+      { name: "Lille", bg: "#6a1b9a", fg: "#f3e5f5" },
+      { name: "Rennes", bg: "#311b92", fg: "#ede7f6" },
+      { name: "Toulouse", bg: "#1b5e20", fg: "#f1f8e9" },
+      { name: "Lyon", bg: "#f57f17", fg: "#fff8e1" },
+      { name: "Marseille", bg: "#006064", fg: "#e0f7fa" },
+      { name: "Paris", bg: "#b71c1c", fg: "#ffebee" },
     ];
 
     let index = 0;

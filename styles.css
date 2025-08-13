@@ -232,29 +232,61 @@ section {
   text-align: center;
 }
 
-.about {
-  padding: 4em 12em;
+/* Our vision section */
+.about.vision {
+  padding: clamp(2rem, 4vw, 4rem);
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: stretch;
+  gap: clamp(1.25rem, 4vw, 3rem);
+  background: #fff3d7;
+}
+
+.vision-media {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.vision-content {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  gap: 10em;
-  background-color: #ff9700;
+  gap: clamp(1rem, 2.5vw, 2rem);
 }
 
-.about-img,
-.about-copy {
-  flex: 1;
+.vision-display {
+  font-size: clamp(42px, 9vw, 120px);
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: #def2ff;
+  -webkit-text-stroke: 1px rgba(0,0,0,0.05);
 }
 
-.about-img {
-  height: 75%;
-  border: 2px solid #000;
+.vision-desc {
+  text-transform: none;
+  color: #2e3a67;
+  font-weight: 500;
+  font-size: clamp(14px, 1.25vw, 18px);
 }
 
-.about-copy h1 {
-  text-align: center;
-  font-size: 10vw;
-  color: #9dd0d4;
+.vision-cta {
+  align-self: start;
+  text-decoration: none;
+  background: #9dd0d4;
+  color: #00243a;
+  padding: 14px 22px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: .5px;
+  transition: transform .15s ease, background .2s ease;
+}
+
+.vision-cta:hover { transform: translateY(-2px); background: #b9e1e3; }
+
+@media (max-width: 900px) {
+  .about.vision { grid-template-columns: 1fr; }
 }
 
 .footer {

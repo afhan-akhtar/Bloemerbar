@@ -273,20 +273,54 @@ document.addEventListener("DOMContentLoaded", () => {
     const startRotations = [0, 5, 0, -5];
     const endRotations = [-10, -5, 10, 5];
     const progressColors = ["#FFD1DC", "#AEC6CF", "#77DD77", "#C5BBDE"];
-    const gifFiles = [
-      "./assets/Animation1.gif",
-      "./assets/Animation2.gif",
-      "./assets/Animation1.gif",
-      "./assets/Animation2.gif",
+    // Image sequences per card for fast hover animation (Pub, Club, Terrace, Streetfood)
+    const cardImageSequences = [
+      [
+       
+        "./assets/pub_1.jpg",
+        "./assets/pub_2.jpg",
+        "./assets/pub_3.jpg",
+        "./assets/pub_4.jpg",
+      ],
+      [
+        "./assets/club_1.jpg",
+        "./assets/club_2.jpg",
+        "./assets/club_3.jpg",
+        "./assets/club_4.jpg",
+      ],
+      [
+        "./assets/terrace_1.jpg",
+        "./assets/terrace_2.jpg",
+        "./assets/terrace_3.jpg",
+        "./assets/terrace_4.jpg",
+      ],
+      [
+        "./assets/interior_1.jpg",
+        "./assets/interrior_2.jpg",
+        "./assets/interior_1.jpg",
+        "./assets/interrior_2.jpg",
+      ],
     ];
+
+    // Preload all images to avoid flicker on hover
+    try {
+      cardImageSequences.flat().forEach((src) => {
+        const im = new Image();
+        im.decoding = "async";
+        im.loading = "eager";
+        im.src = src;
+      });
+    } catch (e) {}
 
     let isProgressBarVisible = false;
     let currentActiveIndex = -1;
 
     cards.forEach((card, index) => {
       gsap.set(card, { rotation: startRotations[index] });
+
+      const sequence = cardImageSequences[index] || [];
       const img = document.createElement("img");
-      img.src = gifFiles[index] || "./assets/Animation1.gif";
+      img.src = sequence[0] || "./assets/Animation1.gif";
       img.alt = `Card ${index + 1}`;
       img.style.width = "100%";
       img.style.height = "100%";
@@ -296,6 +330,33 @@ document.addEventListener("DOMContentLoaded", () => {
       img.style.left = 0;
       img.style.zIndex = 0;
       card.appendChild(img);
+
+      // Fast hover animation: cycle through category images
+      let frameIndex = 0;
+      let intervalId = null;
+      const frameMs = 300; // speed per frame (slower)
+
+      function startHoverAnimation() {
+        if (!sequence || sequence.length <= 1 || intervalId) return;
+        intervalId = setInterval(() => {
+          frameIndex = (frameIndex + 1) % sequence.length;
+          img.src = sequence[frameIndex];
+        }, frameMs);
+      }
+
+      function stopHoverAnimation() {
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+        frameIndex = 0;
+        if (sequence[0]) img.src = sequence[0];
+      }
+
+      card.addEventListener("mouseenter", startHoverAnimation);
+      card.addEventListener("mouseleave", stopHoverAnimation);
+      card.addEventListener("touchstart", startHoverAnimation, { passive: true });
+      card.addEventListener("touchend", stopHoverAnimation);
     });
 
     function animateIndexOpacity(newIndex) {

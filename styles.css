@@ -27,7 +27,7 @@ body {
   display: flex;
   gap: 3rem;
   align-items: center;
-  padding: 50px 0;
+  padding: 80px 0;
   justify-content: space-around
 }
 
@@ -52,7 +52,7 @@ body {
   content: attr(data-email);
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 10px);
+  bottom: calc(100% + 0px);
   transform: translateX(-50%) rotate(-6deg) scale(0.98);
   background: #c0392b;
   color: #fff;

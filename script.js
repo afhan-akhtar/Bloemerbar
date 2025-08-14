@@ -11,19 +11,19 @@ document.addEventListener("DOMContentLoaded", () => {
   gsap.registerPlugin(ScrollTrigger);
   // Use Lenis-based wrap for infinite experience without duplicating the main wrapper
     // Duplicate the full main wrapper for long page length (Lenis will wrap)
-    // try {
-    //   const main = document.querySelector('.main-wrapper');
-    //   if (main) {
-    //     const fragment = document.createDocumentFragment();
-    //     // create several copies to ensure enough scroll distance
-    //     const copies = 5; // adjust as needed
-    //     for (let i = 0; i < copies; i++) {
-    //       const clone = main.cloneNode(true);
-    //       fragment.appendChild(clone);
-    //     }
-    //     document.body.appendChild(fragment);
-    //   }
-    // } catch (e) {}
+    try {
+      const main = document.querySelector('.main-wrapper');
+      if (main) {
+        const fragment = document.createDocumentFragment();
+        // create several copies to ensure enough scroll distance
+        const copies = 5; // adjust as needed
+        for (let i = 0; i < copies; i++) {
+          const clone = main.cloneNode(true);
+          fragment.appendChild(clone);
+        }
+        document.body.appendChild(fragment);
+      }
+    } catch (e) {}
   // Prepare all marquees for a seamless infinite loop (two identical lists per track)
   try {
     document.querySelectorAll('.marquee__wrapper').forEach((track) => {
@@ -275,52 +275,73 @@ document.addEventListener("DOMContentLoaded", () => {
   //   duration: 1,
   // });
 
-  // --- Minimalist SVG Animation on the first brand-splash ---
+  // --- Minimalist SVG Animation on all brand-splash instances (including clones) ---
   try {
-    const brandSplash = document.querySelector('.brand-splash');
-    if (brandSplash) {
-      const pieces = brandSplash.querySelectorAll('.svg-piece');
-      if (pieces && pieces.length) {
-        const partyColors = ['#d946ef', '#06b6d4', '#34d399', '#f59e0b', '#ef4444', '#6366f1'];
+    const initializedBrandSplash = new WeakSet();
 
-        gsap.set(pieces, {
-          autoAlpha: 0,
-          scale: 0.2,
-          transformOrigin: '50% 50%',
-          x: () => (Math.random() - 0.5) * 400,
-          y: () => (Math.random() - 0.5) * 400,
-          rotation: () => (Math.random() - 0.5) * 360,
+    function initBrandSplashAnimation(brandSplashEl) {
+      if (!brandSplashEl) return;
+      if (initializedBrandSplash.has(brandSplashEl)) return;
+      const pieces = brandSplashEl.querySelectorAll('.svg-piece');
+      if (!pieces || !pieces.length) return;
+
+      const partyColors = ['#d946ef', '#06b6d4', '#34d399', '#f59e0b', '#ef4444', '#6366f1'];
+
+      gsap.set(pieces, {
+        autoAlpha: 0,
+        scale: 0.2,
+        transformOrigin: '50% 50%',
+        x: () => (Math.random() - 0.5) * 400,
+        y: () => (Math.random() - 0.5) * 400,
+        rotation: () => (Math.random() - 0.5) * 360,
+      });
+
+      function startPartyLights() {
+        const colorsTl = gsap.timeline({ repeat: -1 });
+        partyColors.forEach((color) => {
+          colorsTl.to(
+            pieces,
+            {
+              duration: 0.7,
+              fill: color,
+              ease: 'power1.inOut',
+              stagger: { each: 0.03, from: 'random' },
+            },
+            '+=0.2'
+          );
         });
-
-        const assembleTl = gsap.timeline({ onComplete: startPartyLights });
-        assembleTl.to(pieces, {
-          duration: 2,
-          autoAlpha: 1,
-          scale: 1,
-          x: 0,
-          y: 0,
-          rotation: 0,
-          ease: 'power3.out',
-          stagger: { each: 0.05, from: 'random' },
-        });
-
-        function startPartyLights() {
-          const colorsTl = gsap.timeline({ repeat: -1 });
-          partyColors.forEach((color) => {
-            colorsTl.to(
-              pieces,
-              {
-                duration: 0.7,
-                fill: color,
-                ease: 'power1.inOut',
-                stagger: { each: 0.03, from: 'random' },
-              },
-              '+=0.2'
-            );
-          });
-        }
       }
+
+      const assembleTl = gsap.timeline({ onComplete: startPartyLights });
+      assembleTl.to(pieces, {
+        duration: 2,
+        autoAlpha: 1,
+        scale: 1,
+        x: 0,
+        y: 0,
+        rotation: 0,
+        ease: 'power3.out',
+        stagger: { each: 0.05, from: 'random' },
+      });
+
+      initializedBrandSplash.add(brandSplashEl);
     }
+
+    document.querySelectorAll('.brand-splash').forEach((el) => initBrandSplashAnimation(el));
+
+    // Observe for dynamically added brand-splash elements (e.g., when cloning for infinite scroll)
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof Element)) return;
+          if (node.matches && node.matches('.brand-splash')) {
+            initBrandSplashAnimation(node);
+          }
+          node.querySelectorAll && node.querySelectorAll('.brand-splash').forEach((el) => initBrandSplashAnimation(el));
+        });
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
   } catch (e) {}
 
   // ===== Gallery (Pinned Cards) =====

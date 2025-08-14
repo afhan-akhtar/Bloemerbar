@@ -563,6 +563,67 @@ section {
   opacity: 1;
 }
 
+/* ===== Quad CTA (after cards) ===== */
+.quad-cta {
+  width: 100vw;
+  background: #fff3d7;
+}
+
+.quad-cta__bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  background: #d7efc2;
+  border-top: 8px solid #194d38;
+  border-bottom: 8px solid #194d38;
+}
+
+.quad-cta__link {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: clamp(14px, 2.2vw, 24px) clamp(12px, 2vw, 20px);
+  text-decoration: none;
+  color: #0a3a2b;
+  border-right: 3px solid #194d38;
+}
+
+.quad-cta__link:last-child { border-right: 0; }
+
+.quad-cta__text {
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.quad-cta__chevron {
+  font-size: clamp(26px, 5vw, 48px);
+  line-height: 1;
+}
+
+.quad-cta__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  border-left: 4px solid #194d38;
+  border-right: 4px solid #194d38;
+  border-bottom: 4px solid #194d38;
+}
+
+.quad-cta__item {
+  display: block;
+  aspect-ratio: 4/5;
+  overflow: hidden;
+}
+
+.quad-cta__item img { transition: transform .35s ease; }
+.quad-cta__item:hover img { transform: scale(1.04); }
+
+@media (max-width: 900px) {
+  .quad-cta__bar { grid-template-columns: 1fr 1fr; }
+  .quad-cta__grid { grid-template-columns: 1fr 1fr; }
+}
+
 .sticky-header h1 {
   font-size: 19vw;
   font-weight: 300;

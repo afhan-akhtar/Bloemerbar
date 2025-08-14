@@ -161,28 +161,39 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } catch (_) {}
 
-      // 5) Quad-CTA bar and grid
+      // 5) Quad-CTA bar and grid (Services first 3, then first Bingo Event)
       try {
         const servicesBlock = findBlock(blocks, "block.service-list");
         const eventsBlock = findBlock(blocks, "block.event-list");
         const services = (servicesBlock && servicesBlock.Services) || [];
         const events = (eventsBlock && eventsBlock.bingoEvents) || [];
-        const items = [services[0], services[1], services[2], events[0]].filter(Boolean);
+        const items = [services[0], services[1], services[2], events[0]];
         document.querySelectorAll('.quad-cta').forEach((section) => {
           const barLinks = section.querySelectorAll('.quad-cta__bar .quad-cta__link');
           const gridImgs = section.querySelectorAll('.quad-cta__grid .quad-cta__item img');
-          items.forEach((it, i) => {
-            const title = it.title || "";
-            const imgUrl = mediaUrl(it.image && it.image.url);
-            if (barLinks[i]) {
-              const span = barLinks[i].querySelector('.quad-cta__text');
-              if (span) span.textContent = title;
+          // Fill titles/images; hide unused slots
+          barLinks.forEach((link, i) => {
+            const item = items[i];
+            const span = link && link.querySelector('.quad-cta__text');
+            if (item && span) {
+              span.textContent = item.title || '';
+              link.style.display = '';
+            } else if (link) {
+              link.style.display = 'none';
             }
-            if (gridImgs[i] && imgUrl) {
-              gridImgs[i].src = imgUrl;
-              gridImgs[i].alt = title;
-              gridImgs[i].loading = "lazy";
-              gridImgs[i].decoding = "async";
+          });
+          gridImgs.forEach((img, i) => {
+            const item = items[i];
+            const parent = img && img.closest('.quad-cta__item');
+            const imageUrl = item && item.image && item.image.url ? mediaUrl(item.image.url) : '';
+            if (item && imageUrl) {
+              img.src = imageUrl;
+              img.alt = item.title || '';
+              img.loading = 'lazy';
+              img.decoding = 'async';
+              if (parent) parent.style.display = '';
+            } else if (parent) {
+              parent.style.display = 'none';
             }
           });
         });
@@ -239,27 +250,49 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (_) {}
 
-      // 8) Pinned cards: titles and first images from gallery
+      // 8) Pinned cards: titles and images from Gallery (API order)
       try {
         const galleryBlock = findBlock(blocks, "block.gallery-section");
         const gallery = (galleryBlock && galleryBlock.Gallery) || [];
-        const order = ["PUB", "CLUB", "TERRACE", "Interior"];
         const titleToImages = Object.fromEntries(
           gallery.map((g) => [g.title, (g.images || []).map((im) => mediaUrl(im && im.url)).filter(Boolean)])
         );
-        document.querySelectorAll('.pinned .card').forEach((card, idx) => {
-          const wantTitle = order[idx] || order[0];
-          const images = titleToImages[wantTitle] || [];
-          const titleEl = card.querySelector('.card-title h1');
-          if (titleEl) titleEl.textContent = wantTitle;
-          const img = card.querySelector('img');
-          if (img && images[0]) {
-            img.src = images[0];
-            img.alt = wantTitle;
+
+        function renderPinnedSection(pinnedRoot) {
+          if (!pinnedRoot) return;
+          const cards = pinnedRoot.querySelectorAll('.card');
+          cards.forEach((card, idx) => {
+            const g = gallery[idx];
+            const title = g && g.title ? g.title : '';
+            const images = title ? (titleToImages[title] || []) : [];
+            const titleEl = card.querySelector('.card-title h1');
+            if (titleEl) titleEl.textContent = title || '';
+            const img = card.querySelector('img');
+            if (img && images[0]) {
+              img.src = images[0];
+              img.alt = title || img.alt || '';
+            }
+            card.dataset.images = JSON.stringify(images);
+            card.style.visibility = title ? '' : 'hidden';
+          });
+        }
+
+        // Render into all current pinned sections (original and any existing clones)
+        document.querySelectorAll('.pinned').forEach((section) => renderPinnedSection(section));
+
+        // Observe for dynamically added pinned sections (future clones)
+        const pinnedObserver = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            mutation.addedNodes.forEach((node) => {
+              if (!(node instanceof Element)) return;
+              if (node.matches && node.matches('.pinned')) {
+                renderPinnedSection(node);
+              }
+              node.querySelectorAll && node.querySelectorAll('.pinned').forEach((el) => renderPinnedSection(el));
+            });
           }
-          // Store images for potential future use
-          card.dataset.images = JSON.stringify(images);
         });
+        pinnedObserver.observe(document.body, { childList: true, subtree: true });
       } catch (_) {}
 
       // Expose for debugging if needed
@@ -359,7 +392,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!bookPopup) return;
     // If focus is inside, move it out before hiding from AT
     if (isFocusWithin(bookPopup)) {
-      (previouslyFocusedElement && previouslyFocusedElement.focus) ? previouslyFocusedElement.focus() : document.body.focus();
+      let moved = false;
+      if (previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
+        try { previouslyFocusedElement.focus({ preventScroll: true }); moved = true; } catch (e) {}
+      }
+      if (!moved) {
+        try {
+          const hadTabindex = document.body.hasAttribute('tabindex');
+          if (!hadTabindex) document.body.setAttribute('tabindex', '-1');
+          document.body.focus({ preventScroll: true });
+          if (!hadTabindex) document.body.removeAttribute('tabindex');
+          moved = true;
+        } catch (e) {}
+      }
+      // As a last resort, blur the active element
+      if (bookPopup.contains(document.activeElement) && document.activeElement && document.activeElement.blur) {
+        try { document.activeElement.blur(); } catch (e) {}
+      }
     }
     bookPopup.setAttribute("aria-hidden", "true");
     bookPopup.setAttribute('inert', '');

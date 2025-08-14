@@ -1238,17 +1238,8 @@ lenis.on("scroll", ({ scroll, limit }) => {
 
     const localThreshold = 5;
 
-    // Original static list + non-blocking Strapi name enrichment
-    const cityData = [
-      { name: "Bordeaux", bg: "#0d47a1", fg: "#e3f2fd" },
-      { name: "Versailles", bg: "#e65100", fg: "#fff3e0" },
-      { name: "Lille", bg: "#6a1b9a", fg: "#f3e5f5" },
-      { name: "Rennes", bg: "#311b92", fg: "#ede7f6" },
-      { name: "Toulouse", bg: "#1b5e20", fg: "#f1f8e9" },
-      { name: "Lyon", bg: "#f57f17", fg: "#fff8e1" },
-      { name: "Marseille", bg: "#006064", fg: "#e0f7fa" },
-      { name: "Paris", bg: "#b71c1c", fg: "#ffebee" },
-    ];
+    // Cities populated from Strapi (no hardcoded list)
+    const cityData = [];
 
     let index = 0;
     function applyCity(city) {
@@ -1256,7 +1247,6 @@ lenis.on("scroll", ({ scroll, limit }) => {
       label.style.color = city.fg;
       label.textContent = city.name;
     }
-    applyCity(cityData[0]);
 
     // Animate ticker once over the city list (no repeats)
     let timerId = null;
@@ -1297,43 +1287,70 @@ lenis.on("scroll", ({ scroll, limit }) => {
       }
       timerId = setTimeout(step, stepMs);
     }
-    timerId = setTimeout(step, stepMs);
-
-    // Non-blocking fetch of cities (names and bg/fg colors) from Strapi
+    // Fetch cities from Strapi first; start ticker only when data is ready (with a short timeout fallback)
     (async () => {
+      const base = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://localhost:1337";
+      const timeoutMs = 1500;
+      function timeout(promise) {
+        return Promise.race([
+          promise,
+          new Promise((resolve) => setTimeout(() => resolve(null), timeoutMs)),
+        ]);
+      }
       try {
-        const base = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://localhost:1337";
-        const res = await fetch(`${base}/api/global`);
-        const json = await res.json();
-        const blocks = (json && json.data && json.data.blocks) || [];
-        const citiesBlock = blocks.find && blocks.find((b) => b && b.__component === 'block.cities');
-        const cities = (citiesBlock && citiesBlock.cities) || [];
+        const result = await timeout((async () => {
+          const res = await fetch(`${base}/api/global`).catch(() => null);
+          if (!res) return null;
+          const json = await res.json().catch(() => null);
+          if (!json || !json.data) return null;
+          const blocks = Array.isArray(json.data.blocks) ? json.data.blocks : [];
+          const citiesBlock = blocks.find((b) => b && b.__component === 'block.cities');
+          const cities = (citiesBlock && Array.isArray(citiesBlock.cities)) ? citiesBlock.cities : [];
 
-        // Try to also read theme for fallback colors
+          // Also read theme for fallback colors
+          let theme = null;
+          try {
+            const settRes = await fetch(`${base}/api/sett`).catch(() => null);
+            const settJson = settRes ? await settRes.json().catch(() => null) : null;
+            const colors = (settJson && settJson.data && Array.isArray(settJson.data.colors)) ? settJson.data.colors : [];
+            theme = colors && colors.length ? colors[0] : null;
+          } catch (_) {}
+
+          return { cities, theme };
+        })());
+
+        let cities = [];
         let theme = null;
-        try {
-          const settRes = await fetch(`${base}/api/sett`);
-          const settJson = await settRes.json();
-          const colors = settJson && settJson.data && Array.isArray(settJson.data.colors) ? settJson.data.colors : [];
+        if (result && Array.isArray(result.cities)) {
+          cities = result.cities;
+          theme = result.theme || null;
+        } else if (window.__STRAPI__ && window.__STRAPI__.blocks) {
+          // Fallback to already-fetched blocks if available
+          const blocks = window.__STRAPI__.blocks || [];
+          const citiesBlock = blocks.find((b) => b && b.__component === 'block.cities');
+          cities = (citiesBlock && Array.isArray(citiesBlock.cities)) ? citiesBlock.cities : [];
+          const sett = window.__STRAPI__.sett || {};
+          const colors = Array.isArray(sett.colors) ? sett.colors : [];
           theme = colors && colors.length ? colors[0] : null;
-        } catch (_) {}
+        }
 
-        // Update or extend cityData with Strapi labels and colors
-        const count = Math.max(cities.length, cityData.length);
-        for (let i = 0; i < count; i++) {
-          const city = cities[i];
-          const name = city && city.label ? city.label : (cityData[i] ? cityData[i].name : undefined);
-          const bg = (city && city.backgroundColor) || (theme && theme.primaryColor) || (cityData[i] && cityData[i].bg) || "#0d47a1";
-          const fg = (city && city.color) || (theme && theme.whiteColor) || (cityData[i] && cityData[i].fg) || "#ffffff";
-          if (cityData[i]) {
-            if (name) cityData[i].name = name;
-            cityData[i].bg = bg;
-            cityData[i].fg = fg;
-          } else if (name) {
-            cityData.push({ name, bg, fg });
-          }
+        for (const c of cities) {
+          const name = c && c.label ? c.label : null;
+          if (!name) continue;
+          const bg = (c && c.backgroundColor) || (theme && theme.primaryColor) || "#0d47a1";
+          const fg = (c && c.color) || (theme && theme.whiteColor) || "#ffffff";
+          cityData.push({ name, bg, fg });
         }
       } catch (_) {}
+
+      if (!cityData.length) {
+        // No dynamic cities available; skip the ticker
+        if (typeof hideOverlay === "function") hideOverlay();
+        return;
+      }
+
+      applyCity(cityData[0]);
+      timerId = setTimeout(step, stepMs);
     })();
 
     // Hide overlay when ticker finishes

@@ -58,16 +58,53 @@ document.addEventListener("DOMContentLoaded", () => {
   // Book Now Popup controls (single instance outside clones)
   const bookPopup = document.getElementById("book-now-popup");
   let isBookPopupOpen = false;
+  let previouslyFocusedElement = null;
+  const focusableSelectors = [
+    'a[href]','area[href]','input:not([disabled])','select:not([disabled])','textarea:not([disabled])',
+    'button:not([disabled])','iframe','object','embed','[contenteditable]','[tabindex]:not([tabindex="-1"])'
+  ].join(',');
+  const getFocusable = (root) => Array.from((root || document).querySelectorAll(focusableSelectors))
+    .filter(el => el.offsetParent !== null || el === document.activeElement);
+  const isFocusWithin = (root) => root && root.contains(document.activeElement);
+  const setInert = (el, value) => {
+    if (!el) return;
+    if (value) {
+      el.setAttribute('inert', '');
+      el.setAttribute('aria-hidden', 'true');
+    } else {
+      el.removeAttribute('inert');
+      // leave aria-hidden control to caller for modal itself
+    }
+  };
+  function inertBackground(enable) {
+    const bodyChildren = Array.from(document.body.children);
+    bodyChildren.forEach((child) => {
+      if (child === bookPopup) return;
+      setInert(child, enable);
+    });
+  }
 
   function openBookPopup() {
     if (!bookPopup || isBookPopupOpen) return;
+    previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    inertBackground(true);
+    bookPopup.removeAttribute('inert');
     bookPopup.setAttribute("aria-hidden", "false");
     isBookPopupOpen = true;
+    const focusables = getFocusable(bookPopup);
+    const target = bookPopup.querySelector('.book-popup__close') || focusables[0];
+    if (target && typeof target.focus === 'function') target.focus();
   }
 
   function closeBookPopup() {
     if (!bookPopup) return;
+    // If focus is inside, move it out before hiding from AT
+    if (isFocusWithin(bookPopup)) {
+      (previouslyFocusedElement && previouslyFocusedElement.focus) ? previouslyFocusedElement.focus() : document.body.focus();
+    }
     bookPopup.setAttribute("aria-hidden", "true");
+    bookPopup.setAttribute('inert', '');
+    inertBackground(false);
     isBookPopupOpen = false;
   }
 
@@ -75,6 +112,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (bookPopup) {
       const closeBtn = bookPopup.querySelector(".book-popup__close");
       if (closeBtn) closeBtn.addEventListener("click", closeBookPopup);
+      // Simple focus trap
+      bookPopup.addEventListener('keydown', (e) => {
+        if (!isBookPopupOpen || e.key !== 'Tab') return;
+        const focusables = getFocusable(bookPopup);
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey) {
+          if (active === first || !bookPopup.contains(active)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (active === last || !bookPopup.contains(active)) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      });
       bookPopup.addEventListener("click", (evt) => {
         if (evt.target === bookPopup) closeBookPopup();
       });

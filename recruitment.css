@@ -10,7 +10,7 @@ body { font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto, sans-s
   min-height: 100vh;
 }
 
-.recruitment-left { background:#0b3f31; padding: 56px 48px; display:flex; flex-direction: column; gap: 32px; }
+.recruitment-left { background:#0b3f31; padding: clamp(24px, 4vw, 56px) clamp(18px, 4vw, 48px); display:flex; flex-direction: column; gap: 32px; }
 
 .brand { display:flex; flex-direction: column; gap: 10px; }
 .brand-mark { font-weight: 900; letter-spacing: 4px; font-size: clamp(20px, 3.2vw, 32px); color:#9dd0d4; }
@@ -74,6 +74,10 @@ body { font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto, sans-s
 @media (max-width: 980px) {
   .recruitment { grid-template-columns: 1fr; }
   .recruitment-right { min-height: 48vh; }
+}
+
+@media (max-width: 680px) {
+  .field-row { grid-template-columns: 1fr; gap: 16px; }
 }
 
 

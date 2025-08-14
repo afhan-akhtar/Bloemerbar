@@ -9,9 +9,11 @@
 html,
 body {
   width: 100%;
-  height: 800vh !important;
+  height: auto;
+  min-height: 100%;
   font-family: "Oswald", sans-serif;
 }
+body { overflow-x: hidden; }
 
 /* ===== Top Marquee ===== */
 .top-marquee {
@@ -28,7 +30,17 @@ body {
   gap: 3rem;
   align-items: center;
   padding: 60px 0px 0px 0px;
-  justify-content: space-around
+  justify-content: space-around;
+}
+
+@media (max-width: 900px) {
+  .bb-top .nav-hero {
+    padding: 24px 16px 8px 16px;
+    gap: 1.25rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
 }
 
 .bb-top .small-link {
@@ -149,7 +161,7 @@ body {
   will-change: transform;
 }
 .small-link-text {
-  font-size: 26px;
+  font-size: clamp(14px, 3.2vw, 26px);
 }
 .marquee__wrapper .collection-item {
   display: inline-flex;
@@ -158,7 +170,7 @@ body {
 }
 
 .heading-city {
-  font-size: clamp(48px, 18vw, 220px);
+  font-size: clamp(36px, 14vw, 220px);
   font-weight: 900;
   color: #f6c2d3;
   letter-spacing: 0.02em;
@@ -166,13 +178,13 @@ body {
 }
 
 .img-ville {
-  width: 300px;
+  width: clamp(140px, 28vw, 300px);
   height: auto;
 }
 
 /* ===== City story (8/4 flex layout) ===== */
 .city-story {
-  padding: 3rem 7rem 7rem 4rem;
+  padding: clamp(1.25rem, 4vw, 3rem) clamp(1rem, 6vw, 7rem) clamp(2rem, 6vw, 7rem) clamp(1rem, 4vw, 4rem);
 }
 
 .city-story__inner {
@@ -204,6 +216,8 @@ body {
     max-width: 100%;
   }
 }
+
+.city-story__text p { font-size: clamp(14px, 4.2vw, 24px) !important; line-height: 1.4; }
 
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
@@ -257,6 +271,10 @@ section {
   height: 100vh;
 }
 
+@supports (height: 100svh) {
+  section { height: 100svh; }
+}
+
 /* ===== Brand Splash (Section 2) ===== */
 .brand-splash {
   position: relative;
@@ -271,7 +289,7 @@ section {
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: 170px;
+  font-size: clamp(42px, 12vw, 170px);
   font-weight: 900;
   letter-spacing: 0.02em;
   color: #f6c2d3;
@@ -337,6 +355,8 @@ section {
   .corner-right { right: 14px; bottom: 16px; }
 }
 
+.corner-left, .corner-right { padding-bottom: env(safe-area-inset-bottom, 0); }
+
 .hero {
   padding: 4em;
   display: flex;
@@ -376,7 +396,7 @@ section {
 }
 
 .vision-display {
-  font-size: 90px;
+  font-size: clamp(36px, 10vw, 90px);
   line-height: 0.9;
   text-transform: uppercase;
   color: #def2ff;
@@ -592,7 +612,7 @@ section {
 .quad-cta__link:last-child { border-right: 0; }
 
 .quad-cta__text {
-  font-size: 40px;
+  font-size: clamp(16px, 4.5vw, 40px);
   font-weight: 900;
   letter-spacing: 2px;
 }
@@ -673,6 +693,13 @@ section {
 @media (max-width: 900px) {
   .quad-cta__bar { grid-template-columns: 1fr 1fr; }
   .quad-cta__grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 520px) {
+  .quad-cta__bar { grid-template-columns: 1fr; }
+  .quad-cta__link { border-right: 0; border-bottom: 3px solid #194d38; }
+  .quad-cta__link:last-child { border-bottom: 0; }
+  .quad-cta__grid { grid-template-columns: 1fr; }
 }
 
 .sticky-header h1 {

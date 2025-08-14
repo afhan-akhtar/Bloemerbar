@@ -612,15 +612,42 @@ section {
 }
 
 .quad-cta__item {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   aspect-ratio: 4/5;
   overflow: hidden;
+  background: white; /* Polaroid white frame */
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  border: 2px solid #e6e6e6;
+  position: relative;
 }
 
-.quad-cta__item img { transition: transform .35s ease, filter .35s ease; }
+/* Frame bottom strip for Polaroid style */
+.quad-cta__item::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2%; /* extra bottom space */
+  background: white;
+  border-top: 2px solid #e6e6e6;
+}
 
-/* Link hover: change bg/text */
-.quad-cta__link:hover { background: #194d38; color: #fff3d7; }
+.quad-cta__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* fills height */
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+/* Optional hover tilt */
+.quad-cta__item:hover {
+  transform: rotate(-1deg) scale(1.02);
+}
+
+
 
 /* Unified hover state using :has so bar and image react together */
 /* 1 */

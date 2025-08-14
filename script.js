@@ -9,6 +9,265 @@ window.scrollTo(0, 10);
 
 document.addEventListener("DOMContentLoaded", () => {
   gsap.registerPlugin(ScrollTrigger);
+  // === Strapi dynamic content integration ===
+  (async function integrateStrapi() {
+    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://localhost:1337";
+    const endpoints = {
+      sett: "/api/sett",
+      global: "/api/global",
+    };
+    const mediaUrl = (url) => {
+      if (!url) return "";
+      return url.startsWith("http") ? url : `${STRAPI_BASE}${url}`;
+    };
+    const safeTextFromRich = (nodes) => {
+      try {
+        if (!Array.isArray(nodes)) return "";
+        return nodes
+          .map((n) => {
+            if (!n || !n.children) return "";
+            return n.children.map((c) => (c && c.text) || "").join("");
+          })
+          .filter(Boolean)
+          .join("\n\n");
+      } catch (e) {
+        return "";
+      }
+    };
+    const findBlock = (blocks, type) => {
+      try {
+        return (blocks || []).find((b) => b && b.__component === type) || null;
+      } catch (_) {
+        return null;
+      }
+    };
+    try {
+      const [settRes, globalRes] = await Promise.all([
+        fetch(`${STRAPI_BASE}${endpoints.sett}`),
+        fetch(`${STRAPI_BASE}${endpoints.global}`),
+      ]);
+      const [settJson, globalJson] = await Promise.all([
+        settRes.json().catch(() => ({})),
+        globalRes.json().catch(() => ({})),
+      ]);
+      const sett = (settJson && settJson.data) || {};
+      const global = (globalJson && globalJson.data) || {};
+      const blocks = global.blocks || [];
+
+      // 1) Meta: title, description, robots, favicon, lang
+      try {
+        const metaTitle = (sett.metaData && sett.metaData.metaTitle) || global.title || document.title;
+        const metaDesc = (sett.metaData && sett.metaData.metaDescription) || global.description || "";
+        if (metaTitle) document.title = metaTitle;
+        if (metaDesc) {
+          let metaTag = document.querySelector('meta[name="description"]');
+          if (!metaTag) {
+            metaTag = document.createElement("meta");
+            metaTag.setAttribute("name", "description");
+            document.head.appendChild(metaTag);
+          }
+          metaTag.setAttribute("content", metaDesc);
+        }
+        const robots = sett.metaData && sett.metaData.metaRobots;
+        if (robots) {
+          let robotsTag = document.querySelector('meta[name="robots"]');
+          if (!robotsTag) {
+            robotsTag = document.createElement("meta");
+            robotsTag.setAttribute("name", "robots");
+            document.head.appendChild(robotsTag);
+          }
+          robotsTag.setAttribute("content", robots);
+        }
+        const lang = sett.metaData && sett.metaData.language;
+        if (lang) {
+          const html = document.documentElement;
+          if (html) html.setAttribute("lang", lang);
+        }
+        const fav = sett.metaData && sett.metaData.favIcon && sett.metaData.favIcon.url;
+        if (fav) {
+          let link = document.querySelector('link[rel="icon"]');
+          if (!link) {
+            link = document.createElement("link");
+            link.setAttribute("rel", "icon");
+            document.head.appendChild(link);
+          }
+          link.setAttribute("href", mediaUrl(fav));
+        }
+      } catch (_) {}
+
+      // 2) Theme colors → CSS variables
+      try {
+        const theme = Array.isArray(sett.colors) && sett.colors.length ? sett.colors[0] : null;
+        if (theme) {
+          const root = document.documentElement;
+          const map = {
+            "--primary-color": theme.primaryColor,
+            "--secondary-color": theme.secondaryColor,
+            "--background-color": theme.backgroundColor,
+            "--text-black": theme.blackColor,
+            "--text-white": theme.whiteColor,
+          };
+          Object.entries(map).forEach(([k, v]) => {
+            if (v) root.style.setProperty(k, v);
+          });
+          // Invert top marquee border if background becomes light
+          const top = document.querySelector('.top-marquee');
+          if (top && theme.backgroundColor) {
+            const isLight = /^#?([fF]{2}|[eE]{2}|[dD]{2})/.test(theme.backgroundColor);
+            top.style.borderBottomColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)';
+          }
+        }
+      } catch (_) {}
+
+      // 3) Top marquees (cities)
+      try {
+        const citiesBlock = findBlock(blocks, "block.cities");
+        const cities = (citiesBlock && citiesBlock.cities) || sett.cities || [];
+        const makeCityItem = (label, imageUrl) => {
+          const imgPart = imageUrl ? `<img src="${mediaUrl(imageUrl)}" alt="${label}" class="img-ville" />` : "";
+          return `<div class="collection-item"><h2 class="heading-city">${label}</h2>${imgPart}</div>`;
+        };
+        const html = cities.map((c) => makeCityItem(c.label || "", c.image && c.image.url)).join("");
+        document.querySelectorAll('.top-marquee .marquee__wrapper').forEach((track) => {
+          const lists = track.querySelectorAll('.list');
+          if (!lists.length) return;
+          // Source list
+          lists[0].innerHTML = html;
+          // Keep the clone list in sync if already present
+          if (lists[1]) lists[1].innerHTML = html;
+        });
+      } catch (_) {}
+
+      // 4) Social links (corner-right)
+      try {
+        const socialBlock = findBlock(blocks, "block.social-links");
+        const socials = (socialBlock && socialBlock.Social) || [];
+        const byLabel = (name) => socials.find((s) => (s.label || "").toLowerCase() === name);
+        const map = {
+          instagram: byLabel("instagram"),
+          facebook: byLabel("facebook"),
+          tiktok: byLabel("tiktok"),
+        };
+        document.querySelectorAll('.corner-right.social-icons').forEach((wrap) => {
+          const anchors = Array.from(wrap.querySelectorAll('a.social-link'));
+          anchors.forEach((a) => {
+            const label = (a.getAttribute('aria-label') || '').toLowerCase();
+            const entry = map[label];
+            if (entry && entry.href) {
+              a.setAttribute('href', entry.href);
+              if (entry.isExternal) a.setAttribute('target', '_blank');
+            }
+          });
+        });
+      } catch (_) {}
+
+      // 5) Quad-CTA bar and grid
+      try {
+        const servicesBlock = findBlock(blocks, "block.service-list");
+        const eventsBlock = findBlock(blocks, "block.event-list");
+        const services = (servicesBlock && servicesBlock.Services) || [];
+        const events = (eventsBlock && eventsBlock.bingoEvents) || [];
+        const items = [services[0], services[1], services[2], events[0]].filter(Boolean);
+        document.querySelectorAll('.quad-cta').forEach((section) => {
+          const barLinks = section.querySelectorAll('.quad-cta__bar .quad-cta__link');
+          const gridImgs = section.querySelectorAll('.quad-cta__grid .quad-cta__item img');
+          items.forEach((it, i) => {
+            const title = it.title || "";
+            const imgUrl = mediaUrl(it.image && it.image.url);
+            if (barLinks[i]) {
+              const span = barLinks[i].querySelector('.quad-cta__text');
+              if (span) span.textContent = title;
+            }
+            if (gridImgs[i] && imgUrl) {
+              gridImgs[i].src = imgUrl;
+              gridImgs[i].alt = title;
+              gridImgs[i].loading = "lazy";
+              gridImgs[i].decoding = "async";
+            }
+          });
+        });
+      } catch (_) {}
+
+      // 6) City story and About section from information/description
+      try {
+        const infoBlock = findBlock(blocks, "block.information-section");
+        const infoText = safeTextFromRich(infoBlock && infoBlock.description);
+        const globalDesc = typeof global.description === 'string' ? global.description : safeTextFromRich(global.description);
+        const text = infoText || globalDesc || "";
+        if (text) {
+          document.querySelectorAll('.city-story__text p').forEach((p) => (p.textContent = text));
+          const visionDesc = document.querySelector('.vision .vision-desc');
+          if (visionDesc) visionDesc.textContent = text;
+        }
+        // vision media image from feature-list first item
+        const featureBlock = findBlock(blocks, "block.feature-list");
+        const firstFeature = featureBlock && Array.isArray(featureBlock.features) ? featureBlock.features[0] : null;
+        if (firstFeature && firstFeature.image && firstFeature.image.url) {
+          const img = document.querySelector('.vision .vision-media img');
+          if (img) {
+            img.src = mediaUrl(firstFeature.image.url);
+            img.alt = firstFeature.title || 'Feature image';
+            img.loading = 'lazy';
+            img.decoding = 'async';
+          }
+        }
+        // hero background title from global.title
+        const bgTitle = document.querySelector('.brand-splash .bg-title');
+        if (bgTitle && global.title) bgTitle.textContent = global.title.toUpperCase().replace(/\s+/g, '. ') + '.';
+      } catch (_) {}
+
+      // 7) Booking popup content
+      try {
+        const booking = findBlock(blocks, "block.booking-section");
+        if (booking) {
+          const title = booking.title || "";
+          const desc = safeTextFromRich(booking.description) || "";
+          const cta = booking.book || {};
+          const pop = document.getElementById('book-now-popup');
+          if (pop) {
+            const t = pop.querySelector('.book-popup__title');
+            const d = pop.querySelector('.book-popup__desc');
+            const a = pop.querySelector('.book-popup__cta');
+            if (t && title) t.textContent = title;
+            if (d && desc) d.textContent = desc;
+            if (a && cta.href) {
+              a.setAttribute('href', cta.href);
+              if (cta.isExternal) a.setAttribute('target', '_blank');
+              if (cta.label) a.textContent = cta.label;
+            }
+          }
+        }
+      } catch (_) {}
+
+      // 8) Pinned cards: titles and first images from gallery
+      try {
+        const galleryBlock = findBlock(blocks, "block.gallery-section");
+        const gallery = (galleryBlock && galleryBlock.Gallery) || [];
+        const order = ["PUB", "CLUB", "TERRACE", "Interior"];
+        const titleToImages = Object.fromEntries(
+          gallery.map((g) => [g.title, (g.images || []).map((im) => mediaUrl(im && im.url)).filter(Boolean)])
+        );
+        document.querySelectorAll('.pinned .card').forEach((card, idx) => {
+          const wantTitle = order[idx] || order[0];
+          const images = titleToImages[wantTitle] || [];
+          const titleEl = card.querySelector('.card-title h1');
+          if (titleEl) titleEl.textContent = wantTitle;
+          const img = card.querySelector('img');
+          if (img && images[0]) {
+            img.src = images[0];
+            img.alt = wantTitle;
+          }
+          // Store images for potential future use
+          card.dataset.images = JSON.stringify(images);
+        });
+      } catch (_) {}
+
+      // Expose for debugging if needed
+      window.__STRAPI__ = { sett, global };
+    } catch (err) {
+      // Fail silently; keep static content
+    }
+  })();
   // Use Lenis-based wrap for infinite experience without duplicating the main wrapper
     // Duplicate the full main wrapper for long page length (Lenis will wrap)
     try {
@@ -488,7 +747,17 @@ document.addEventListener("DOMContentLoaded", () => {
     cards.forEach((card, index) => {
       gsap.set(card, { rotation: startRotations[index] });
 
-      const sequence = cardImageSequences[index] || [];
+      // Prefer dynamic sequence injected from Strapi if available; fallback to static
+      function getDynamicSequence() {
+        try {
+          if (card.dataset && card.dataset.images) {
+            const arr = JSON.parse(card.dataset.images);
+            if (Array.isArray(arr) && arr.length) return arr;
+          }
+        } catch (_) {}
+        return cardImageSequences[index] || [];
+      }
+      let sequence = getDynamicSequence();
       const img = document.createElement("img");
       img.src = sequence[0] || "./assets/Animation1.gif";
       img.alt = `Card ${index + 1}`;
@@ -507,6 +776,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const frameMs = 300;
 
       function startHoverAnimation() {
+        // Refresh sequence in case Strapi data arrived after init
+        sequence = getDynamicSequence();
         if (!sequence || sequence.length <= 1 || intervalId) return;
         intervalId = setInterval(() => {
           frameIndex = (frameIndex + 1) % sequence.length;
@@ -742,6 +1013,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
 
     const localThreshold = 5;
 
+    // Original static list + non-blocking Strapi name enrichment
     const cityData = [
       { name: "Bordeaux", bg: "#0d47a1", fg: "#e3f2fd" },
       { name: "Versailles", bg: "#e65100", fg: "#fff3e0" },
@@ -801,6 +1073,43 @@ lenis.on("scroll", ({ scroll, limit }) => {
       timerId = setTimeout(step, stepMs);
     }
     timerId = setTimeout(step, stepMs);
+
+    // Non-blocking fetch of cities (names and bg/fg colors) from Strapi
+    (async () => {
+      try {
+        const base = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://localhost:1337";
+        const res = await fetch(`${base}/api/global`);
+        const json = await res.json();
+        const blocks = (json && json.data && json.data.blocks) || [];
+        const citiesBlock = blocks.find && blocks.find((b) => b && b.__component === 'block.cities');
+        const cities = (citiesBlock && citiesBlock.cities) || [];
+
+        // Try to also read theme for fallback colors
+        let theme = null;
+        try {
+          const settRes = await fetch(`${base}/api/sett`);
+          const settJson = await settRes.json();
+          const colors = settJson && settJson.data && Array.isArray(settJson.data.colors) ? settJson.data.colors : [];
+          theme = colors && colors.length ? colors[0] : null;
+        } catch (_) {}
+
+        // Update or extend cityData with Strapi labels and colors
+        const count = Math.max(cities.length, cityData.length);
+        for (let i = 0; i < count; i++) {
+          const city = cities[i];
+          const name = city && city.label ? city.label : (cityData[i] ? cityData[i].name : undefined);
+          const bg = (city && city.backgroundColor) || (theme && theme.primaryColor) || (cityData[i] && cityData[i].bg) || "#0d47a1";
+          const fg = (city && city.color) || (theme && theme.whiteColor) || (cityData[i] && cityData[i].fg) || "#ffffff";
+          if (cityData[i]) {
+            if (name) cityData[i].name = name;
+            cityData[i].bg = bg;
+            cityData[i].fg = fg;
+          } else if (name) {
+            cityData.push({ name, bg, fg });
+          }
+        }
+      } catch (_) {}
+    })();
 
     // Hide overlay when ticker finishes
     function hideOverlay() {

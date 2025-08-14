@@ -807,3 +807,68 @@ section {
   .indices { right: 15px; }
   .index p:nth-child(2), .index p:nth-child(3) { display: none; }
 }
+
+/* ===== Book Now Popup ===== */
+.book-popup {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: end right;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+  z-index: 10000;
+}
+
+.book-popup[aria-hidden="false"] { opacity: 1; pointer-events: auto; }
+
+.book-popup__inner {
+  margin: 24px;
+  width: min(92vw, 420px);
+  background: #ffffff;
+  border: 3px solid #194d38;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+  transform: translateY(10px);
+  transition: transform .25s ease;
+}
+
+.book-popup[aria-hidden="false"] .book-popup__inner { transform: translateY(0); }
+
+.book-popup__close {
+  appearance: none;
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  top: 10px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px solid #194d38;
+  background: #fff3d7;
+  color: #194d38;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.book-popup__content { padding: 28px 22px 8px 22px; }
+.book-popup__title { font-size: 32px; color: #194d38; text-transform: uppercase; }
+.book-popup__desc { color: #2e3a67; text-transform: none; margin-top: 8px; }
+
+.book-popup__cta {
+  display: block;
+  margin: 14px 22px 22px 22px;
+  text-align: center;
+  text-decoration: none;
+  background: #194d38;
+  color: #fff3d7;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+.book-popup__cta:hover { filter: brightness(1.08); }

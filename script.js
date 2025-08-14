@@ -55,6 +55,35 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   gsap.ticker.lagSmoothing(0);
 
+  // Book Now Popup controls (single instance outside clones)
+  const bookPopup = document.getElementById("book-now-popup");
+  let isBookPopupOpen = false;
+
+  function openBookPopup() {
+    if (!bookPopup || isBookPopupOpen) return;
+    bookPopup.setAttribute("aria-hidden", "false");
+    isBookPopupOpen = true;
+  }
+
+  function closeBookPopup() {
+    if (!bookPopup) return;
+    bookPopup.setAttribute("aria-hidden", "true");
+    isBookPopupOpen = false;
+  }
+
+  try {
+    if (bookPopup) {
+      const closeBtn = bookPopup.querySelector(".book-popup__close");
+      if (closeBtn) closeBtn.addEventListener("click", closeBookPopup);
+      bookPopup.addEventListener("click", (evt) => {
+        if (evt.target === bookPopup) closeBookPopup();
+      });
+      document.addEventListener("keydown", (evt) => {
+        if (evt.key === "Escape" && isBookPopupOpen) closeBookPopup();
+      });
+    }
+  } catch (e) {}
+
   // helper func: split text into letters
   const introParagraphs = document.querySelectorAll(".intro-col p");
   introParagraphs.forEach((paragraph) => {
@@ -483,6 +512,8 @@ document.addEventListener("DOMContentLoaded", () => {
       pinSpacing: true,
       onLeave: () => {
         hideProgressAndIndices();
+        // Show popup when a cards section fully completes (original and each clone)
+        openBookPopup();
       },
       onEnterBack: () => {
         showProgressAndIndices();

@@ -222,9 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
             img.decoding = 'async';
           }
         }
-        // hero background title from global.title
-        const bgTitle = document.querySelector('.brand-splash .bg-title');
-        if (bgTitle && global.title) bgTitle.textContent = global.title.toUpperCase().replace(/\s+/g, '. ') + '.';
+        // Do not override brand-splash from backend
       } catch (_) {}
 
       // 7) Booking popup content
@@ -296,27 +294,148 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (_) {}
 
       // Expose for debugging if needed
-      window.__STRAPI__ = { sett, global };
+      window.__STRAPI__ = { sett, global, blocks };
+
+      // Expose a renderer that (re)applies backend data to all current DOM nodes (original + clones)
+      window.__STRAPI_RENDER_ALL = function renderAllFromBackend() {
+        try {
+          // Top marquees (cities)
+          const citiesBlock = findBlock(blocks, "block.cities");
+          const cities = (citiesBlock && citiesBlock.cities) || sett.cities || [];
+          const makeCityItem = (label, imageUrl) => {
+            const imgPart = imageUrl ? `<img src="${mediaUrl(imageUrl)}" alt="${label}" class="img-ville" />` : "";
+            return `<div class="collection-item"><h2 class="heading-city">${label}</h2>${imgPart}</div>`;
+          };
+          const html = cities.map((c) => makeCityItem(c.label || "", c.image && c.image.url)).join("");
+          document.querySelectorAll('.top-marquee .marquee__wrapper').forEach((track) => {
+            const lists = track.querySelectorAll('.list');
+            if (!lists.length) return;
+            lists[0].innerHTML = html;
+            if (lists[1]) lists[1].innerHTML = html;
+          });
+        } catch (_) {}
+
+        try {
+          // Social links (corner-right)
+          const socialBlock = findBlock(blocks, "block.social-links");
+          const socials = (socialBlock && socialBlock.Social) || [];
+          const byLabel = (name) => socials.find((s) => (s.label || "").toLowerCase() === name);
+          const map = {
+            instagram: byLabel("instagram"),
+            facebook: byLabel("facebook"),
+            tiktok: byLabel("tiktok"),
+          };
+          document.querySelectorAll('.corner-right.social-icons').forEach((wrap) => {
+            const anchors = Array.from(wrap.querySelectorAll('a.social-link'));
+            anchors.forEach((a) => {
+              const label = (a.getAttribute('aria-label') || '').toLowerCase();
+              const entry = map[label];
+              if (entry && entry.href) {
+                a.setAttribute('href', entry.href);
+                if (entry.isExternal) a.setAttribute('target', '_blank');
+              }
+            });
+          });
+        } catch (_) {}
+
+        try {
+          // Quad-CTA bar and grid
+          const servicesBlock = findBlock(blocks, "block.service-list");
+          const eventsBlock = findBlock(blocks, "block.event-list");
+          const services = (servicesBlock && servicesBlock.Services) || [];
+          const events = (eventsBlock && eventsBlock.bingoEvents) || [];
+          const items = [services[0], services[1], services[2], events[0]];
+          document.querySelectorAll('.quad-cta').forEach((section) => {
+            const barLinks = section.querySelectorAll('.quad-cta__bar .quad-cta__link');
+            const gridImgs = section.querySelectorAll('.quad-cta__grid .quad-cta__item img');
+            barLinks.forEach((link, i) => {
+              const item = items[i];
+              const span = link && link.querySelector('.quad-cta__text');
+              if (item && span) {
+                span.textContent = item.title || '';
+                link.style.display = '';
+              } else if (link) {
+                link.style.display = 'none';
+              }
+            });
+            gridImgs.forEach((img, i) => {
+              const item = items[i];
+              const parent = img && img.closest('.quad-cta__item');
+              const imageUrl = item && item.image && item.image.url ? mediaUrl(item.image.url) : '';
+              if (item && imageUrl) {
+                img.src = imageUrl;
+                img.alt = item.title || '';
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                if (parent) parent.style.display = '';
+              } else if (parent) {
+                parent.style.display = 'none';
+              }
+            });
+          });
+        } catch (_) {}
+
+        try {
+          // City story and About section from information/description
+          const infoBlock = findBlock(blocks, "block.information-section");
+          const infoText = safeTextFromRich(infoBlock && infoBlock.description);
+          const globalDesc = typeof global.description === 'string' ? global.description : safeTextFromRich(global.description);
+          const text = infoText || globalDesc || "";
+          if (text) {
+            document.querySelectorAll('.city-story__text p').forEach((p) => (p.textContent = text));
+            const visionDesc = document.querySelector('.vision .vision-desc');
+            if (visionDesc) visionDesc.textContent = text;
+          }
+          const featureBlock = findBlock(blocks, "block.feature-list");
+          const firstFeature = featureBlock && Array.isArray(featureBlock.features) ? featureBlock.features[0] : null;
+          if (firstFeature && firstFeature.image && firstFeature.image.url) {
+            const img = document.querySelector('.vision .vision-media img');
+            if (img) {
+              img.src = mediaUrl(firstFeature.image.url);
+              img.alt = firstFeature.title || 'Feature image';
+              img.loading = 'lazy';
+              img.decoding = 'async';
+            }
+          }
+          // Do not override brand-splash from backend
+        } catch (_) {}
+
+        try {
+          // Pinned cards (idempotent render)
+          document.querySelectorAll('.pinned').forEach((section) => {
+            const galleryBlock = findBlock(blocks, "block.gallery-section");
+            const gallery = (galleryBlock && galleryBlock.Gallery) || [];
+            const titleToImages = Object.fromEntries(
+              gallery.map((g) => [g.title, (g.images || []).map((im) => mediaUrl(im && im.url)).filter(Boolean)])
+            );
+            const cards = section.querySelectorAll('.card');
+            cards.forEach((card, idx) => {
+              const g = gallery[idx];
+              const title = g && g.title ? g.title : '';
+              const images = title ? (titleToImages[title] || []) : [];
+              const titleEl = card.querySelector('.card-title h1');
+              if (titleEl) titleEl.textContent = title || '';
+              const img = card.querySelector('img');
+              if (img && images[0]) {
+                img.src = images[0];
+                img.alt = title || img.alt || '';
+              }
+              card.dataset.images = JSON.stringify(images);
+              card.style.visibility = title ? '' : 'hidden';
+            });
+          });
+        } catch (_) {}
+      };
+
+      // Signal that backend data has been applied so clones can be created afterwards
+      window.__STRAPI_READY__ = true;
+      window.dispatchEvent(new Event('strapi-ready'));
     } catch (err) {
       // Fail silently; keep static content
     }
   })();
-  // Use Lenis-based wrap for infinite experience without duplicating the main wrapper
-    // Duplicate the full main wrapper for long page length (Lenis will wrap)
-    try {
-      const main = document.querySelector('.main-wrapper');
-      if (main) {
-        const fragment = document.createDocumentFragment();
-        // create several copies to ensure enough scroll distance
-        const copies = 5; // adjust as needed
-        for (let i = 0; i < copies; i++) {
-          const clone = main.cloneNode(true);
-          fragment.appendChild(clone);
-        }
-        document.body.appendChild(fragment);
-      }
-    } catch (e) {}
   // Prepare all marquees for a seamless infinite loop (two identical lists per track)
+  function prepareMarquees() {
   try {
     document.querySelectorAll('.marquee__wrapper').forEach((track) => {
       const lists = Array.from(track.querySelectorAll('.list'));
@@ -336,6 +455,47 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   } catch (e) {}
+  }
+  prepareMarquees();
+
+  // Use Lenis-based wrap for infinite experience without duplicating the main wrapper
+  // Duplicate the full main wrapper for long page length (Lenis will wrap)
+  function createClones() {
+    try {
+      const main = document.querySelector('.main-wrapper');
+      if (!main) return;
+      const fragment = document.createDocumentFragment();
+      const copies = 5; // adjust as needed
+      for (let i = 0; i < copies; i++) {
+        const clone = main.cloneNode(true);
+        // Ensure cloned SVGs are deep-copied with fresh nodes to avoid shared state
+        clone.querySelectorAll('svg').forEach((svg) => {
+          svg.replaceWith(svg.cloneNode(true));
+        });
+        fragment.appendChild(clone);
+      }
+      document.body.appendChild(fragment);
+      // Ensure marquees inside newly added clones are correctly prepared
+      prepareMarquees();
+      // Notify interested modules that clones were created
+      window.dispatchEvent(new Event('clones-created'));
+    } catch (e) {}
+  }
+  function onReadyCreateAndRender() {
+    // Ensure brand-splash animation init runs at least once before cloning
+    window.requestAnimationFrame(() => {
+      createClones();
+      if (typeof window.__STRAPI_RENDER_ALL === 'function') {
+        window.__STRAPI_RENDER_ALL();
+        prepareMarquees();
+      }
+    });
+  }
+  if (window.__STRAPI_READY__) {
+    onReadyCreateAndRender();
+  } else {
+    window.addEventListener('strapi-ready', onReadyCreateAndRender, { once: true });
+  }
   const stickySection = document.querySelector(".sticky");
   const totalStickyHeight = window.innerHeight * 6; // ensure enough height for looping
 
@@ -669,25 +829,83 @@ document.addEventListener("DOMContentLoaded", () => {
   //   duration: 1,
   // });
 
+  // Feature flag: show brand-splash static in original and clones
+  const BRAND_SPLASH_ANIMATION_ENABLED = true;
+
   // --- Minimalist SVG Animation on all brand-splash instances (including clones) ---
-  try {
+  if (BRAND_SPLASH_ANIMATION_ENABLED) try {
     const initializedBrandSplash = new WeakSet();
 
     function initBrandSplashAnimation(brandSplashEl) {
       if (!brandSplashEl) return;
       if (initializedBrandSplash.has(brandSplashEl)) return;
+      // Fix defs/filters/clipPath id collisions across clones so references resolve
+      try {
+        const svg = brandSplashEl.querySelector('.brand-illustration');
+        if (svg && svg.querySelector('[id]')) {
+          const uid = 'svg' + Math.floor(performance.now()).toString(36) + Math.floor(Math.random() * 1e6).toString(36);
+          const idMap = new Map();
+          svg.querySelectorAll('[id]').forEach((el) => {
+            const oldId = el.getAttribute('id');
+            if (!oldId) return;
+            const newId = `${uid}-${oldId}`;
+            idMap.set(oldId, newId);
+            el.setAttribute('id', newId);
+          });
+          if (idMap.size) {
+            const ATTRS = ['fill','stroke','filter','clip-path','mask','marker-start','marker-mid','marker-end','href','xlink:href'];
+            svg.querySelectorAll('*').forEach((node) => {
+              for (const attr of ATTRS) {
+                const val = node.getAttribute(attr);
+                if (!val) continue;
+                let newVal = val;
+                idMap.forEach((mapped, from) => {
+                  newVal = newVal
+                    .replace(new RegExp(`url\\(#${from}\\)`, 'g'), `url(#${mapped})`)
+                    .replace(new RegExp(`^#${from}$`), `#${mapped}`);
+                });
+                if (newVal !== val) node.setAttribute(attr, newVal);
+              }
+              const styleVal = node.getAttribute('style');
+              if (styleVal) {
+                let newStyle = styleVal;
+                idMap.forEach((mapped, from) => {
+                  newStyle = newStyle.replace(new RegExp(`url\\(#${from}\\)`, 'g'), `url(#${mapped})`);
+                });
+                if (newStyle !== styleVal) node.setAttribute('style', newStyle);
+              }
+            });
+          }
+        }
+      } catch (e) {}
       const pieces = brandSplashEl.querySelectorAll('.svg-piece');
       if (!pieces || !pieces.length) return;
 
+      // Reset any inherited transforms/opacities from cloned originals
+      try {
+        gsap.killTweensOf(pieces);
+      } catch (e) {}
+      pieces.forEach((el) => {
+        try { el.style.transform = ''; } catch (_) {}
+        try { el.style.opacity = ''; } catch (_) {}
+        try { el.removeAttribute('transform'); } catch (_) {}
+      });
+
       const partyColors = ['#d946ef', '#06b6d4', '#34d399', '#f59e0b', '#ef4444', '#6366f1'];
+
+      // Stateless deterministic PRNG based on index so clones match 1:1
+      const randForIndex = (i, salt) => {
+        const x = Math.sin(i * 374761393 + (salt || 0) * 668265263) * 43758.5453123;
+        return x - Math.floor(x);
+      };
 
       gsap.set(pieces, {
         autoAlpha: 0,
         scale: 0.2,
         transformOrigin: '50% 50%',
-        x: () => (Math.random() - 0.5) * 400,
-        y: () => (Math.random() - 0.5) * 400,
-        rotation: () => (Math.random() - 0.5) * 360,
+        x: (i) => (randForIndex(i, 0) - 0.5) * 400,
+        y: (i) => (randForIndex(i, 1) - 0.5) * 400,
+        rotation: (i) => (randForIndex(i, 2) - 0.5) * 360,
       });
 
       function startPartyLights() {
@@ -699,7 +917,8 @@ document.addEventListener("DOMContentLoaded", () => {
               duration: 0.7,
               fill: color,
               ease: 'power1.inOut',
-              stagger: { each: 0.03, from: 'random' },
+              // deterministic stagger so clones match
+              stagger: { each: 0.03, from: 0 },
             },
             '+=0.2'
           );
@@ -715,13 +934,27 @@ document.addEventListener("DOMContentLoaded", () => {
         y: 0,
         rotation: 0,
         ease: 'power3.out',
-        stagger: { each: 0.05, from: 'random' },
+        // deterministic stagger so clones match
+        stagger: { each: 0.05, from: 0 },
       });
 
       initializedBrandSplash.add(brandSplashEl);
     }
 
-    document.querySelectorAll('.brand-splash').forEach((el) => initBrandSplashAnimation(el));
+    const initAllBrandSplash = () => {
+      // Always initialize originals first, then clones, to ensure identical timelines
+      const all = Array.from(document.querySelectorAll('.brand-splash'));
+      const originalsFirst = all.sort((a, b) => {
+        const aClone = a.closest('.main-wrapper') && a.closest('.main-wrapper').previousElementSibling ? 1 : 0;
+        const bClone = b.closest('.main-wrapper') && b.closest('.main-wrapper').previousElementSibling ? 1 : 0;
+        return aClone - bClone;
+      });
+      originalsFirst.forEach((el) => initBrandSplashAnimation(el));
+    };
+    initAllBrandSplash();
+
+    // Re-init after clones are created
+    window.addEventListener('clones-created', initAllBrandSplash);
 
     // Observe for dynamically added brand-splash elements (e.g., when cloning for infinite scroll)
     const observer = new MutationObserver((mutations) => {
@@ -738,8 +971,14 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(document.body, { childList: true, subtree: true });
   } catch (e) {}
 
-  // ===== Gallery (Pinned Cards) =====
-  document.querySelectorAll(".pinned").forEach((pinnedSection) => {
+  // ===== Gallery (Pinned Cards) ===== ensure clones get identical animations
+  try {
+    const initializedPinned = new WeakSet();
+
+    function initPinnedSection(pinnedSection) {
+      if (!pinnedSection || initializedPinned.has(pinnedSection)) return;
+      initializedPinned.add(pinnedSection);
+
     const stickyHeader = pinnedSection.querySelector(".sticky-header");
     const cards = pinnedSection.querySelectorAll(".card");
     const progressBarContainer = pinnedSection.querySelector(".progress-bar");
@@ -752,35 +991,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const startRotations = [0, 5, 0, -5];
     const endRotations = [-10, -5, 10, 5];
     const progressColors = ["#FFD1DC", "#AEC6CF", "#77DD77", "#C5BBDE"];
-    // Image sequences per card for fast hover animation (Pub, Club, Terrace, Streetfood)
     const cardImageSequences = [
-      [
-        "./assets/pub_1.jpg",
-        "./assets/pub_2.jpg",
-        "./assets/pub_3.jpg",
-        "./assets/pub_4.jpg",
-      ],
-      [
-        "./assets/club_1.jpg",
-        "./assets/club_2.jpg",
-        "./assets/club_3.jpg",
-        "./assets/club_4.jpg",
-      ],
-      [
-        "./assets/terrace_1.jpg",
-        "./assets/terrace_2.jpg",
-        "./assets/terrace_3.jpg",
-        "./assets/terrace_4.jpg",
-      ],
-      [
-        "./assets/interior_1.jpg",
-        "./assets/interrior_2.jpg",
-        "./assets/interior_1.jpg",
-        "./assets/interrior_2.jpg",
-      ],
-    ];
+        ["./assets/pub_1.jpg", "./assets/pub_2.jpg", "./assets/pub_3.jpg", "./assets/pub_4.jpg"],
+        ["./assets/club_1.jpg", "./assets/club_2.jpg", "./assets/club_3.jpg", "./assets/club_4.jpg"],
+        ["./assets/terrace_1.jpg", "./assets/terrace_2.jpg", "./assets/terrace_3.jpg", "./assets/terrace_4.jpg"],
+        ["./assets/interior_1.jpg", "./assets/interrior_2.jpg", "./assets/interior_1.jpg", "./assets/interrior_2.jpg"],
+      ];
 
-    // Preload all images to avoid flicker on hover
     try {
       cardImageSequences.flat().forEach((src) => {
         const im = new Image();
@@ -795,8 +1012,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cards.forEach((card, index) => {
       gsap.set(card, { rotation: startRotations[index] });
-
-      // Prefer dynamic sequence injected from Strapi if available; fallback to static
       function getDynamicSequence() {
         try {
           if (card.dataset && card.dataset.images) {
@@ -819,13 +1034,10 @@ document.addEventListener("DOMContentLoaded", () => {
       img.style.zIndex = 0;
       card.appendChild(img);
 
-      // Fast hover animation: cycle through category images
       let frameIndex = 0;
       let intervalId = null;
       const frameMs = 300;
-
       function startHoverAnimation() {
-        // Refresh sequence in case Strapi data arrived after init
         sequence = getDynamicSequence();
         if (!sequence || sequence.length <= 1 || intervalId) return;
         intervalId = setInterval(() => {
@@ -833,7 +1045,6 @@ document.addEventListener("DOMContentLoaded", () => {
           img.src = sequence[frameIndex];
         }, frameMs);
       }
-
       function stopHoverAnimation() {
         if (intervalId) {
           clearInterval(intervalId);
@@ -842,7 +1053,6 @@ document.addEventListener("DOMContentLoaded", () => {
         frameIndex = 0;
         if (sequence[0]) img.src = sequence[0];
       }
-
       card.addEventListener("mouseenter", startHoverAnimation);
       card.addEventListener("mouseleave", stopHoverAnimation);
       card.addEventListener("touchstart", startHoverAnimation, { passive: true });
@@ -852,31 +1062,17 @@ document.addEventListener("DOMContentLoaded", () => {
     function animateIndexOpacity(newIndex) {
       if (newIndex !== currentActiveIndex) {
         indices.forEach((indexElem, i) => {
-          gsap.to(indexElem, {
-            opacity: i === newIndex ? 1 : 0.25,
-            duration: 0.5,
-            ease: "power2.out",
-          });
+            gsap.to(indexElem, { opacity: i === newIndex ? 1 : 0.25, duration: 0.5, ease: "power2.out" });
         });
         currentActiveIndex = newIndex;
       }
     }
-
     function showProgressAndIndices() {
-      gsap.to([progressBarContainer, indicesContainer], {
-        opacity: 1,
-        duration: 0.5,
-        ease: "power2.out",
-      });
+        gsap.to([progressBarContainer, indicesContainer], { opacity: 1, duration: 0.5, ease: "power2.out" });
       isProgressBarVisible = true;
     }
-
     function hideProgressAndIndices() {
-      gsap.to([progressBarContainer, indicesContainer], {
-        opacity: 0,
-        duration: 0.5,
-        ease: "power2.out",
-      });
+        gsap.to([progressBarContainer, indicesContainer], { opacity: 0, duration: 0.5, ease: "power2.out" });
       isProgressBarVisible = false;
       animateIndexOpacity(-1);
     }
@@ -889,34 +1085,22 @@ document.addEventListener("DOMContentLoaded", () => {
       pinSpacing: true,
       onLeave: () => {
         hideProgressAndIndices();
-        // Show popup when a cards section fully completes (original and each clone)
         openBookPopup();
       },
-      onEnterBack: () => {
-        showProgressAndIndices();
-      },
+        onEnterBack: () => { showProgressAndIndices(); },
       onUpdate: (self) => {
         const sectionProgress = self.progress * (cardCount + 1);
-
-        // Handle sticky header fade during the intro phase (0 → 1)
         if (stickyHeader) {
           if (sectionProgress <= 1) {
-            gsap.to(stickyHeader, {
-              opacity: 1 - sectionProgress,
-              duration: 0.1,
-              ease: "none",
-            });
+              gsap.to(stickyHeader, { opacity: 1 - sectionProgress, duration: 0.1, ease: "none" });
           } else {
             gsap.set(stickyHeader, { opacity: 0 });
           }
         }
-
-        // Keep cards offscreen during the intro/empty phase
         if (sectionProgress <= 1) {
           if (isProgressBarVisible) hideProgressAndIndices();
           cards.forEach((card, index) => {
             if (index === 0) {
-              // Keep the first card visible and centered during intro
               gsap.set(card, { top: "50%", rotation: endRotations[0] });
             } else {
               gsap.set(card, { top: "115%", rotation: startRotations[index] });
@@ -924,43 +1108,22 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           return;
         }
-
-        // After intro, show progress/indices and drive cards
-        if (!isProgressBarVisible) {
-          showProgressAndIndices();
-        }
-
-        const progress = sectionProgress - 1; // 0 → cardCount
+          if (!isProgressBarVisible) { showProgressAndIndices(); }
+          const progress = sectionProgress - 1;
         const currentCardRaw = Math.floor(progress);
-        // Treat the first card as already completed once we enter the gallery section
         const currentCard = Math.max(1, currentCardRaw);
-
         let progressHeight = (progress / cardCount) * 100;
         progressHeight = Math.max(0, Math.min(progressHeight, 100));
         const colorIndex = Math.min(Math.floor(progress), cardCount - 1);
-
-        gsap.to(progressBar, {
-          height: `${progressHeight}%`,
-          backgroundColor: progressColors[colorIndex],
-          duration: 0.3,
-          ease: "power1.out",
-        });
-
-        if (isProgressBarVisible) {
-          animateIndexOpacity(colorIndex);
-        }
-
+          gsap.to(progressBar, { height: `${progressHeight}%`, backgroundColor: progressColors[colorIndex], duration: 0.3, ease: "power1.out" });
+          if (isProgressBarVisible) { animateIndexOpacity(colorIndex); }
         cards.forEach((card, index) => {
           if (index < currentCard) {
             gsap.set(card, { top: "50%", rotation: endRotations[index] });
           } else if (index === currentCard) {
-            const cardProgress = progress - currentCard; // 0 → 1 within the current card
+              const cardProgress = progress - currentCard;
             const newTop = gsap.utils.interpolate(115, 50, cardProgress);
-            const newRotation = gsap.utils.interpolate(
-              startRotations[index],
-              endRotations[index],
-              cardProgress
-            );
+              const newRotation = gsap.utils.interpolate(startRotations[index], endRotations[index], cardProgress);
             gsap.set(card, { top: `${newTop}%`, rotation: newRotation });
           } else {
             gsap.set(card, { top: "115%", rotation: startRotations[index] });
@@ -968,7 +1131,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       },
     });
-  });
+    }
+
+    document.querySelectorAll(".pinned").forEach((el) => initPinnedSection(el));
+    const pinnedAnimObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof Element)) return;
+          if (node.matches && node.matches('.pinned')) initPinnedSection(node);
+          node.querySelectorAll && node.querySelectorAll('.pinned').forEach((el) => initPinnedSection(el));
+        });
+      }
+    });
+    pinnedAnimObserver.observe(document.body, { childList: true, subtree: true });
+  } catch (e) {}
 
   // --- Fixed Infinite Loop ---
 // --- Fixed Infinite Loop with Lenis-native detection ---

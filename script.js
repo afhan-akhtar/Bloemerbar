@@ -325,7 +325,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (_) {}
 
-      // 6) Corner links (Recruitment, etc.)
+      // 6) Logo section background text
+      try {
+        const logoSectionBlock = findBlock(blocks, "block.logo-section");
+        if (logoSectionBlock && logoSectionBlock.backgroundText) {
+          // Update all bg-title elements (original and clones)
+          document.querySelectorAll('.bg-title').forEach((bgTitle) => {
+            bgTitle.textContent = logoSectionBlock.backgroundText;
+          });
+        }
+      } catch (_) {}
+
+      // 7) Corner links (Recruitment, etc.)
       try {
         // Handle corner-left recruitment link
         const recruitmentLink = document.querySelector('.corner-left .brand-link .small-link-text');
@@ -353,7 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (_) {}
 
-      // 5) Social links (corner-right)
+      // 8) Social links (corner-right)
       try {
         const socialBlock = findBlock(blocks, "block.social-links");
         const socials = (socialBlock && socialBlock.Social) || [];
@@ -376,7 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } catch (_) {}
 
-      // 6) Quad-CTA bar and grid (Services first 3, then first Bingo Event)
+      // 9) Quad-CTA bar and grid (Services first 3, then first Bingo Event)
       try {
         const servicesBlock = findBlock(blocks, "block.service-list");
         const eventsBlock = findBlock(blocks, "block.event-list");
@@ -414,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } catch (_) {}
 
-      // 7) City story and About section from information/description
+      // 10) City story and About section from information/description
       try {
         const infoBlock = findBlock(blocks, "block.information-section");
         const infoText = safeTextFromRich(infoBlock && infoBlock.description);
@@ -506,7 +517,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Do not override brand-splash from backend
       } catch (_) {}
 
-      // 8) Booking popup content
+      // 11) Booking popup content
       try {
         const booking = findBlock(blocks, "block.booking-section");
         if (booking) {
@@ -529,7 +540,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (_) {}
 
-      // 9) Pinned cards: titles and images from Gallery (API order)
+      // 12) Pinned cards: titles and images from Gallery (API order)
       try {
         const galleryBlock = findBlock(blocks, "block.gallery-section");
         const gallery = (galleryBlock && galleryBlock.Gallery) || [];
@@ -618,6 +629,17 @@ document.addEventListener("DOMContentLoaded", () => {
               if (closedElement) {
                 closedElement.style.display = 'none';
               }
+            });
+          }
+        } catch (_) {}
+
+        try {
+          // Logo section background text
+          const logoSectionBlock = findBlock(blocks, "block.logo-section");
+          if (logoSectionBlock && logoSectionBlock.backgroundText) {
+            // Update all bg-title elements (original and clones)
+            document.querySelectorAll('.bg-title').forEach((bgTitle) => {
+              bgTitle.textContent = logoSectionBlock.backgroundText;
             });
           }
         } catch (_) {}

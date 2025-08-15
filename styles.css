@@ -363,7 +363,7 @@ section {
 .corner-right { right: 24px; }
 
 .brand-link { color: #0b5b40; display: inline-flex; align-items: center; gap: 10px; transition: color .25s ease; text-decoration: none; }
-.brand-link .small-link-text { color: #0b5b40; font-weight: 700; }
+.brand-link .small-link-text { color: var(--primary-color); font-weight: 700; }
 .brand-link:hover .small-link-text { color: #ff9700; }
 .brand-link .link-arrow { width: 20px; height: 20px; color: currentColor; display: inline-block; }
 .brand-link:hover, .brand-link:focus { color: #ff9700; text-decoration: none; }
@@ -1024,13 +1024,14 @@ section {
 
 /* City Story Section - Enhanced with warm tones */
 .city-story {
-  background: var(--background-color);
-  border-top: 2px solid var(--secondary-color);
-  border-bottom: 2px solid var(--secondary-color);
+  background: var(--primary-color);
+ 
+  /* border-top: 2px solid var(--secondary-color); */
+  /* border-bottom: 2px solid var(--secondary-color); */
 }
 
 .city-story__text p {
-  color: var(--primary-color) !important;
+  color: var(--secondary-color) !important;
   font-weight: 600;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
 }

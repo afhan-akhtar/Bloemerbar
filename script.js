@@ -210,11 +210,77 @@ document.addEventListener("DOMContentLoaded", () => {
           const visionDesc = document.querySelector('.vision .vision-desc');
           if (visionDesc) visionDesc.textContent = text;
         }
-        // vision media image from feature-list first item
+        
+        // Vision content from description structure
+        try {
+          const description = infoBlock && infoBlock.description;
+          if (description && Array.isArray(description) && description.length >= 1) {
+            const paragraph = description[0];
+            
+            if (paragraph && paragraph.children && paragraph.children[0] && paragraph.children[0].text) {
+              const text = paragraph.children[0].text;
+              const visionTitle = document.querySelector('.vision .vision-display');
+              if (visionTitle) visionTitle.textContent = text;
+            }
+          }
+        } catch (_) {}
+        
+        // New vision content from booking-section block
+        try {
+          const bookingBlock = findBlock(blocks, "block.booking-section");
+          if (bookingBlock && bookingBlock.description && Array.isArray(bookingBlock.description) && bookingBlock.description.length >= 1) {
+            const paragraph = bookingBlock.description[0];
+            
+            if (paragraph && paragraph.children && paragraph.children[0] && paragraph.children[0].text) {
+              const text = paragraph.children[0].text;
+              // Target the about-vision section specifically
+              const visionTitle = document.querySelector('.about.vision .vision-display');
+              if (visionTitle) {
+                visionTitle.textContent = text;
+                // Apply any additional styling if needed
+                visionTitle.style.color = '#000';
+                visionTitle.style.fontSize = '40px';
+              }
+            }
+          }
+          
+          // Update button text and link from booking-section
+          if (bookingBlock && bookingBlock.book) {
+            const bookButton = document.querySelector('.about.vision .vision-cta');
+            if (bookButton) {
+              if (bookingBlock.book.label) {
+                bookButton.textContent = bookingBlock.book.label;
+              }
+              if (bookingBlock.book.href) {
+                bookButton.setAttribute('href', bookingBlock.book.href);
+              }
+              if (bookingBlock.book.isExternal) {
+                bookButton.setAttribute('target', '_blank');
+                bookButton.setAttribute('rel', 'noopener noreferrer');
+              }
+            }
+          }
+        } catch (_) {}
+        
+        // vision media image from booking-section block
+        try {
+          const bookingBlock = findBlock(blocks, "block.booking-section");
+          if (bookingBlock && bookingBlock.image && bookingBlock.image.url) {
+            const img = document.querySelector('.about.vision .vision-media img');
+            if (img) {
+              img.src = mediaUrl(bookingBlock.image.url);
+              img.alt = bookingBlock.image.alternativeText || bookingBlock.image.name || 'Terrace service image';
+              img.loading = 'lazy';
+              img.decoding = 'async';
+            }
+          }
+        } catch (_) {}
+        
+        // Fallback to feature-list first item if booking-section image not available
         const featureBlock = findBlock(blocks, "block.feature-list");
         const firstFeature = featureBlock && Array.isArray(featureBlock.features) ? featureBlock.features[0] : null;
         if (firstFeature && firstFeature.image && firstFeature.image.url) {
-          const img = document.querySelector('.vision .vision-media img');
+          const img = document.querySelector('.about.vision .vision-media img');
           if (img) {
             img.src = mediaUrl(firstFeature.image.url);
             img.alt = firstFeature.title || 'Feature image';
@@ -386,6 +452,73 @@ document.addEventListener("DOMContentLoaded", () => {
             const visionDesc = document.querySelector('.vision .vision-desc');
             if (visionDesc) visionDesc.textContent = text;
           }
+          
+          // Vision content from description structure
+          try {
+            const description = infoBlock && infoBlock.description;
+            if (description && Array.isArray(description) && description.length >= 1) {
+              const paragraph = description[0];
+              
+              if (paragraph && paragraph.children && paragraph.children[0] && paragraph.children[0].text) {
+                const text = paragraph.children[0].text;
+                const visionTitle = document.querySelector('.vision .vision-display');
+                if (visionTitle) visionTitle.textContent = text;
+              }
+            }
+          } catch (_) {}
+          
+          // New vision content from booking-section block
+          try {
+            const bookingBlock = findBlock(blocks, "block.booking-section");
+            if (bookingBlock && bookingBlock.description && Array.isArray(bookingBlock.description) && bookingBlock.description.length >= 1) {
+              const paragraph = bookingBlock.description[0];
+              
+              if (paragraph && paragraph.children && paragraph.children[0] && paragraph.children[0].text) {
+                const text = paragraph.children[0].text;
+                // Target the about-vision section specifically
+                const visionTitle = document.querySelector('.about.vision .vision-display');
+                if (visionTitle) {
+                  visionTitle.textContent = text;
+                  // Apply any additional styling if needed
+                  visionTitle.style.color = '#000';
+                  visionTitle.style.fontSize = '40px';
+                }
+              }
+            }
+            
+            // Update button text and link from booking-section
+            if (bookingBlock && bookingBlock.book) {
+              const bookButton = document.querySelector('.about.vision .vision-cta');
+              if (bookButton) {
+                if (bookingBlock.book.label) {
+                  bookButton.textContent = bookingBlock.book.label;
+                }
+                if (bookingBlock.book.href) {
+                  bookButton.setAttribute('href', bookingBlock.book.href);
+                }
+                if (bookingBlock.book.isExternal) {
+                  bookButton.setAttribute('target', '_blank');
+                  bookButton.setAttribute('rel', 'noopener noreferrer');
+                }
+              }
+            }
+          } catch (_) {}
+          
+          // vision media image from booking-section block
+          try {
+            const bookingBlock = findBlock(blocks, "block.booking-section");
+            if (bookingBlock && bookingBlock.image && bookingBlock.image.url) {
+              const img = document.querySelector('.about.vision .vision-media img');
+              if (img) {
+                img.src = mediaUrl(bookingBlock.image.url);
+                img.alt = bookingBlock.image.alternativeText || bookingBlock.image.name || 'Terrace service image';
+                img.loading = 'lazy';
+                img.decoding = 'async';
+              }
+            }
+          } catch (_) {}
+          
+          // Fallback to feature-list first item if booking-section image not available
           const featureBlock = findBlock(blocks, "block.feature-list");
           const firstFeature = featureBlock && Array.isArray(featureBlock.features) ? featureBlock.features[0] : null;
           if (firstFeature && firstFeature.image && firstFeature.image.url) {

@@ -323,11 +323,17 @@ section {
 .svg-piece {
   transform-box: fill-box;
   transform-origin: 50% 50%;
-  will-change: transform, opacity;
+  will-change: transform, opacity, fill;
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  transition: fill 0.3s ease;
 }
 
 /* Prevent cloned wrappers from altering stacking context unexpectedly */
 .main-wrapper .brand-splash { isolation: isolate; }
+
+/* Simple approach: Let CSS handle the styling naturally */
 
 .sticker {
   position: absolute;
@@ -1034,9 +1040,11 @@ section {
 }
 
 .brand-splash .brand-illustration .svg-piece {
-  fill: var(--primary-color);
   transition: all 0.4s ease;
   filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .brand-splash:hover .brand-illustration .svg-piece {

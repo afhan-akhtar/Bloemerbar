@@ -179,6 +179,21 @@ document.addEventListener("DOMContentLoaded", () => {
         applyThemeToSection('.city-story', 3); // Theme 4 for city story
         applyThemeToSection('.about.vision', 4); // Theme 5 for about section
         applyThemeToSection('.pinned', 0); // Theme 1 for pinned section (cycle back)
+        
+        // Ensure all brand-splash sections get the theme (including future clones)
+        document.querySelectorAll('.brand-splash').forEach((section) => {
+          const theme = themeColors[1]; // Theme 2 for brand splash
+          if (section && theme) {
+            section.style.setProperty('--primary-color', theme.primaryColor);
+            section.style.setProperty('--secondary-color', theme.secondaryColor);
+            section.style.setProperty('--background-color', theme.backgroundColor);
+            section.style.setProperty('--text-black', theme.blackColor);
+            section.style.setProperty('--text-white', theme.whiteColor);
+            section.style.setProperty('--complementary-color', theme.complementary);
+            section.style.setProperty('--hover-color', theme.hoverColor);
+            section.style.setProperty('--accent-color', theme.accentColor);
+          }
+        });
 
         // Set default theme for the entire document
         const defaultTheme = themeColors[0];
@@ -897,25 +912,30 @@ document.addEventListener("DOMContentLoaded", () => {
   prepareMarquees();
 
   // Use Lenis-based wrap for infinite experience without duplicating the main wrapper
-  // Duplicate the full main wrapper for long page length (Lenis will wrap)
+  // Simple approach: Duplicate the full main wrapper exactly as is
   function createClones() {
     try {
       const main = document.querySelector('.main-wrapper');
       if (!main) return;
+      
       const fragment = document.createDocumentFragment();
       const copies = 5; // adjust as needed
+      
       for (let i = 0; i < copies; i++) {
+        // Simple deep clone - keep everything exactly the same
         const clone = main.cloneNode(true);
-        // Ensure cloned SVGs are deep-copied with fresh nodes to avoid shared state
-        clone.querySelectorAll('svg').forEach((svg) => {
-          svg.replaceWith(svg.cloneNode(true));
+        
+        // Only fix SVG ID conflicts to prevent reference issues
+        clone.querySelectorAll('svg[id]').forEach((svg) => {
+          const newId = 'svg-clone-' + i + '-' + Math.random().toString(36).substr(2, 9);
+          svg.setAttribute('id', newId);
         });
+        
         fragment.appendChild(clone);
       }
+      
       document.body.appendChild(fragment);
-      // Ensure marquees inside newly added clones are correctly prepared
       prepareMarquees();
-      // Notify interested modules that clones were created
       window.dispatchEvent(new Event('clones-created'));
     } catch (e) {}
   }
@@ -1277,43 +1297,18 @@ document.addEventListener("DOMContentLoaded", () => {
     function initBrandSplashAnimation(brandSplashEl) {
       if (!brandSplashEl) return;
       if (initializedBrandSplash.has(brandSplashEl)) return;
-      // Fix defs/filters/clipPath id collisions across clones so references resolve
+      
+      // Simple SVG ID fix to prevent conflicts
       try {
         const svg = brandSplashEl.querySelector('.brand-illustration');
         if (svg && svg.querySelector('[id]')) {
           const uid = 'svg' + Math.floor(performance.now()).toString(36) + Math.floor(Math.random() * 1e6).toString(36);
-          const idMap = new Map();
           svg.querySelectorAll('[id]').forEach((el) => {
             const oldId = el.getAttribute('id');
-            if (!oldId) return;
-            const newId = `${uid}-${oldId}`;
-            idMap.set(oldId, newId);
-            el.setAttribute('id', newId);
+            if (oldId) {
+              el.setAttribute('id', `${uid}-${oldId}`);
+            }
           });
-          if (idMap.size) {
-            const ATTRS = ['fill','stroke','filter','clip-path','mask','marker-start','marker-mid','marker-end','href','xlink:href'];
-            svg.querySelectorAll('*').forEach((node) => {
-              for (const attr of ATTRS) {
-                const val = node.getAttribute(attr);
-                if (!val) continue;
-                let newVal = val;
-                idMap.forEach((mapped, from) => {
-                  newVal = newVal
-                    .replace(new RegExp(`url\\(#${from}\\)`, 'g'), `url(#${mapped})`)
-                    .replace(new RegExp(`^#${from}$`), `#${mapped}`);
-                });
-                if (newVal !== val) node.setAttribute(attr, newVal);
-              }
-              const styleVal = node.getAttribute('style');
-              if (styleVal) {
-                let newStyle = styleVal;
-                idMap.forEach((mapped, from) => {
-                  newStyle = newStyle.replace(new RegExp(`url\\(#${from}\\)`, 'g'), `url(#${mapped})`);
-                });
-                if (newStyle !== styleVal) node.setAttribute('style', newStyle);
-              }
-            });
-          }
         }
       } catch (e) {}
       const pieces = brandSplashEl.querySelectorAll('.svg-piece');
@@ -1327,9 +1322,30 @@ document.addEventListener("DOMContentLoaded", () => {
         try { el.style.transform = ''; } catch (_) {}
         try { el.style.opacity = ''; } catch (_) {}
         try { el.removeAttribute('transform'); } catch (_) {}
+        // Ensure each piece is visible and properly styled
+        try { el.style.display = 'block'; } catch (_) {}
+        try { el.style.visibility = 'visible'; } catch (_) {}
+        try { el.style.fill = 'var(--primary-color)'; } catch (_) {}
       });
 
       const partyColors = ['#d946ef', '#06b6d4', '#34d399', '#f59e0b', '#ef4444', '#6366f1'];
+      
+      // Create a global color animation timeline that works for all instances
+      if (!window.globalColorAnimation) {
+        window.globalColorAnimation = gsap.timeline({ repeat: -1 });
+        partyColors.forEach((color) => {
+          window.globalColorAnimation.to(
+            '.svg-piece',
+            {
+              duration: 0.7,
+              fill: color,
+              ease: 'power1.inOut',
+              stagger: { each: 0.03, from: 0 },
+            },
+            '+=0.2'
+          );
+        });
+      }
 
       // Stateless deterministic PRNG based on index so clones match 1:1
       const randForIndex = (i, salt) => {
@@ -1344,23 +1360,39 @@ document.addEventListener("DOMContentLoaded", () => {
         x: (i) => (randForIndex(i, 0) - 0.5) * 400,
         y: (i) => (randForIndex(i, 1) - 0.5) * 400,
         rotation: (i) => (randForIndex(i, 2) - 0.5) * 360,
+        fill: 'var(--primary-color)',
       });
 
       function startPartyLights() {
-        const colorsTl = gsap.timeline({ repeat: -1 });
-        partyColors.forEach((color) => {
-          colorsTl.to(
-            pieces,
-            {
-              duration: 0.7,
-              fill: color,
-              ease: 'power1.inOut',
-              // deterministic stagger so clones match
-              stagger: { each: 0.03, from: 0 },
-            },
-            '+=0.2'
-          );
-        });
+        // Use the global color animation that affects all SVG pieces
+        if (window.globalColorAnimation) {
+          // Ensure the global animation is running
+          if (!window.globalColorAnimation.isActive()) {
+            window.globalColorAnimation.play();
+          }
+        } else {
+          // Fallback to local animation
+          const colorsTl = gsap.timeline({ repeat: -1 });
+          partyColors.forEach((color) => {
+            colorsTl.to(
+              pieces,
+              {
+                duration: 0.7,
+                fill: color,
+                ease: 'power1.inOut',
+                stagger: { each: 0.03, from: 0 },
+              },
+              '+=0.2'
+            );
+          });
+        }
+        
+        // Ensure the animation starts immediately for all pieces
+        setTimeout(() => {
+          pieces.forEach((piece) => {
+            piece.style.fill = partyColors[0];
+          });
+        }, 100);
       }
 
       const assembleTl = gsap.timeline({ onComplete: startPartyLights });
@@ -1375,8 +1407,44 @@ document.addEventListener("DOMContentLoaded", () => {
         // deterministic stagger so clones match
         stagger: { each: 0.05, from: 0 },
       });
+      
+      // Immediate fallback: Force pieces to final state but preserve color animation
+      setTimeout(() => {
+        pieces.forEach((piece) => {
+          piece.style.opacity = '1';
+          piece.style.visibility = 'visible';
+          piece.style.display = 'block';
+          piece.style.transform = 'scale(1) translate(0, 0) rotate(0deg)';
+          // Don't override fill color - let animation handle it
+        });
+      }, 100);
+      
+      // Additional fallback: Ensure SVG pieces are visible even if animation fails
+      setTimeout(() => {
+        pieces.forEach((piece) => {
+          piece.style.opacity = '1';
+          piece.style.visibility = 'visible';
+          piece.style.display = 'block';
+          piece.style.transform = 'scale(1) translate(0, 0) rotate(0deg)';
+          // Start color animation if it hasn't started
+          if (!piece.style.fill || piece.style.fill === 'var(--primary-color)') {
+            piece.style.fill = partyColors[0];
+          }
+        });
+      }, 2500);
 
       initializedBrandSplash.add(brandSplashEl);
+      
+      // Ensure color animation starts for this instance
+      setTimeout(() => {
+        if (pieces.length > 0) {
+          pieces.forEach((piece, index) => {
+            // Set initial color from party colors array
+            const initialColor = partyColors[index % partyColors.length];
+            piece.style.fill = initialColor;
+          });
+        }
+      }, 3000); // After the assembly animation completes
     }
 
     const initAllBrandSplash = () => {
@@ -1391,8 +1459,28 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     initAllBrandSplash();
 
-    // Re-init after clones are created
-    window.addEventListener('clones-created', initAllBrandSplash);
+    // Simple re-init after clones are created
+    window.addEventListener('clones-created', () => {
+      initAllBrandSplash();
+      
+      // Comprehensive fix: Ensure all brand-illustration SVGs and their pieces are properly styled
+      setTimeout(() => {
+        document.querySelectorAll('.brand-illustration').forEach((svg) => {
+          svg.style.display = 'block';
+          svg.style.visibility = 'visible';
+          svg.style.opacity = '1';
+          
+                     // Ensure all SVG pieces are properly styled but preserve color animation
+           svg.querySelectorAll('.svg-piece').forEach((piece) => {
+             piece.style.display = 'block';
+             piece.style.visibility = 'visible';
+             piece.style.opacity = '1';
+             piece.style.transformOrigin = '50% 50%';
+             // Don't override fill color - let animation handle it
+           });
+        });
+      }, 50);
+    });
 
     // Observe for dynamically added brand-splash elements (e.g., when cloning for infinite scroll)
     const observer = new MutationObserver((mutations) => {

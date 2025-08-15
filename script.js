@@ -1420,7 +1420,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
       }
       timerId = setTimeout(step, stepMs);
     }
-    // Fetch cities from Strapi first; start ticker only when data is ready (with a short timeout fallback)
+    // Fetch cities from sett API first; start ticker only when data is ready (with a short timeout fallback)
     (async () => {
       const base = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://localhost:1337";
       const timeoutMs = 1500;
@@ -1432,22 +1432,15 @@ lenis.on("scroll", ({ scroll, limit }) => {
       }
       try {
         const result = await timeout((async () => {
-          const res = await fetch(`${base}/api/global`).catch(() => null);
-          if (!res) return null;
-          const json = await res.json().catch(() => null);
-          if (!json || !json.data) return null;
-          const blocks = Array.isArray(json.data.blocks) ? json.data.blocks : [];
-          const citiesBlock = blocks.find((b) => b && b.__component === 'block.cities');
-          const cities = (citiesBlock && Array.isArray(citiesBlock.cities)) ? citiesBlock.cities : [];
-
-          // Also read theme for fallback colors
-          let theme = null;
-          try {
-            const settRes = await fetch(`${base}/api/sett`).catch(() => null);
-            const settJson = settRes ? await settRes.json().catch(() => null) : null;
-            const colors = (settJson && settJson.data && Array.isArray(settJson.data.colors)) ? settJson.data.colors : [];
-            theme = colors && colors.length ? colors[0] : null;
-          } catch (_) {}
+          // Fetch cities from sett API instead of global API
+          const settRes = await fetch(`${base}/api/sett`).catch(() => null);
+          if (!settRes) return null;
+          const settJson = await settRes.json().catch(() => null);
+          if (!settJson || !settJson.data) return null;
+          
+          const cities = Array.isArray(settJson.data.cities) ? settJson.data.cities : [];
+          const colors = Array.isArray(settJson.data.colors) ? settJson.data.colors : [];
+          const theme = colors && colors.length ? colors[0] : null;
 
           return { cities, theme };
         })());
@@ -1457,12 +1450,10 @@ lenis.on("scroll", ({ scroll, limit }) => {
         if (result && Array.isArray(result.cities)) {
           cities = result.cities;
           theme = result.theme || null;
-        } else if (window.__STRAPI__ && window.__STRAPI__.blocks) {
-          // Fallback to already-fetched blocks if available
-          const blocks = window.__STRAPI__.blocks || [];
-          const citiesBlock = blocks.find((b) => b && b.__component === 'block.cities');
-          cities = (citiesBlock && Array.isArray(citiesBlock.cities)) ? citiesBlock.cities : [];
+        } else if (window.__STRAPI__ && window.__STRAPI__.sett) {
+          // Fallback to already-fetched sett data if available
           const sett = window.__STRAPI__.sett || {};
+          cities = Array.isArray(sett.cities) ? sett.cities : [];
           const colors = Array.isArray(sett.colors) ? sett.colors : [];
           theme = colors && colors.length ? colors[0] : null;
         }

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Hover Test - Bloemerbar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .api-data {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .contact-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #F05A70;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+            position: relative;
+        }
+        .contact-link:hover {
+            background: #D94A60;
+        }
+        
+        /* Contact hover mailto badge */
+        .small-link-contact { 
+            position: relative; 
+        }
+        .small-link-contact::after {
+            content: attr(data-email);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 10px);
+            transform: translateX(-50%) rotate(-6deg) scale(0.98);
+            background: #c0392b;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,0.85);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: .5px;
+            white-space: nowrap;
+            max-width: 320px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease, transform .2s ease;
+            z-index: 10;
+        }
+        .small-link-contact:hover::after,
+        .small-link-contact:focus-visible::after {
+            opacity: 1;
+            transform: translateX(-50%) rotate(-6deg) scale(1);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Email Hover Functionality Test</h1>
+        
+        <div class="test-section">
+            <h2>Global API Data Structure</h2>
+            <p>This shows the expected structure from the global API that contains the website information block:</p>
+            <div class="api-data">{
+  "data": {
+    "blocks": [
+      {
+        "__component": "block.website-information",
+        "id": 6,
+        "email": "INFO@BLOEMERBAR.nl",
+        "Address": "6511EB, NIJMEGEN, BLOEMERSTRAAT 65",
+        "open": "THURSDAY TO SATURDAY: 5:00 PM – LATE",
+        "close": "SUNDAY TO WEDNESDAY: CLOSED"
+      },
+      {
+        "__component": "block.nav-links",
+        "id": 1,
+        "navItems": [
+          {
+            "label": "Contact",
+            "href": "#",
+            "isExternal": false
+          }
+        ]
+      }
+    ]
+  }
+}</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Contact Link with Email Hover</h2>
+            <p>Hover over the contact link below to see the email from the global API:</p>
+            
+            <a href="mailto:INFO@BLOEMERBAR.nl" class="contact-link small-link-contact" data-email="INFO@BLOEMERBAR.nl">
+                Contact
+            </a>
+            
+            <p><strong>Expected behavior:</strong> When you hover over the "Contact" link, a tooltip should appear showing "INFO@BLOEMERBAR.nl" (the email from the website information block).</p>
+        </div>
+
+        <div class="test-section">
+            <h2>Implementation Details</h2>
+            <ul>
+                <li><strong>Data Source:</strong> The email is fetched from <code>block.website-information.email</code> in the global API</li>
+                <li><strong>Fallback:</strong> If no email is found in the API, it defaults to "contact@bloemerbar.com"</li>
+                <li><strong>CSS:</strong> The hover effect uses <code>::after</code> pseudo-element with <code>content: attr(data-email)</code></li>
+                <li><strong>JavaScript:</strong> The email is dynamically set as <code>data-email</code> attribute on contact links</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>Code Changes Made</h2>
+            <p>The following changes were made to <code>script.js</code>:</p>
+            <ol>
+                <li>Added logic to fetch email from <code>block.website-information</code> in the global API</li>
+                <li>Updated the contact link generation to use the dynamic email instead of hardcoded value</li>
+                <li>Added the same logic to the <code>__STRAPI_RENDER_ALL</code> function for consistency</li>
+                <li>The existing CSS hover functionality remains unchanged and works with the dynamic email</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

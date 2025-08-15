@@ -258,10 +258,38 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } catch (_) {}
 
-      // 4) Navigation links
+      // 4) Opening Hours from website information block
+      try {
+        const websiteInfoBlock = findBlock(blocks, "block.website-information");
+        if (websiteInfoBlock) {
+          const openHours = websiteInfoBlock.open || "";
+          
+          // Update opening hours elements - only show opening hours
+          const openElement = document.getElementById('opening-hours-open');
+          const closedElement = document.getElementById('opening-hours-closed');
+          
+          if (openElement && openHours) {
+            openElement.textContent = openHours;
+            openElement.style.display = 'block';
+          } else if (openElement) {
+            openElement.style.display = 'none';
+          }
+          
+          // Always hide closed hours
+          if (closedElement) {
+            closedElement.style.display = 'none';
+          }
+        }
+      } catch (_) {}
+
+      // 5) Navigation links
       try {
         const navBlock = findBlock(blocks, "block.nav-links");
         const navItems = (navBlock && navBlock.navItems) || [];
+        
+        // Get email from website information block
+        const websiteInfoBlock = findBlock(blocks, "block.website-information");
+        const contactEmail = (websiteInfoBlock && websiteInfoBlock.email) || "contact@bloemerbar.com";
         
         if (navItems.length > 0) {
           const navHero = document.getElementById('nav-hero');
@@ -273,7 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
               // Special handling for Contact link - convert to mailto if it's the contact item
               const isContact = (item.label || '').toLowerCase() === 'contact';
               if (isContact && !href.startsWith('mailto:')) {
-                href = 'mailto:contact@bloemerbar.com';
+                href = `mailto:${contactEmail}`;
               }
               
               const isMailto = href.startsWith('mailto:');
@@ -297,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (_) {}
 
-      // 4) Corner links (Recruitment, etc.)
+      // 6) Corner links (Recruitment, etc.)
       try {
         // Handle corner-left recruitment link
         const recruitmentLink = document.querySelector('.corner-left .brand-link .small-link-text');
@@ -566,6 +594,74 @@ document.addEventListener("DOMContentLoaded", () => {
             lists[0].innerHTML = html;
             if (lists[1]) lists[1].innerHTML = html;
           });
+        } catch (_) {}
+
+        try {
+          // Opening Hours from website information block
+          const websiteInfoBlock = findBlock(blocks, "block.website-information");
+          if (websiteInfoBlock) {
+            const openHours = websiteInfoBlock.open || "";
+            
+            // Update opening hours elements in all brand-splash sections - only show opening hours
+            document.querySelectorAll('.brand-splash').forEach((brandSplash) => {
+              const openElement = brandSplash.querySelector('#opening-hours-open');
+              const closedElement = brandSplash.querySelector('#opening-hours-closed');
+              
+              if (openElement && openHours) {
+                openElement.textContent = openHours;
+                openElement.style.display = 'block';
+              } else if (openElement) {
+                openElement.style.display = 'none';
+              }
+              
+              // Always hide closed hours
+              if (closedElement) {
+                closedElement.style.display = 'none';
+              }
+            });
+          }
+        } catch (_) {}
+
+        try {
+          // Navigation links
+          const navBlock = findBlock(blocks, "block.nav-links");
+          const navItems = (navBlock && navBlock.navItems) || [];
+          
+          // Get email from website information block
+          const websiteInfoBlock = findBlock(blocks, "block.website-information");
+          const contactEmail = (websiteInfoBlock && websiteInfoBlock.email) || "contact@bloemerbar.com";
+          
+          if (navItems.length > 0) {
+            document.querySelectorAll('#nav-hero').forEach((navHero) => {
+              const navHtml = navItems.map((item) => {
+                let href = item.href || "#";
+                const target = item.isExternal ? ' target="_blank"' : '';
+                
+                // Special handling for Contact link - convert to mailto if it's the contact item
+                const isContact = (item.label || '').toLowerCase() === 'contact';
+                if (isContact && !href.startsWith('mailto:')) {
+                  href = `mailto:${contactEmail}`;
+                }
+                
+                const isMailto = href.startsWith('mailto:');
+                const dataEmail = isMailto ? ` data-email="${href.replace('mailto:', '')}"` : '';
+                const linkClass = isMailto ? 'small-link small-link-contact' : 'small-link';
+                
+                return `
+                  <a href="${href}"${target} class="${linkClass}"${dataEmail}>
+                    <div class="small-link-text">${item.label || ''}</div>
+                    <div class="link-arrow" aria-hidden="true">
+                      <svg width="100%" height="100%" viewBox="0 0 17 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3.1836 26.0662C6.32574 20.7266 11.2081 16.5218 16.4082 13.2568C11.1598 10.0406 6.48457 5.68956 3.19051 0.447478L0.0552734 0.447478C3.34243 5.52248 7.30636 9.93614 12.1957 13.2568C7.29945 16.6262 3.1836 21.0886 2.47955e-05 26.0662L3.1905 26.0662L3.1836 26.0662Z" fill="currentColor"></path>
+                      </svg>
+                    </div>
+                  </a>
+                `;
+              }).join('');
+              
+              navHero.innerHTML = navHtml;
+            });
+          }
         } catch (_) {}
 
         try {

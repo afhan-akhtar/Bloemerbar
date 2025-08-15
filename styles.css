@@ -22,11 +22,131 @@ body { overflow-x: hidden; }
   --background-color: #FFF8F0;
   --text-black: #000000;
   --text-white: #ffffff;
+  --text-color: #000000;
   --complementary-color: #425F93;
   --hover-color: #D94A60;
   --accent-color: #FFE8D6;
 }
-body { background: var(--background-color); color: var(--text-black); }
+
+/* Enhanced theme transitions and effects */
+.main-wrapper {
+  transition: all 0.8s ease;
+  position: relative;
+}
+
+.main-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--theme-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%));
+  opacity: 0.05;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+/* Enhanced transitions for all themeable elements */
+.top-marquee,
+.brand-splash,
+.quad-cta,
+.city-story,
+.about.vision,
+.pinned {
+  transition: all 0.8s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add subtle hover effects */
+.top-marquee:hover,
+.brand-splash:hover,
+.quad-cta:hover,
+.city-story:hover,
+.about.vision:hover,
+.pinned:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--theme-shadow, 0 8px 32px rgba(0,0,0,0.1));
+}
+
+/* SVG elements for smooth color changes */
+.svg-piece {
+  transition: fill 0.8s ease, transform 0.3s ease;
+}
+
+.svg-piece:hover {
+  transform: scale(1.05);
+}
+
+/* Enhanced button and link styling */
+.small-link,
+.vision-cta,
+a,
+button {
+  transition: all 0.6s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.small-link::before,
+.vision-cta::before,
+a::before,
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--theme-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%));
+  opacity: 0.1;
+  transition: left 0.6s ease;
+}
+
+.small-link:hover::before,
+.vision-cta:hover::before,
+a:hover::before,
+button:hover::before {
+  left: 0;
+}
+
+/* Enhanced body background */
+body { 
+  background: var(--background-color); 
+  color: var(--text-black);
+  transition: all 0.8s ease;
+  min-height: 100vh;
+}
+
+/* Add theme indicator styling */
+#theme-indicator {
+  transition: all 0.6s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Enhanced section backgrounds */
+.top-marquee {
+  background: var(--theme-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)) !important;
+  box-shadow: var(--theme-shadow, 0 8px 32px rgba(0,0,0,0.1)) !important;
+}
+
+.brand-splash {
+  background: linear-gradient(135deg, var(--background-color) 0%, var(--secondary-color)20 100%) !important;
+}
+
+.quad-cta {
+  background: linear-gradient(135deg, var(--primary-color)10 0%, var(--accent-color)10 100%) !important;
+}
+
+.about.vision {
+  background: linear-gradient(135deg, var(--background-color) 0%, var(--complementary-color)10 100%) !important;
+}
+
+.pinned {
+  background: linear-gradient(135deg, var(--primary-color)05 0%, var(--secondary-color)05 100%) !important;
+}
 
 /* ===== Top Marquee ===== */
 .top-marquee {

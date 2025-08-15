@@ -12,6 +12,8 @@ body {
   height: auto;
   min-height: 100%;
   font-family: "Oswald", sans-serif;
+  /* Prevent white background during scrolling */
+  background: #fef8dd;
 }
 body { overflow-x: hidden; }
 
@@ -117,6 +119,8 @@ body {
   color: var(--text-black);
   transition: all 0.8s ease;
   min-height: 100vh;
+  /* Ensure consistent background during scrolling */
+  background: #fef8dd !important;
 }
 
 /* Add theme indicator styling */
@@ -808,7 +812,11 @@ section {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #fef8dd;
+  /* Ensure consistent background to prevent white flashes in both directions */
+  background: linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%) !important;
+  /* Ensure smooth transitions and prevent white background flashes */
+  transition: background-color 0.3s ease;
+  will-change: transform;
 }
 
 .sticky-header {
@@ -995,9 +1003,13 @@ section {
   align-items: center;
   background-color: #000;
   border-radius: 1em;
-  will-change: transform;
+  will-change: transform, top;
   overflow: hidden;
   border: 2px solid #222;
+  /* Ensure smooth transitions and prevent jumping */
+  transition: top 0.1s ease-out, transform 0.1s ease-out;
+  /* Ensure proper stacking order */
+  z-index: 1;
 }
 
 #card-1,
@@ -1292,8 +1304,31 @@ section {
 
 /* Pinned Section - Enhanced with warm, inviting colors */
 .pinned {
-  background: var(--background-color);
+  /* Ensure consistent background to prevent white flashes */
+  background: linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%) !important;
   border-top: 2px solid var(--secondary-color);
+  border-bottom: 2px solid var(--secondary-color);
+  position: relative;
+  overflow: hidden;
+  /* Prevent any white background flashes during animations */
+  min-height: 100vh;
+  /* Force background to always be visible */
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Additional safety class to prevent white background */
+.pinned::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .card {

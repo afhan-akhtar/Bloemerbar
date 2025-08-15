@@ -1384,7 +1384,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const totalStickyHeight = window.innerHeight * 6; // ensure enough height for looping
 
   // lenis smooth scroll
-  const lenis = new Lenis();
+  const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    orientation: 'vertical',
+    gestureOrientation: 'vertical',
+    smoothWheel: true,
+    wheelMultiplier: 1,
+    smoothTouch: false,
+    touchMultiplier: 2,
+    infinite: false,
+  });
   lenis.on("scroll", ScrollTrigger.update);
   gsap.ticker.add((time) => {
     lenis.raf(time * 1000);
@@ -1930,6 +1940,11 @@ document.addEventListener("DOMContentLoaded", () => {
     function initPinnedSection(pinnedSection) {
       if (!pinnedSection || initializedPinned.has(pinnedSection)) return;
       initializedPinned.add(pinnedSection);
+      
+      // Ensure background is set immediately
+      gsap.set(pinnedSection, { 
+        background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 
+      });
 
     const stickyHeader = pinnedSection.querySelector(".sticky-header");
     const cards = pinnedSection.querySelectorAll(".card");
@@ -1939,6 +1954,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const indices = pinnedSection.querySelectorAll(".index");
     const cardCount = cards.length;
     const pinnedHeight = window.innerHeight * (cardCount + 1);
+    // Ensure smooth scrolling by adding a small buffer
+    const scrollBuffer = 100;
 
     const startRotations = [0, 5, 0, -5];
     const endRotations = [-10, -5, 10, 5];
@@ -1984,6 +2001,15 @@ document.addEventListener("DOMContentLoaded", () => {
       img.style.top = 0;
       img.style.left = 0;
       img.style.zIndex = 0;
+      // Ensure smooth image loading to prevent glitches
+      img.loading = "eager";
+      img.decoding = "async";
+      img.onload = () => {
+        // Ensure image is properly loaded before showing
+        img.style.opacity = "1";
+      };
+      img.style.opacity = "0";
+      img.style.transition = "opacity 0.3s ease";
       card.appendChild(img);
 
       let frameIndex = 0;
@@ -2032,20 +2058,40 @@ document.addEventListener("DOMContentLoaded", () => {
     ScrollTrigger.create({
       trigger: pinnedSection,
       start: "top top",
-      end: `+=${pinnedHeight}`,
+      end: `+=${pinnedHeight + scrollBuffer}`,
       pin: true,
       pinSpacing: true,
+      // Ensure smooth scrolling behavior
+      anticipatePin: 1,
       onLeave: () => {
         hideProgressAndIndices();
         openBookPopup();
+        // Ensure background is maintained when leaving
+        gsap.set(pinnedSection, { 
+          background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 
+        });
       },
-        onEnterBack: () => { showProgressAndIndices(); },
+      onEnterBack: () => { 
+        showProgressAndIndices(); 
+        // Ensure background is visible when scrolling back
+        gsap.set(pinnedSection, { 
+          background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 
+        });
+      },
       onUpdate: (self) => {
         const sectionProgress = self.progress * (cardCount + 1);
+        
+        // Ensure background is always visible during scrolling
+        gsap.set(pinnedSection, { 
+          background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 
+        });
+        
         // Sticky header is always visible - removed opacity animation
         if (stickyHeader) {
           gsap.set(stickyHeader, { opacity: 1 });
         }
+        
+        // Handle initial state (before first card)
         if (sectionProgress <= 1) {
           if (isProgressBarVisible) hideProgressAndIndices();
           cards.forEach((card, index) => {
@@ -2057,32 +2103,67 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           return;
         }
-          if (!isProgressBarVisible) { showProgressAndIndices(); }
-          const progress = sectionProgress - 1;
+        
+        // Show progress and indices when we start card animations
+        if (!isProgressBarVisible) { 
+          showProgressAndIndices(); 
+        }
+        
+        const progress = sectionProgress - 1;
         const currentCardRaw = Math.floor(progress);
         const currentCard = Math.max(1, currentCardRaw);
         let progressHeight = (progress / cardCount) * 100;
         progressHeight = Math.max(0, Math.min(progressHeight, 100));
         const colorIndex = Math.min(Math.floor(progress), cardCount - 1);
-          gsap.to(progressBar, { height: `${progressHeight}%`, backgroundColor: progressColors[colorIndex], duration: 0.3, ease: "power1.out" });
-          if (isProgressBarVisible) { animateIndexOpacity(colorIndex); }
+        
+        // Update progress bar
+        gsap.to(progressBar, { 
+          height: `${progressHeight}%`, 
+          backgroundColor: progressColors[colorIndex], 
+          duration: 0.3, 
+          ease: "power1.out" 
+        });
+        
+        if (isProgressBarVisible) { 
+          animateIndexOpacity(colorIndex); 
+        }
+        
+        // Handle card animations with smooth transitions
         cards.forEach((card, index) => {
           if (index < currentCard) {
+            // Cards that have completed their animation
             gsap.set(card, { top: "50%", rotation: endRotations[index] });
           } else if (index === currentCard) {
-              const cardProgress = progress - currentCard;
+            // Currently animating card
+            const cardProgress = progress - currentCard;
             const newTop = gsap.utils.interpolate(115, 50, cardProgress);
-              const newRotation = gsap.utils.interpolate(startRotations[index], endRotations[index], cardProgress);
+            const newRotation = gsap.utils.interpolate(startRotations[index], endRotations[index], cardProgress);
             gsap.set(card, { top: `${newTop}%`, rotation: newRotation });
           } else {
+            // Cards waiting to animate
             gsap.set(card, { top: "115%", rotation: startRotations[index] });
           }
         });
+        
+        // Prevent white background flash by ensuring smooth transition to next section
+        if (self.progress >= 0.99) {
+          // When almost complete, ensure all cards are in final position
+          cards.forEach((card, index) => {
+            gsap.set(card, { top: "50%", rotation: endRotations[index] });
+          });
+        }
       },
     });
     }
 
     document.querySelectorAll(".pinned").forEach((el) => initPinnedSection(el));
+    
+    // Ensure all pinned sections have proper background on page load
+    document.querySelectorAll(".pinned").forEach((section) => {
+      gsap.set(section, { 
+        background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 
+      });
+    });
     const pinnedAnimObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         mutation.addedNodes.forEach((node) => {

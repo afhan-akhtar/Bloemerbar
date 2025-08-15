@@ -1961,10 +1961,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const endRotations = [-10, -5, 10, 5];
     const progressColors = ["#FFD1DC", "#AEC6CF", "#77DD77", "#C5BBDE"];
     const cardImageSequences = [
-        ["./assets/pub_1.jpg", "./assets/pub_2.jpg", "./assets/pub_3.jpg", "./assets/pub_4.jpg"],
-        ["./assets/club_1.jpg", "./assets/club_2.jpg", "./assets/club_3.jpg", "./assets/club_4.jpg"],
-        ["./assets/terrace_1.jpg", "./assets/terrace_2.jpg", "./assets/terrace_3.jpg", "./assets/terrace_4.jpg"],
-        ["./assets/interior_1.jpg", "./assets/interrior_2.jpg", "./assets/interior_1.jpg", "./assets/interrior_2.jpg"],
+        // ["./assets/pub_1.jpg", "./assets/pub_2.jpg", "./assets/pub_3.jpg", "./assets/pub_4.jpg"],
+        // ["./assets/club_1.jpg", "./assets/club_2.jpg", "./assets/club_3.jpg", "./assets/club_4.jpg"],
+        // ["./assets/terrace_1.jpg", "./assets/terrace_2.jpg", "./assets/terrace_3.jpg", "./assets/terrace_4.jpg"],
+        // ["./assets/interior_1.jpg", "./assets/interrior_2.jpg", "./assets/interior_1.jpg", "./assets/interrior_2.jpg"],
       ];
 
     try {
@@ -1992,7 +1992,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       let sequence = getDynamicSequence();
       const img = document.createElement("img");
-      img.src = sequence[0] || "./assets/Animation1.gif";
+      img.src = sequence[0] || "";
       img.alt = `Card ${index + 1}`;
       img.style.width = "100%";
       img.style.height = "100%";

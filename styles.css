@@ -209,6 +209,7 @@ body { background: var(--background-color); color: var(--text-black); }
 .city-story__text {
   flex: 0 0 66.6667%;
   max-width: 66.6667%;
+  
 }
 
 .city-story__badge {
@@ -666,10 +667,11 @@ section {
 
 .sticky-header {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 2%;
+  left: 3%;
+  transform: none;
   opacity: 1;
+  z-index: 10;
 }
 
 /* ===== Quad CTA (after cards) ===== */
@@ -828,16 +830,16 @@ section {
 }
 
 .sticky-header h1 {
-  font-size: 19vw;
-  font-weight: 300;
-  color: transparent;
+  font-size: 8vw;
+  font-weight: 900;
+  /* color: transparent; */
   -webkit-text-stroke: 2px #ffffff;
-  text-align: center;
+  text-align: left;
 }
 
 .card {
   position: absolute;
-  top: 115%;
+  top: 65%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(0deg);
   width: min(92vw, 1100px);
@@ -1102,6 +1104,7 @@ section {
   color: var(--secondary-color) !important;
   font-weight: 600;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+  font-size: 40px !important  ;
 }
 
 .mr-badge {

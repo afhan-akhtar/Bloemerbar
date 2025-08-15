@@ -555,7 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (_) {}
 
-      // 12) Pinned cards: titles and images from Gallery (API order)
+      // 12) Pinned section title and cards: titles and images from Gallery (API order)
       try {
         const galleryBlock = findBlock(blocks, "block.gallery-section");
         const gallery = (galleryBlock && galleryBlock.Gallery) || [];
@@ -565,6 +565,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         function renderPinnedSection(pinnedRoot) {
           if (!pinnedRoot) return;
+          
+          // Set the pinned section title from gallery block
+          const pinnedTitle = pinnedRoot.querySelector('#pinned-section-title');
+          if (pinnedTitle && galleryBlock && galleryBlock.title) {
+            pinnedTitle.textContent = galleryBlock.title;
+          }
+          
           const cards = pinnedRoot.querySelectorAll('.card');
           cards.forEach((card, idx) => {
             const g = gallery[idx];
@@ -854,13 +861,20 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (_) {}
 
         try {
-          // Pinned cards (idempotent render)
+          // Pinned section title and cards (idempotent render)
           document.querySelectorAll('.pinned').forEach((section) => {
             const galleryBlock = findBlock(blocks, "block.gallery-section");
             const gallery = (galleryBlock && galleryBlock.Gallery) || [];
             const titleToImages = Object.fromEntries(
               gallery.map((g) => [g.title, (g.images || []).map((im) => mediaUrl(im && im.url)).filter(Boolean)])
             );
+            
+            // Set the pinned section title from gallery block
+            const pinnedTitle = section.querySelector('#pinned-section-title');
+            if (pinnedTitle && galleryBlock && galleryBlock.title) {
+              pinnedTitle.textContent = galleryBlock.title;
+            }
+            
             const cards = section.querySelectorAll('.card');
             cards.forEach((card, idx) => {
               const g = gallery[idx];
@@ -1616,12 +1630,9 @@ document.addEventListener("DOMContentLoaded", () => {
         onEnterBack: () => { showProgressAndIndices(); },
       onUpdate: (self) => {
         const sectionProgress = self.progress * (cardCount + 1);
+        // Sticky header is always visible - removed opacity animation
         if (stickyHeader) {
-          if (sectionProgress <= 1) {
-              gsap.to(stickyHeader, { opacity: 1 - sectionProgress, duration: 0.1, ease: "none" });
-          } else {
-            gsap.set(stickyHeader, { opacity: 0 });
-          }
+          gsap.set(stickyHeader, { opacity: 1 });
         }
         if (sectionProgress <= 1) {
           if (isProgressBarVisible) hideProgressAndIndices();

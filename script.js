@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   gsap.registerPlugin(ScrollTrigger);
   // === Strapi dynamic content integration ===
   (async function integrateStrapi() {
-    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://localhost:1337";
+    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://192.168.1.8:1337";
     const endpoints = {
       sett: "/api/sett",
       global: "/api/global",

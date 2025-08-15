@@ -2065,7 +2065,19 @@ document.addEventListener("DOMContentLoaded", () => {
       anticipatePin: 1,
       onLeave: () => {
         hideProgressAndIndices();
-        openBookPopup();
+        
+        // Only show booking popup on original and first copy
+        const mainWrapper = pinnedSection.closest('.main-wrapper');
+        if (mainWrapper) {
+          const allMainWrappers = document.querySelectorAll('.main-wrapper');
+          const currentIndex = Array.from(allMainWrappers).indexOf(mainWrapper);
+          
+          // Show popup only on original (index 0) and first copy (index 1)
+          if (currentIndex <= 1) {
+            openBookPopup();
+          }
+        }
+        
         // Ensure background is maintained when leaving
         gsap.set(pinnedSection, { 
           background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 

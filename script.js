@@ -138,6 +138,45 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } catch (_) {}
 
+      // 4) Navigation links
+      try {
+        const navBlock = findBlock(blocks, "block.nav-links");
+        const navItems = (navBlock && navBlock.navItems) || [];
+        
+        if (navItems.length > 0) {
+          const navHero = document.getElementById('nav-hero');
+          if (navHero) {
+            const navHtml = navItems.map((item) => {
+              let href = item.href || "#";
+              const target = item.isExternal ? ' target="_blank"' : '';
+              
+              // Special handling for Contact link - convert to mailto if it's the contact item
+              const isContact = (item.label || '').toLowerCase() === 'contact';
+              if (isContact && !href.startsWith('mailto:')) {
+                href = 'mailto:contact@bloemerbar.com';
+              }
+              
+              const isMailto = href.startsWith('mailto:');
+              const dataEmail = isMailto ? ` data-email="${href.replace('mailto:', '')}"` : '';
+              const linkClass = isMailto ? 'small-link small-link-contact text-color-green-light' : 'small-link text-color-green-light';
+              
+              return `
+                <a href="${href}"${target} class="${linkClass}"${dataEmail}>
+                  <div class="small-link-text">${item.label || ''}</div>
+                  <div class="link-arrow" aria-hidden="true">
+                    <svg width="100%" height="100%" viewBox="0 0 17 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.1836 26.0662C6.32574 20.7266 11.2081 16.5218 16.4082 13.2568C11.1598 10.0406 6.48457 5.68956 3.19051 0.447478L0.0552734 0.447478C3.34243 5.52248 7.30636 9.93614 12.1957 13.2568C7.29945 16.6262 3.1836 21.0886 2.47955e-05 26.0662L3.1905 26.0662L3.1836 26.0662Z" fill="currentColor"></path>
+                    </svg>
+                  </div>
+                </a>
+              `;
+            }).join('');
+            
+            navHero.innerHTML = navHtml;
+          }
+        }
+      } catch (_) {}
+
       // 4) Social links (corner-right)
       try {
         const socialBlock = findBlock(blocks, "block.social-links");

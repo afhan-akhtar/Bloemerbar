@@ -430,7 +430,7 @@ section {
 /* Removed conflicting bg-title styles - using new animated version */
 
 .brand-illustration {
-  width: 380px;
+  width: clamp(280px, 50vw, 480px);
   height: auto;
   z-index: 1;
   filter: drop-shadow(0 8px 24px rgba(0,0,0,0.18));
@@ -475,7 +475,13 @@ section {
 }
 
 @media (max-width: 900px) {
-  .brand-illustration { width: min(72vw, 520px); }
+  .brand-illustration { 
+    width: clamp(240px, 65vw, 400px); 
+  }
+  .brand-splash .brand-illustration {
+    width: clamp(240px, 65vw, 400px);
+    max-width: 95%;
+  }
   .sticker { transform: translateY(-40%) rotate(-2deg) scale(0.95); }
 }
 
@@ -500,6 +506,14 @@ section {
 @media (max-width: 700px) {
   .corner-left { left: 14px; bottom: 16px; }
   .corner-right { right: 14px; bottom: 16px; }
+  
+  .brand-illustration { 
+    width: clamp(200px, 80vw, 320px); 
+  }
+  .brand-splash .brand-illustration {
+    width: clamp(200px, 80vw, 320px);
+    max-width: 98%;
+  }
 }
 
 .corner-left, .corner-right { padding-bottom: env(safe-area-inset-bottom, 0); }
@@ -507,7 +521,7 @@ section {
 /* ===== Opening Hours Center (in brand-splash) ===== */
 .opening-hours-center {
   position: absolute;
-  bottom: 24px;
+  bottom: clamp(16px, 4vh, 32px);
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -550,16 +564,32 @@ section {
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-@media (max-width: 700px) {
+@media (max-width: 900px) {
   .opening-hours-center {
-    bottom: 16px;
-    max-width: 95%;
+    bottom: clamp(14px, 3.5vh, 28px);
+    max-width: 92%;
   }
   
   .opening-hours__open,
   .opening-hours__closed {
-    font-size: clamp(12px, 3vw, 16px);
+    font-size: clamp(12px, 2.8vw, 16px);
     padding: 0.4rem 0.8rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .opening-hours-center {
+    bottom: clamp(12px, 3vh, 20px);
+    max-width: 95%;
+    gap: 0.3rem;
+  }
+  
+  .opening-hours__open,
+  .opening-hours__closed {
+    font-size: clamp(11px, 2.5vw, 14px);
+    padding: 0.3rem 0.6rem;
+    white-space: normal;
+    line-height: 1.2;
   }
 }
 
@@ -1437,10 +1467,10 @@ body {
 .brand-splash .brand-illustration {
     position: relative;
     z-index: 10;
-    width: 380px;
+    width: clamp(280px, 50vw, 480px);
     height: auto;
-    max-width: 85%;
-    max-height: 70vh;
+    max-width: 90%;
+    max-height: 60vh;
     filter: drop-shadow(0 0 20px rgba(240, 90, 112, 0.3));
     transition: all 0.3s ease;
 }
@@ -1459,268 +1489,30 @@ body {
     fill: var(--primary-orange);
 }
 
-/* Enhanced animated gradient background */
-.gradient-bg {
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(from 180deg at 50% 50%, 
-        var(--primary-orange) 0deg,
-        var(--primary-pink) 60deg,
-        var(--primary-coral) 120deg,
-        var(--primary-teal) 180deg,
-        var(--primary-blue) 240deg,
-        var(--primary-rose) 300deg,
-        var(--primary-orange) 360deg);
-    opacity: 0.05;
-    animation: rotateGradient 30s linear infinite;
-    filter: blur(100px);
-}
 
-@keyframes rotateGradient {
-    0% { transform: rotate(0deg) scale(1.5); }
-    100% { transform: rotate(360deg) scale(1.5); }
-}
-
-/* Advanced laser grid effect */
-.laser-grid {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 2;
-    transform-style: preserve-3d;
-}
-
-.laser-line {
-    position: absolute;
-    background: linear-gradient(90deg, 
-        transparent, 
-        var(--primary-cyan), 
-        transparent);
-    opacity: 0;
-    filter: blur(1px);
-    box-shadow: 0 0 20px currentColor;
-}
-
-.laser-h {
-    width: 100%;
-    height: 1px;
-    animation: laserSweepH 8s ease-in-out infinite;
-}
-
-.laser-v {
-    width: 1px;
-    height: 100%;
-    animation: laserSweepV 8s ease-in-out infinite;
-}
-
-@keyframes laserSweepH {
-    0%, 100% { transform: translateY(-100vh); opacity: 0; }
-    20%, 80% { opacity: 0.4; }
-    50% { transform: translateY(100vh); opacity: 0.6; }
-}
-
-@keyframes laserSweepV {
-    0%, 100% { transform: translateX(-100vw); opacity: 0; }
-    20%, 80% { opacity: 0.4; }
-    50% { transform: translateX(100vw); opacity: 0.6; }
-}
-
-/* Enhanced party lights with 3D effect */
-.party-lights {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 3;
-    transform-style: preserve-3d;
-}
-
-.spotlight {
-    position: absolute;
-    width: 300px;
-    height: 100%;
-    opacity: 0.08;
-    transform-origin: bottom center;
-    filter: blur(2px);
-    mix-blend-mode: screen;
-}
-
-.spotlight::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: conic-gradient(from 0deg at 50% 100%, 
-        transparent 40deg, 
-        currentColor 45deg, 
-        currentColor 55deg, 
-        transparent 60deg);
-    animation: spotlightRotate 10s ease-in-out infinite;
-}
-
-@keyframes spotlightRotate {
-    0%, 100% { transform: rotate(-30deg) rotateX(20deg); }
-    25% { transform: rotate(0deg) rotateX(10deg); }
-    50% { transform: rotate(30deg) rotateX(20deg); }
-    75% { transform: rotate(0deg) rotateX(15deg); }
-}
-
-/* Particle system with physics */
-.particle-system {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 4;
-}
-
-.particle {
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    mix-blend-mode: screen;
-}
-
-.particle-glow {
-    width: 4px;
-    height: 4px;
-    background: radial-gradient(circle, 
-        rgba(217, 70, 239, 1) 0%, 
-        rgba(217, 70, 239, 0.6) 40%, 
-        transparent 70%);
-    box-shadow: 0 0 10px currentColor;
-    animation: particleFloat 15s linear infinite;
-}
-
-.particle-spark {
-    width: 2px;
-    height: 2px;
-    background: white;
-    box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
-    animation: particleSpark 3s linear infinite;
-}
-
-@keyframes particleFloat {
-    0% {
-        transform: translateY(110vh) translateX(0) scale(0);
-        opacity: 0;
-    }
-    5% {
-        opacity: 1;
-        transform: translateY(100vh) translateX(0) scale(1);
-    }
-    95% {
-        opacity: 1;
-        transform: translateY(-10vh) translateX(100px) scale(1);
-    }
-    100% {
-        transform: translateY(-20vh) translateX(120px) scale(0);
-        opacity: 0;
-    }
-}
-
-@keyframes particleSpark {
-    0% {
-        transform: translate(0, 0) scale(0);
-        opacity: 0;
-    }
-    50% {
-        transform: translate(var(--spark-x), var(--spark-y)) scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: translate(calc(var(--spark-x) * 2), calc(var(--spark-y) * 2)) scale(0);
-        opacity: 0;
-    }
-}
-
-/* Holographic disco floor */
-.disco-floor {
-    position: absolute;
-    bottom: 0;
-    left: -50%;
-    width: 200%;
-    height: 40%;
-    transform: rotateX(70deg) translateZ(-100px);
-    transform-style: preserve-3d;
-    background: repeating-linear-gradient(
-        90deg,
-        rgba(217, 70, 239, 0.03) 0px,
-        rgba(6, 182, 212, 0.03) 40px,
-        rgba(52, 211, 153, 0.03) 80px,
-        rgba(245, 158, 11, 0.03) 120px
-    ),
-    repeating-linear-gradient(
-        0deg,
-        rgba(255, 255, 255, 0.01) 0px,
-        rgba(255, 255, 255, 0.02) 40px,
-        rgba(255, 255, 255, 0.01) 80px
-    );
-    animation: discoScroll 4s linear infinite;
-    z-index: 1;
-}
-
-@keyframes discoScroll {
-    0% { background-position: 0 0, 0 0; }
-    100% { background-position: 120px 0, 0 80px; }
-}
-
-/* Neon strobe pulses */
-.strobe-pulse {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle at center, 
-        transparent 0%, 
-        rgba(255, 255, 255, 0.02) 50%, 
-        transparent 100%);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 5;
-}
 
 /* Background text with perspective */
 .bg-title {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotateY(15deg) rotateX(-5deg);
-    font-size: clamp(3rem, 10vw, 10rem);
+    /* top: 50%; */
+    /* left: 50%; */
+    /* transform: translate(-50%, -50%) rotateY(15deg) rotateX(-5deg); */
+    font-size: clamp(3rem, 7vw, 7rem);
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--primary-color);
     letter-spacing: 0.2em;
     white-space: nowrap;
     z-index: 1;
     pointer-events: none;
     text-transform: uppercase;
     font-style: italic;
-    animation: textFloat 10s ease-in-out infinite;
-    text-shadow: 0 0 20px rgba(217, 70, 239, 0.5);
+    /* text-shadow: 0 0 20px rgba(217, 70, 239, 0.5); */
     text-align: center;
     width: 100%;
-    max-width: 90vw;
+    opacity:0.3;
+    max-width: 100vw;
     overflow: hidden;
-    filter: blur(0px);
-}
-
-@keyframes textFloat {
-    0%, 100% { transform: translate(-50%, -50%) rotateY(15deg) rotateX(-5deg); }
-    50% { transform: translate(-50%, -50%) rotateY(-15deg) rotateX(5deg); }
+    /* filter: blur(0px); */
 }
 
 /* Enhanced music controls with glassmorphism */

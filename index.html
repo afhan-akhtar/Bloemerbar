@@ -487,13 +487,118 @@
           <h3 class="book-popup__title">Ready to Book?</h3>
           <p class="book-popup__desc">Reserve your table in seconds.</p>
         </div>
-        <a class="book-popup__cta" href="#" aria-label="Book now">Book now</a>
+        <a class="book-popup__cta" href="#ft-open" aria-label="Book now">Book now</a>
       </div>
+    </div>
+
+    <!-- Formitable Booking Widget -->
+    <div id="ft-widget" 
+         class="ft-widget-b2" 
+         style="width:100%; max-width:400px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; display: none;"
+         data-restaurant="67e30298"
+         data-open="false"
+         data-open-mobile="false"
+         data-color="#FF5733"
+         data-language="en"
+         data-tag="website-reservations"
+         data-toolbar="false"
+         data-toolbar-mobile="false">
     </div>
 
     <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="./script.js"></script>
+
+    <!-- Formitable SDK Script -->
+    <script>
+      // Load Formitable SDK
+      (function() {
+        if (document.getElementById("formitable-sdk")) return;
+
+        const script = document.createElement("script");
+        script.id = "formitable-sdk";
+        script.src = "https://cdn.formitable.com/sdk/v1/ft.sdk.min.js";
+        script.async = true;
+        script.onload = function() {
+          if (window.FT) {
+            window.FT.load({});
+          }
+        };
+        document.body.appendChild(script);
+
+        // Listen for successful reservation
+        window.addEventListener("ft-widget-ordered", function(event) {
+          console.log("Reservation completed:", event.detail);
+          // You can add a success message or redirect here
+        });
+
+        // Handle anchor links for widget control
+        document.addEventListener('click', function(e) {
+          if (e.target.matches('a[href="#ft-open"]')) {
+            e.preventDefault();
+            const widget = document.getElementById('ft-widget');
+            if (widget) {
+              widget.style.display = 'block';
+              // Show toolbar and open widget when Book Now is clicked
+              if (window.FT) {
+                // Show the toolbar first
+                if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
+                  window.FT.widgetService.showToolbar();
+                }
+                // Then open the widget
+                if (window.FT.open) {
+                  window.FT.open();
+                }
+              }
+            }
+          }
+          
+          if (e.target.matches('a[href="#ft-close"]')) {
+            e.preventDefault();
+            const widget = document.getElementById('ft-widget');
+            if (widget) {
+              widget.style.display = 'none';
+              // Hide toolbar and close widget
+              if (window.FT) {
+                if (window.FT.close) {
+                  window.FT.close();
+                }
+                if (window.FT.widgetService && window.FT.widgetService.hideToolbar) {
+                  window.FT.widgetService.hideToolbar();
+                }
+              }
+            }
+          }
+          
+          if (e.target.matches('a[href="#ft-toggle"]')) {
+            e.preventDefault();
+            const widget = document.getElementById('ft-widget');
+            if (widget) {
+              const isVisible = widget.style.display !== 'none';
+              widget.style.display = isVisible ? 'none' : 'block';
+              // Toggle widget and toolbar
+              if (window.FT) {
+                if (isVisible) {
+                  if (window.FT.close) {
+                    window.FT.close();
+                  }
+                  if (window.FT.widgetService && window.FT.widgetService.hideToolbar) {
+                    window.FT.widgetService.hideToolbar();
+                  }
+                } else {
+                  if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
+                    window.FT.widgetService.showToolbar();
+                  }
+                  if (window.FT.open) {
+                    window.FT.open();
+                  }
+                }
+              }
+            }
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

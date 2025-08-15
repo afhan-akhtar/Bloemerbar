@@ -905,13 +905,11 @@ document.addEventListener("DOMContentLoaded", () => {
               if (bookingBlock.book.label) {
                 bookButton.textContent = bookingBlock.book.label;
               }
-              if (bookingBlock.book.href) {
-                bookButton.setAttribute('href', bookingBlock.book.href);
-              }
-              if (bookingBlock.book.isExternal) {
-                bookButton.setAttribute('target', '_blank');
-                bookButton.setAttribute('rel', 'noopener noreferrer');
-              }
+              // Use hardcoded href instead of fetching from Strapi
+              bookButton.setAttribute('href', '#ft-open');
+              // Remove external link attributes since we're using a local anchor
+              bookButton.removeAttribute('target');
+              bookButton.removeAttribute('rel');
             }
           }
         } catch (_) {}
@@ -959,9 +957,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const a = pop.querySelector('.book-popup__cta');
             if (t && title) t.textContent = title;
             if (d && desc) d.textContent = desc;
-            if (a && cta.href) {
-              a.setAttribute('href', cta.href);
-              if (cta.isExternal) a.setAttribute('target', '_blank');
+            if (a) {
+              // Use hardcoded href instead of fetching from Strapi
+              a.setAttribute('href', '#ft-open');
+              // Remove external link attributes since we're using a local anchor
+              a.removeAttribute('target');
+              a.removeAttribute('rel');
               if (cta.label) a.textContent = cta.label;
             }
           }
@@ -1233,13 +1234,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (bookingBlock.book.label) {
                   bookButton.textContent = bookingBlock.book.label;
                 }
-                if (bookingBlock.book.href) {
-                  bookButton.setAttribute('href', bookingBlock.book.href);
-                }
-                if (bookingBlock.book.isExternal) {
-                  bookButton.setAttribute('target', '_blank');
-                  bookButton.setAttribute('rel', 'noopener noreferrer');
-                }
+                // Use hardcoded href instead of fetching from Strapi
+                bookButton.setAttribute('href', '#ft-open');
+                // Remove external link attributes since we're using a local anchor
+                bookButton.removeAttribute('target');
+                bookButton.removeAttribute('rel');
               }
             }
           } catch (_) {}

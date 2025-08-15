@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloemerbar Theme Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .theme-demo {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .theme-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .theme-btn {
+            display: block;
+            margin: 0.5rem 0;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--primary-color);
+            background: var(--background-color);
+            color: var(--primary-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-btn:hover {
+            background: var(--primary-color);
+            color: var(--text-white);
+        }
+        
+        .theme-btn.active {
+            background: var(--complementary-color);
+            border-color: var(--complementary-color);
+            color: var(--text-white);
+        }
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .color-swatch {
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .color-swatch:hover {
+            transform: scale(1.05);
+        }
+        
+        .primary { background: var(--primary-color); }
+        .secondary { background: var(--secondary-color); }
+        .complementary { background: var(--complementary-color); }
+        .background { background: var(--background-color); color: var(--text-black); border: 2px solid #ddd; }
+        .hover { background: var(--hover-color); }
+        .accent { background: var(--accent-color); color: var(--text-black); border: 2px solid #ddd; }
+        
+        .demo-section {
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 10px;
+            border: 2px solid var(--secondary-color);
+        }
+        
+        .demo-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .demo-section p {
+            color: var(--text-black);
+            margin-bottom: 1rem;
+        }
+        
+        .demo-button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: var(--text-white);
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .demo-button:hover {
+            background: var(--complementary-color);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-controls">
+        <h3>Theme Switcher</h3>
+        <button class="theme-btn active" onclick="switchTheme(0)">Theme 1 (Pink/Red)</button>
+        <button class="theme-btn" onclick="switchTheme(1)">Theme 2 (Purple/Pink)</button>
+        <button class="theme-btn" onclick="switchTheme(2)">Theme 3 (Black/Pink)</button>
+        <button class="theme-btn" onclick="switchTheme(3)">Theme 4 (Red/Pink)</button>
+        <button class="theme-btn" onclick="switchTheme(4)">Theme 5 (Orange/Pink)</button>
+    </div>
+
+    <div class="theme-demo">
+        <h1 style="color: var(--primary-color); font-size: 3rem; text-align: center; margin: 2rem 0;">
+            Bloemerbar Theme Demo
+        </h1>
+        
+        <div class="color-palette">
+            <div class="color-swatch primary">
+                <h3>Primary Color</h3>
+                <p>var(--primary-color)</p>
+            </div>
+            <div class="color-swatch secondary">
+                <h3>Secondary Color</h3>
+                <p>var(--secondary-color)</p>
+            </div>
+            <div class="color-swatch complementary">
+                <h3>Complementary Color</h3>
+                <p>var(--complementary-color)</p>
+            </div>
+            <div class="color-swatch background">
+                <h3>Background Color</h3>
+                <p>var(--background-color)</p>
+            </div>
+            <div class="color-swatch hover">
+                <h3>Hover Color</h3>
+                <p>var(--hover-color)</p>
+            </div>
+            <div class="color-swatch accent">
+                <h3>Accent Color</h3>
+                <p>var(--accent-color)</p>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Section Demo</h2>
+            <p>This section demonstrates how the theme colors are applied to different elements. The border uses the secondary color, the heading uses the primary color, and the button uses the primary color with complementary color on hover.</p>
+            <a href="#" class="demo-button">Demo Button</a>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Another Section</h2>
+            <p>Each section can have its own theme applied. The colors automatically update when you switch themes using the controls in the top right corner.</p>
+            <a href="#" class="demo-button">Another Button</a>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Theme Information - Tripletta Inspired</h2>
+            <p><strong>Theme 1:</strong> Warm Pink/Red with cream background - Perfect for family-friendly dining</p>
+            <p><strong>Theme 2:</strong> Elegant Purple/Pink with lavender background - Sophisticated yet welcoming</p>
+            <p><strong>Theme 3:</strong> Bold Black/Pink with light gray background - Modern and edgy</p>
+            <p><strong>Theme 4:</strong> Vibrant Red/Pink with soft pink background - Energetic and inviting</p>
+            <p><strong>Theme 5:</strong> Warm Orange/Pink with peach background - Cozy and comforting</p>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Tripletta-Inspired Features</h2>
+            <p><strong>Warm Backgrounds:</strong> No white backgrounds - using warm, inviting colors like cream, lavender, and peach</p>
+            <p><strong>Gradient Effects:</strong> Beautiful gradients that create depth and visual interest</p>
+            <p><strong>Enhanced Hover States:</strong> More dramatic hover effects with scaling, rotation, and shadow changes</p>
+            <p><strong>Text Shadows:</strong> Subtle text shadows for better readability and visual appeal</p>
+            <p><strong>Family-Friendly Colors:</strong> Warm, welcoming color palette inspired by [Tripletta Pizza](https://www.triplettapizza.com/)</p>
+            <p><strong>Vibrant Interactions:</strong> Smooth 0.4s transitions with transform effects for engaging user experience</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Update active button
+        function updateActiveButton(themeIndex) {
+            document.querySelectorAll('.theme-btn').forEach((btn, index) => {
+                btn.classList.toggle('active', index === themeIndex);
+            });
+        }
+        
+        // Override the switchTheme function to update UI
+        const originalSwitchTheme = window.switchTheme;
+        window.switchTheme = function(themeIndex) {
+            originalSwitchTheme(themeIndex);
+            updateActiveButton(themeIndex);
+        };
+    </script>
+</body>
+</html>

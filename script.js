@@ -97,26 +97,146 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 2) Theme colors → CSS variables
       try {
-        const theme = Array.isArray(sett.colors) && sett.colors.length ? sett.colors[0] : null;
-        if (theme) {
+        // Use the provided theme colors instead of fetching from API
+        const themeColors = [
+          {
+            "id": 87,
+            "secondaryColor": "#F7AACC",
+            "whiteColor": "#ffffff",
+            "blackColor": "#000000",
+            "primaryColor": "#F05A70",
+            "backgroundColor": "#FFF8F0",
+            "complementary": "#425F93",
+            "hoverColor": "#D94A60",
+            "accentColor": "#FFE8D6"
+          },
+          {
+            "id": 88,
+            "secondaryColor": "#425F93",
+            "whiteColor": "#ffffff",
+            "blackColor": "#000000",
+            "primaryColor": "#D28FB9",
+            "backgroundColor": "#F0F4FF",
+            "complementary": "#BDA153",
+            "hoverColor": "#B87FA9",
+            "accentColor": "#E8F0FF"
+          },
+          {
+            "id": 89,
+            "secondaryColor": "#F6A9CB",
+            "whiteColor": "#ffffff",
+            "blackColor": "#000000",
+            "primaryColor": "#131313",
+            "backgroundColor": "#F8F8F8",
+            "complementary": "#425F93",
+            "hoverColor": "#2A2A2A",
+            "accentColor": "#FFE5F0"
+          },
+          {
+            "id": 90,
+            "secondaryColor": "#F6A9CB",
+            "whiteColor": "#ffffff",
+            "blackColor": "#000000",
+            "primaryColor": "#F05970",
+            "backgroundColor": "#FFF0F0",
+            "complementary": "#425F93",
+            "hoverColor": "#D94960",
+            "accentColor": "#FFE5F0"
+          },
+          {
+            "id": 91,
+            "secondaryColor": "#F6A9CB",
+            "whiteColor": "#ffffff",
+            "blackColor": "#000000",
+            "primaryColor": "#F15E36",
+            "backgroundColor": "#FFF5E6",
+            "complementary": "#10B49F",
+            "hoverColor": "#D94E26",
+            "accentColor": "#FFE8D6"
+          }
+        ];
+
+        // Apply different themes to different sections
+        const applyThemeToSection = (sectionSelector, themeIndex) => {
+          const theme = themeColors[themeIndex % themeColors.length];
+          const section = document.querySelector(sectionSelector);
+          if (section && theme) {
+            section.style.setProperty('--primary-color', theme.primaryColor);
+            section.style.setProperty('--secondary-color', theme.secondaryColor);
+            section.style.setProperty('--background-color', theme.backgroundColor);
+            section.style.setProperty('--text-black', theme.blackColor);
+            section.style.setProperty('--text-white', theme.whiteColor);
+            section.style.setProperty('--complementary-color', theme.complementary);
+            section.style.setProperty('--hover-color', theme.hoverColor);
+            section.style.setProperty('--accent-color', theme.accentColor);
+          }
+        };
+
+        // Apply themes to different sections
+        applyThemeToSection('.top-marquee', 0); // Theme 1 for top marquee
+        applyThemeToSection('.brand-splash', 1); // Theme 2 for brand splash
+        applyThemeToSection('.quad-cta', 2); // Theme 3 for quad CTA
+        applyThemeToSection('.city-story', 3); // Theme 4 for city story
+        applyThemeToSection('.about.vision', 4); // Theme 5 for about section
+        applyThemeToSection('.pinned', 0); // Theme 1 for pinned section (cycle back)
+
+        // Set default theme for the entire document
+        const defaultTheme = themeColors[0];
+        if (defaultTheme) {
           const root = document.documentElement;
           const map = {
-            "--primary-color": theme.primaryColor,
-            "--secondary-color": theme.secondaryColor,
-            "--background-color": theme.backgroundColor,
-            "--text-black": theme.blackColor,
-            "--text-white": theme.whiteColor,
+            "--primary-color": defaultTheme.primaryColor,
+            "--secondary-color": defaultTheme.secondaryColor,
+            "--background-color": defaultTheme.backgroundColor,
+            "--text-black": defaultTheme.blackColor,
+            "--text-white": defaultTheme.whiteColor,
+            "--complementary-color": defaultTheme.complementary,
+            "--hover-color": defaultTheme.hoverColor,
+            "--accent-color": defaultTheme.accentColor,
           };
           Object.entries(map).forEach(([k, v]) => {
             if (v) root.style.setProperty(k, v);
           });
-          // Invert top marquee border if background becomes light
-          const top = document.querySelector('.top-marquee');
-          if (top && theme.backgroundColor) {
-            const isLight = /^#?([fF]{2}|[eE]{2}|[dD]{2})/.test(theme.backgroundColor);
-            top.style.borderBottomColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)';
-          }
         }
+
+        // Invert top marquee border if background becomes light
+        const top = document.querySelector('.top-marquee');
+        if (top && defaultTheme.backgroundColor) {
+          const isLight = /^#?([fF]{2}|[eE]{2}|[dD]{2})/.test(defaultTheme.backgroundColor);
+          top.style.borderBottomColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)';
+        }
+
+        // Add theme switcher functionality
+        window.switchTheme = (themeIndex) => {
+          const theme = themeColors[themeIndex % themeColors.length];
+          if (theme) {
+            const root = document.documentElement;
+            const map = {
+              "--primary-color": theme.primaryColor,
+              "--secondary-color": theme.secondaryColor,
+              "--background-color": theme.backgroundColor,
+              "--text-black": theme.blackColor,
+              "--text-white": theme.whiteColor,
+              "--complementary-color": theme.complementary,
+              "--hover-color": theme.hoverColor,
+              "--accent-color": theme.accentColor,
+            };
+            Object.entries(map).forEach(([k, v]) => {
+              if (v) root.style.setProperty(k, v);
+            });
+            
+            // Update border color
+            const top = document.querySelector('.top-marquee');
+            if (top && theme.backgroundColor) {
+              const isLight = /^#?([fF]{2}|[eE]{2}|[dD]{2})/.test(theme.backgroundColor);
+              top.style.borderBottomColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)';
+            }
+          }
+        };
+
+        // Add theme info to console for debugging
+        console.log('Available themes:', themeColors);
+        console.log('Use switchTheme(0-4) to change themes');
       } catch (_) {}
 
       // 3) Top marquees (cities)
@@ -158,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
               
               const isMailto = href.startsWith('mailto:');
               const dataEmail = isMailto ? ` data-email="${href.replace('mailto:', '')}"` : '';
-              const linkClass = isMailto ? 'small-link small-link-contact text-color-green-light' : 'small-link text-color-green-light';
+              const linkClass = isMailto ? 'small-link small-link-contact' : 'small-link';
               
               return `
                 <a href="${href}"${target} class="${linkClass}"${dataEmail}>
@@ -177,7 +297,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (_) {}
 
-      // 4) Social links (corner-right)
+      // 4) Corner links (Recruitment, etc.)
+      try {
+        // Handle corner-left recruitment link
+        const recruitmentLink = document.querySelector('.corner-left .brand-link .small-link-text');
+        if (recruitmentLink) {
+          // Try to get recruitment text from global API
+          const recruitmentBlock = findBlock(blocks, "block.recruitment");
+          const recruitmentText = (recruitmentBlock && recruitmentBlock.title) || 
+                                 (global.recruitment && global.recruitment.title) || 
+                                 (global.cornerLinks && global.cornerLinks.recruitment) ||
+                                 'Recruitment';
+          
+          recruitmentLink.textContent = recruitmentText;
+        }
+
+        // Handle corner-left recruitment link href
+        const recruitmentAnchor = document.querySelector('.corner-left .brand-link');
+        if (recruitmentAnchor) {
+          const recruitmentBlock = findBlock(blocks, "block.recruitment");
+          const recruitmentHref = (recruitmentBlock && recruitmentBlock.href) || 
+                                 (global.recruitment && global.recruitment.href) || 
+                                 (global.cornerLinks && global.cornerLinks.recruitmentHref) ||
+                                 '#';
+          
+          recruitmentAnchor.setAttribute('href', recruitmentHref);
+        }
+      } catch (_) {}
+
+      // 5) Social links (corner-right)
       try {
         const socialBlock = findBlock(blocks, "block.social-links");
         const socials = (socialBlock && socialBlock.Social) || [];
@@ -200,7 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } catch (_) {}
 
-      // 5) Quad-CTA bar and grid (Services first 3, then first Bingo Event)
+      // 6) Quad-CTA bar and grid (Services first 3, then first Bingo Event)
       try {
         const servicesBlock = findBlock(blocks, "block.service-list");
         const eventsBlock = findBlock(blocks, "block.event-list");
@@ -238,7 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } catch (_) {}
 
-      // 6) City story and About section from information/description
+      // 7) City story and About section from information/description
       try {
         const infoBlock = findBlock(blocks, "block.information-section");
         const infoText = safeTextFromRich(infoBlock && infoBlock.description);
@@ -330,7 +478,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Do not override brand-splash from backend
       } catch (_) {}
 
-      // 7) Booking popup content
+      // 8) Booking popup content
       try {
         const booking = findBlock(blocks, "block.booking-section");
         if (booking) {
@@ -353,7 +501,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (_) {}
 
-      // 8) Pinned cards: titles and images from Gallery (API order)
+      // 9) Pinned cards: titles and images from Gallery (API order)
       try {
         const galleryBlock = findBlock(blocks, "block.gallery-section");
         const gallery = (galleryBlock && galleryBlock.Gallery) || [];

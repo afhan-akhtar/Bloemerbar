@@ -2330,3 +2330,149 @@ lenis.on("scroll", ({ scroll, limit }) => {
     if (existing) existing.remove();
   }
 })();
+
+// ===== Audio Player Functionality =====
+document.addEventListener('DOMContentLoaded', function() {
+  const playButton = document.getElementById('play-button');
+  const audio = document.getElementById('background-audio');
+  const playIcon = document.querySelector('.play-icon');
+  const pauseIcon = document.querySelector('.pause-icon');
+  const trackStatus = document.querySelector('.track-status');
+  const visualizerBars = document.querySelectorAll('.visualizer-bar');
+  
+  if (!playButton || !audio) return;
+  
+  let isPlaying = false;
+  let audioContext = null;
+  let analyser = null;
+  let dataArray = null;
+  let animationId = null;
+  
+  // Initialize audio context for visualizer
+  function initAudioContext() {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      const bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+      
+      const source = audioContext.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+    }
+  }
+  
+  // Update visualizer bars
+  function updateVisualizer() {
+    if (!analyser || !dataArray) return;
+    
+    analyser.getByteFrequencyData(dataArray);
+    
+    visualizerBars.forEach((bar, index) => {
+      const value = dataArray[index] || 0;
+      const height = Math.max(20, (value / 255) * 100);
+      bar.style.height = `${height}%`;
+      bar.style.opacity = value > 0 ? 1 : 0.7;
+    });
+    
+    if (isPlaying) {
+      animationId = requestAnimationFrame(updateVisualizer);
+    }
+  }
+  
+  // Play audio
+  function playAudio() {
+    if (!audio.src) {
+      // If no audio source is set, you can set a default one here
+      // audio.src = 'path/to/default-audio.mp3';
+      trackStatus.textContent = 'No audio available';
+      return;
+    }
+    
+    initAudioContext();
+    
+    audio.play().then(() => {
+      isPlaying = true;
+      playIcon.style.display = 'none';
+      pauseIcon.style.display = 'inline';
+      trackStatus.textContent = 'Now playing';
+      updateVisualizer();
+    }).catch(error => {
+      console.error('Error playing audio:', error);
+      trackStatus.textContent = 'Playback error';
+    });
+  }
+  
+  // Pause audio
+  function pauseAudio() {
+    audio.pause();
+    isPlaying = false;
+    playIcon.style.display = 'inline';
+    pauseIcon.style.display = 'none';
+    trackStatus.textContent = 'Paused';
+    
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+    
+    // Reset visualizer bars
+    visualizerBars.forEach(bar => {
+      bar.style.height = '60%';
+      bar.style.opacity = '0.7';
+    });
+  }
+  
+  // Toggle play/pause
+  playButton.addEventListener('click', function() {
+    if (isPlaying) {
+      pauseAudio();
+    } else {
+      playAudio();
+    }
+  });
+  
+  // Audio event listeners
+  audio.addEventListener('ended', function() {
+    isPlaying = false;
+    playIcon.style.display = 'inline';
+    pauseIcon.style.display = 'none';
+    trackStatus.textContent = 'Track ended';
+    
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+  });
+  
+  audio.addEventListener('error', function() {
+    trackStatus.textContent = 'Audio error';
+    isPlaying = false;
+    playIcon.style.display = 'inline';
+    pauseIcon.style.display = 'none';
+  });
+  
+  // Load audio from Strapi API (example)
+  async function loadAudioFromStrapi() {
+    try {
+      const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://localhost:1337";
+      const response = await fetch(`${STRAPI_BASE}/api/audio?populate=*`);
+      const data = await response.json();
+      
+      if (data.data && data.data.attributes && data.data.attributes.audioFile) {
+        const audioUrl = data.data.attributes.audioFile.url;
+        audio.src = audioUrl.startsWith('http') ? audioUrl : `${STRAPI_BASE}${audioUrl}`;
+        trackStatus.textContent = 'Ready to play';
+      } else {
+        trackStatus.textContent = 'No audio available';
+      }
+    } catch (error) {
+      console.error('Error loading audio from Strapi:', error);
+      trackStatus.textContent = 'Failed to load audio';
+    }
+  }
+  
+  // Load audio when page loads
+  loadAudioFromStrapi();
+});

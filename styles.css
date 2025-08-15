@@ -427,20 +427,7 @@ section {
   overflow: hidden;
 }
 
-.brand-splash .bg-title {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: clamp(42px, 12vw, 170px);
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  color: #f6c2d3;
-  opacity: 0.3;
-  user-select: none;
-  pointer-events: none;
-  
-}
+/* Removed conflicting bg-title styles - using new animated version */
 
 .brand-illustration {
   width: 380px;
@@ -834,7 +821,7 @@ section {
 .quad-cta__link:last-child { border-right: 0; }
 
 .quad-cta__text {
-  font-size: clamp(16px, 4.5vw, 40px);
+  font-size: 30px;
   font-weight: 900;
   letter-spacing: 2px;
 }
@@ -1163,12 +1150,7 @@ section {
   position: relative;
 }
 
-.brand-splash .bg-title {
-  color: var(--primary-color);
-  opacity: 0.2;
-  font-weight: 900;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
+/* Removed conflicting bg-title styles - using new animated version */
 
 .brand-splash .brand-illustration .svg-piece {
   transition: all 0.4s ease;
@@ -1409,11 +1391,448 @@ section {
 
 /* Responsive theme adjustments */
 @media (max-width: 768px) {
-  .brand-splash .bg-title {
-    font-size: clamp(24px, 8vw, 48px);
+  .bg-title {
+    font-size: clamp(2rem, 8vw, 6rem);
   }
   
   .vision-display {
     font-size: clamp(24px, 6vw, 40px) !important;
   }
+}
+
+/* ===== New Animated Brand Splash Styles ===== */
+:root {
+    --primary-orange: #E18126;
+    --primary-pink: #F05A70;
+    --primary-coral: #EF755F;
+    --primary-teal: #15B29F;
+    --primary-blue: #6A85C3;
+    --primary-rose: #F8B8C7;
+    --bg-dark: #0a0a0f;
+    --bg-gradient-1: #1a0f14;
+    --bg-gradient-2: #0f1a1a;
+    --bg-gradient-3: #14161f;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: var(--bg-dark);
+    color: white;
+    overflow-x: hidden;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="10" fill="%23d946ef" opacity="0.8"/></svg>') 16 16, auto;
+}
+
+.brand-splash {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, var(--bg-gradient-1) 0%, var(--bg-dark) 100%);
+    overflow: hidden;
+    perspective: 1000px;
+}
+
+/* SVG styling to ensure visibility */
+.brand-splash .brand-illustration {
+    position: relative;
+    z-index: 10;
+    width: 380px;
+    height: auto;
+    max-width: 85%;
+    max-height: 70vh;
+    filter: drop-shadow(0 0 20px rgba(240, 90, 112, 0.3));
+    transition: all 0.3s ease;
+}
+
+.brand-splash .brand-illustration:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 30px rgba(240, 90, 112, 0.5));
+}
+
+.brand-splash .brand-illustration .svg-piece {
+    fill: var(--primary-pink);
+    transition: fill 0.3s ease;
+}
+
+.brand-splash .brand-illustration .svg-piece:hover {
+    fill: var(--primary-orange);
+}
+
+/* Enhanced animated gradient background */
+.gradient-bg {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 180deg at 50% 50%, 
+        var(--primary-orange) 0deg,
+        var(--primary-pink) 60deg,
+        var(--primary-coral) 120deg,
+        var(--primary-teal) 180deg,
+        var(--primary-blue) 240deg,
+        var(--primary-rose) 300deg,
+        var(--primary-orange) 360deg);
+    opacity: 0.05;
+    animation: rotateGradient 30s linear infinite;
+    filter: blur(100px);
+}
+
+@keyframes rotateGradient {
+    0% { transform: rotate(0deg) scale(1.5); }
+    100% { transform: rotate(360deg) scale(1.5); }
+}
+
+/* Advanced laser grid effect */
+.laser-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    transform-style: preserve-3d;
+}
+
+.laser-line {
+    position: absolute;
+    background: linear-gradient(90deg, 
+        transparent, 
+        var(--primary-cyan), 
+        transparent);
+    opacity: 0;
+    filter: blur(1px);
+    box-shadow: 0 0 20px currentColor;
+}
+
+.laser-h {
+    width: 100%;
+    height: 1px;
+    animation: laserSweepH 8s ease-in-out infinite;
+}
+
+.laser-v {
+    width: 1px;
+    height: 100%;
+    animation: laserSweepV 8s ease-in-out infinite;
+}
+
+@keyframes laserSweepH {
+    0%, 100% { transform: translateY(-100vh); opacity: 0; }
+    20%, 80% { opacity: 0.4; }
+    50% { transform: translateY(100vh); opacity: 0.6; }
+}
+
+@keyframes laserSweepV {
+    0%, 100% { transform: translateX(-100vw); opacity: 0; }
+    20%, 80% { opacity: 0.4; }
+    50% { transform: translateX(100vw); opacity: 0.6; }
+}
+
+/* Enhanced party lights with 3D effect */
+.party-lights {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+    transform-style: preserve-3d;
+}
+
+.spotlight {
+    position: absolute;
+    width: 300px;
+    height: 100%;
+    opacity: 0.08;
+    transform-origin: bottom center;
+    filter: blur(2px);
+    mix-blend-mode: screen;
+}
+
+.spotlight::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: conic-gradient(from 0deg at 50% 100%, 
+        transparent 40deg, 
+        currentColor 45deg, 
+        currentColor 55deg, 
+        transparent 60deg);
+    animation: spotlightRotate 10s ease-in-out infinite;
+}
+
+@keyframes spotlightRotate {
+    0%, 100% { transform: rotate(-30deg) rotateX(20deg); }
+    25% { transform: rotate(0deg) rotateX(10deg); }
+    50% { transform: rotate(30deg) rotateX(20deg); }
+    75% { transform: rotate(0deg) rotateX(15deg); }
+}
+
+/* Particle system with physics */
+.particle-system {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 4;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+
+.particle-glow {
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, 
+        rgba(217, 70, 239, 1) 0%, 
+        rgba(217, 70, 239, 0.6) 40%, 
+        transparent 70%);
+    box-shadow: 0 0 10px currentColor;
+    animation: particleFloat 15s linear infinite;
+}
+
+.particle-spark {
+    width: 2px;
+    height: 2px;
+    background: white;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+    animation: particleSpark 3s linear infinite;
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translateY(110vh) translateX(0) scale(0);
+        opacity: 0;
+    }
+    5% {
+        opacity: 1;
+        transform: translateY(100vh) translateX(0) scale(1);
+    }
+    95% {
+        opacity: 1;
+        transform: translateY(-10vh) translateX(100px) scale(1);
+    }
+    100% {
+        transform: translateY(-20vh) translateX(120px) scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes particleSpark {
+    0% {
+        transform: translate(0, 0) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(var(--spark-x), var(--spark-y)) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(calc(var(--spark-x) * 2), calc(var(--spark-y) * 2)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Holographic disco floor */
+.disco-floor {
+    position: absolute;
+    bottom: 0;
+    left: -50%;
+    width: 200%;
+    height: 40%;
+    transform: rotateX(70deg) translateZ(-100px);
+    transform-style: preserve-3d;
+    background: repeating-linear-gradient(
+        90deg,
+        rgba(217, 70, 239, 0.03) 0px,
+        rgba(6, 182, 212, 0.03) 40px,
+        rgba(52, 211, 153, 0.03) 80px,
+        rgba(245, 158, 11, 0.03) 120px
+    ),
+    repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.01) 0px,
+        rgba(255, 255, 255, 0.02) 40px,
+        rgba(255, 255, 255, 0.01) 80px
+    );
+    animation: discoScroll 4s linear infinite;
+    z-index: 1;
+}
+
+@keyframes discoScroll {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 120px 0, 0 80px; }
+}
+
+/* Neon strobe pulses */
+.strobe-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.02) 50%, 
+        transparent 100%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Background text with perspective */
+.bg-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotateY(15deg) rotateX(-5deg);
+    font-size: clamp(3rem, 10vw, 10rem);
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.25);
+    letter-spacing: 0.2em;
+    white-space: nowrap;
+    z-index: 1;
+    pointer-events: none;
+    text-transform: uppercase;
+    font-style: italic;
+    animation: textFloat 10s ease-in-out infinite;
+    text-shadow: 0 0 20px rgba(217, 70, 239, 0.5);
+    text-align: center;
+    width: 100%;
+    max-width: 90vw;
+    overflow: hidden;
+    filter: blur(0px);
+}
+
+@keyframes textFloat {
+    0%, 100% { transform: translate(-50%, -50%) rotateY(15deg) rotateX(-5deg); }
+    50% { transform: translate(-50%, -50%) rotateY(-15deg) rotateX(5deg); }
+}
+
+/* Enhanced music controls with glassmorphism */
+.music-controls {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(10, 10, 15, 0.6);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    padding: 0.5rem 0.75rem;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(217, 70, 239, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.music-controls:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 25px rgba(217, 70, 239, 0.25);
+    border-color: rgba(217, 70, 239, 0.2);
+}
+
+.play-button {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-pink), var(--primary-teal));
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.play-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.5s ease;
+}
+
+.play-button:hover::before {
+    transform: translate(-50%, -50%) scale(2);
+}
+
+.play-button:hover {
+    transform: scale(1.1) rotate(3deg);
+    box-shadow: 0 0 20px rgba(240, 90, 112, 0.5);
+}
+
+.play-button:active {
+    transform: scale(0.95);
+}
+
+.music-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.track-name {
+    color: var(--primary-pink);
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.track-status {
+    font-size: 0.65rem;
+    opacity: 0.8;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Advanced visualizer bars */
+.visualizer {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    height: 25px;
+    padding: 0 5px;
+}
+
+.visualizer-bar {
+    width: 3px;
+    background: linear-gradient(to top, var(--primary-pink), var(--primary-teal));
+    border-radius: 2px;
+    animation: visualizerPulse 1.5s ease-in-out infinite;
+}
+
+.visualizer-bar:nth-child(1) { animation-delay: 0s; height: 60%; }
+.visualizer-bar:nth-child(2) { animation-delay: 0.1s; height: 80%; }
+.visualizer-bar:nth-child(3) { animation-delay: 0.2s; height: 40%; }
+.visualizer-bar:nth-child(4) { animation-delay: 0.3s; height: 90%; }
+.visualizer-bar:nth-child(5) { animation-delay: 0.4s; height: 70%; }
+.visualizer-bar:nth-child(6) { animation-delay: 0.5s; height: 50%; }
+.visualizer-bar:nth-child(7) { animation-delay: 0.6s; height: 85%; }
+
+@keyframes visualizerPulse {
+    0%, 100% { transform: scaleY(1); opacity: 0.7; }
+    50% { transform: scaleY(1.2); opacity: 1; }
 }

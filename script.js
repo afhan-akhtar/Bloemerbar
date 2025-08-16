@@ -1523,23 +1523,14 @@ document.addEventListener("DOMContentLoaded", () => {
           piece.style.transform = 'scale(1) translate(0, 0) rotate(0deg)';
           // Start color animation if it hasn't started
           if (!piece.style.fill || piece.style.fill === 'var(--primary-color)') {
-            piece.style.fill = partyColors[0];
+            // Color animation will be handled by CSS or other animation logic
           }
         });
       }, 2500);
 
       initializedBrandSplash.add(brandSplashEl);
       
-      // Ensure color animation starts for this instance
-      setTimeout(() => {
-        if (pieces.length > 0) {
-          pieces.forEach((piece, index) => {
-            // Set initial color from party colors array
-            const initialColor = partyColors[index % partyColors.length];
-            piece.style.fill = initialColor;
-          });
-        }
-      }, 3000); // After the assembly animation completes
+      // Color animation will be handled by CSS or other animation logic
     }
 
     const initAllBrandSplash = () => {

@@ -97,8 +97,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 2) Theme colors → CSS variables
       try {
-        // Use the provided theme colors from API
-        const themeColors = [
+        // Get theme colors from Strapi API
+        const themeColors = (sett.colors && Array.isArray(sett.colors)) ? sett.colors : [
+          // Fallback colors if API data is not available
           {
             "id": 87,
             "secondaryColor": "#F7AACC",
@@ -106,9 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "blackColor": "#000000",
             "primaryColor": "#F05A70",
             "backgroundColor": "#ffffff",
-            "complementary": "#425F93",
-            "hoverColor": "#D94A60",
-            "accentColor": "#F7AACC"
+            "complementary": "#425F93"
           },
           {
             "id": 88,
@@ -117,9 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "blackColor": "#000000",
             "primaryColor": "#D28FB9",
             "backgroundColor": "#ffffff",
-            "complementary": "#BDA153",
-            "hoverColor": "#B87FA9",
-            "accentColor": "#BDA153"
+            "complementary": "#BDA153"
           },
           {
             "id": 89,
@@ -128,9 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "blackColor": "#000000",
             "primaryColor": "#131313",
             "backgroundColor": "#ffffff",
-            "complementary": "#425F93",
-            "hoverColor": "#2A2A2A",
-            "accentColor": "#F6A9CB"
+            "complementary": "#425F93"
           },
           {
             "id": 90,
@@ -139,9 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "blackColor": "#000000",
             "primaryColor": "#F05970",
             "backgroundColor": "#ffffff",
-            "complementary": "#425F93",
-            "hoverColor": "#D94960",
-            "accentColor": "#F6A9CB"
+            "complementary": "#425F93"
           },
           {
             "id": 91,
@@ -150,53 +143,113 @@ document.addEventListener("DOMContentLoaded", () => {
             "blackColor": "#000000",
             "primaryColor": "#F15E36",
             "backgroundColor": "#ffffff",
-            "complementary": "#10B49F",
-            "hoverColor": "#D94E26",
-            "accentColor": "#10B49F"
+            "complementary": "#10B49F"
           }
         ];
 
-        // Apply different themes to different sections
-        const applyThemeToSection = (sectionSelector, themeIndex) => {
-          const theme = themeColors[themeIndex % themeColors.length];
-          const section = document.querySelector(sectionSelector);
-          if (section && theme) {
-            section.style.setProperty('--primary-color', theme.primaryColor);
-            section.style.setProperty('--secondary-color', theme.secondaryColor);
-            section.style.setProperty('--background-color', theme.backgroundColor);
-            section.style.setProperty('--text-black', theme.blackColor);
-            section.style.setProperty('--text-white', theme.whiteColor);
-            section.style.setProperty('--complementary-color', theme.complementary);
-            section.style.setProperty('--hover-color', theme.hoverColor);
-            section.style.setProperty('--accent-color', theme.accentColor);
-          }
+        // Validate theme data
+        const isValidTheme = (theme) => {
+          return theme && 
+                 theme.id && 
+                 theme.primaryColor && 
+                 theme.secondaryColor && 
+                 theme.backgroundColor && 
+                 theme.whiteColor && 
+                 theme.blackColor && 
+                 theme.complementary;
         };
 
-        // Apply themes to different sections
-        applyThemeToSection('.top-marquee', 0); // Theme 1 for top marquee
-        applyThemeToSection('.brand-splash', 1); // Theme 2 for brand splash
-        applyThemeToSection('.quad-cta', 2); // Theme 3 for quad CTA
-        applyThemeToSection('.city-story', 3); // Theme 4 for city story
-        applyThemeToSection('.about.vision', 4); // Theme 5 for about section
-        applyThemeToSection('.pinned', 0); // Theme 1 for pinned section (cycle back)
+        const validThemes = themeColors.filter(isValidTheme);
         
-        // Ensure all brand-splash sections get the theme (including future clones)
-        document.querySelectorAll('.brand-splash').forEach((section) => {
-          const theme = themeColors[1]; // Theme 2 for brand splash
-          if (section && theme) {
-            section.style.setProperty('--primary-color', theme.primaryColor);
-            section.style.setProperty('--secondary-color', theme.secondaryColor);
-            section.style.setProperty('--background-color', theme.backgroundColor);
-            section.style.setProperty('--text-black', theme.blackColor);
-            section.style.setProperty('--text-white', theme.whiteColor);
-            section.style.setProperty('--complementary-color', theme.complementary);
-            section.style.setProperty('--hover-color', theme.hoverColor);
-            section.style.setProperty('--accent-color', theme.accentColor);
+        if (validThemes.length === 0) {
+          console.error('❌ No valid themes found in Strapi API data');
+          return;
+        }
+
+        console.log(`✅ Found ${validThemes.length} valid themes from Strapi API`);
+        console.log('Theme IDs:', validThemes.map(t => t.id).join(', '));
+        
+        // Use validated themes
+        const finalThemeColors = validThemes;
+
+        // Function to apply theme to a main wrapper
+        const applyThemeToMainWrapper = (mainWrapper, themeIndex) => {
+          const theme = finalThemeColors[themeIndex % finalThemeColors.length];
+          if (!mainWrapper || !theme) return;
+          
+          // Apply theme to the main wrapper itself
+          mainWrapper.style.setProperty('--primary-color', theme.primaryColor);
+          mainWrapper.style.setProperty('--secondary-color', theme.secondaryColor);
+          mainWrapper.style.setProperty('--background-color', theme.backgroundColor);
+          mainWrapper.style.setProperty('--text-black', theme.blackColor);
+          mainWrapper.style.setProperty('--text-white', theme.whiteColor);
+          mainWrapper.style.setProperty('--complementary-color', theme.complementary);
+          mainWrapper.style.setProperty('--hover-color', theme.primaryColor);
+          mainWrapper.style.setProperty('--accent-color', theme.secondaryColor);
+          
+          // Apply theme to all sections within this wrapper
+          const sections = mainWrapper.querySelectorAll('section, .quad-cta, .top-marquee, .city-story, .about.vision, .pinned, .brand-splash');
+          sections.forEach((section) => {
+            if (section) {
+              section.style.setProperty('--primary-color', theme.primaryColor);
+              section.style.setProperty('--secondary-color', theme.secondaryColor);
+              section.style.setProperty('--background-color', theme.backgroundColor);
+              section.style.setProperty('--text-black', theme.blackColor);
+              section.style.setProperty('--text-white', theme.whiteColor);
+              section.style.setProperty('--complementary-color', theme.complementary);
+              section.style.setProperty('--hover-color', theme.primaryColor);
+              section.style.setProperty('--accent-color', theme.secondaryColor);
+            }
+          });
+        };
+
+        // Function to apply themes to all main wrappers (original + clones)
+        const applyThemesToAllMainWrappers = () => {
+          const mainWrappers = document.querySelectorAll('.main-wrapper');
+          console.log(`🎨 Applying themes to ${mainWrappers.length} main wrapper(s) using ${finalThemeColors.length} available themes`);
+          
+          mainWrappers.forEach((wrapper, index) => {
+            // Use a pattern that ensures no two consecutive wrappers have identical themes
+            // Pattern: 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, etc.
+            const themeIndex = index % finalThemeColors.length;
+            const theme = finalThemeColors[themeIndex];
+            console.log(`🎨 Main wrapper ${index}: applying theme ${theme.id} (${theme.primaryColor})`);
+            applyThemeToMainWrapper(wrapper, themeIndex);
+          });
+        };
+
+        // Apply themes initially
+        applyThemesToAllMainWrappers();
+
+        // Set up observer to apply themes to new clones when they're created
+        const themeObserver = new MutationObserver((mutations) => {
+          let needsThemeUpdate = false;
+          for (const mutation of mutations) {
+            mutation.addedNodes.forEach((node) => {
+              if (node instanceof Element) {
+                if (node.matches && node.matches('.main-wrapper')) {
+                  needsThemeUpdate = true;
+                }
+                if (node.querySelectorAll && node.querySelectorAll('.main-wrapper').length > 0) {
+                  needsThemeUpdate = true;
+                }
+              }
+            });
+          }
+          if (needsThemeUpdate) {
+            // Small delay to ensure DOM is fully updated
+            setTimeout(applyThemesToAllMainWrappers, 50);
           }
         });
+        themeObserver.observe(document.body, { childList: true, subtree: true });
 
-        // Set default theme for the entire document
-        const defaultTheme = themeColors[0];
+        // Listen for clones-created event to reapply themes
+        window.addEventListener('clones-created', () => {
+          setTimeout(applyThemesToAllMainWrappers, 100);
+        });
+
+        // Set default theme for the entire document (fallback)
+        const defaultTheme = finalThemeColors[0];
         if (defaultTheme) {
           const root = document.documentElement;
           const map = {
@@ -206,8 +259,8 @@ document.addEventListener("DOMContentLoaded", () => {
             "--text-black": defaultTheme.blackColor,
             "--text-white": defaultTheme.whiteColor,
             "--complementary-color": defaultTheme.complementary,
-            "--hover-color": defaultTheme.hoverColor,
-            "--accent-color": defaultTheme.accentColor,
+            "--hover-color": defaultTheme.primaryColor,
+            "--accent-color": defaultTheme.secondaryColor,
           };
           Object.entries(map).forEach(([k, v]) => {
             if (v) root.style.setProperty(k, v);
@@ -221,451 +274,50 @@ document.addEventListener("DOMContentLoaded", () => {
           top.style.borderBottomColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)';
         }
 
-        // Add theme switcher functionality
-        window.switchTheme = (themeIndex) => {
-          const theme = themeColors[themeIndex % themeColors.length];
-          if (theme) {
-            const root = document.documentElement;
-            const map = {
-              "--primary-color": theme.primaryColor,
-              "--secondary-color": theme.secondaryColor,
-              "--background-color": theme.backgroundColor,
-              "--text-black": theme.blackColor,
-              "--text-white": theme.whiteColor,
-              "--complementary-color": theme.complementary,
-              "--hover-color": theme.hoverColor,
-              "--accent-color": theme.accentColor,
+        console.log('🎨 Dynamic theme system initialized from Strapi API!');
+        console.log(`Available themes: ${finalThemeColors.map(t => `ID ${t.id} (${t.primaryColor})`).join(', ')}`);
+        console.log('No two consecutive main wrappers will have identical themes.');
+        console.log('Pattern repeats every', finalThemeColors.length, 'wrappers for infinite copies.');
+        
+        // Expose function for manual theme reapplication (for testing)
+        window.reapplyThemes = () => {
+          console.log('🔄 Manually reapplying themes...');
+          applyThemesToAllMainWrappers();
+        };
+        
+        // Expose function to get current theme info
+        window.getThemeInfo = () => {
+          const mainWrappers = document.querySelectorAll('.main-wrapper');
+          return mainWrappers.map((wrapper, index) => {
+            const themeIndex = index % finalThemeColors.length;
+            const theme = finalThemeColors[themeIndex];
+            return {
+              wrapperIndex: index,
+              themeId: theme.id,
+              primaryColor: theme.primaryColor,
+              secondaryColor: theme.secondaryColor
             };
-            Object.entries(map).forEach(([k, v]) => {
-              if (v) root.style.setProperty(k, v);
-            });
-            
-            // Update border color
-            const top = document.querySelector('.top-marquee');
-            if (top && theme.backgroundColor) {
-              const isLight = /^#?([fF]{2}|[eE]{2}|[dD]{2})/.test(theme.backgroundColor);
-              top.style.borderBottomColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)';
-            }
+          });
+        };
+        
+        // Expose function to show theme pattern
+        window.showThemePattern = (count = 20) => {
+          console.log(`🎨 Theme pattern for ${count} wrappers:`);
+          for (let i = 0; i < count; i++) {
+            const themeIndex = i % finalThemeColors.length;
+            const theme = finalThemeColors[themeIndex];
+            console.log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor})`);
           }
         };
-
-        // Add theme info to console for debugging
-        console.log('Available themes:', themeColors);
-        console.log('Use switchTheme(0-4) to change themes');
-      } catch (_) {}
-
-      // === Enhanced Dynamic Theme Change on Scroll ===
-      try {
-        // Define 5 themes based on API colors
-        const scrollThemes = [
-          {
-            name: "theme-87",
-            colors: {
-              primary: "#F05A70",
-              secondary: "#F7AACC",
-              background: "#ffffff",
-              textBlack: "#000000",
-              textWhite: "#ffffff",
-              complementary: "#425F93",
-              hover: "#D94A60",
-              accent: "#F7AACC",
-              gradient: "linear-gradient(135deg, #F05A70 0%, #F7AACC 100%)",
-              shadow: "0 8px 32px rgba(240, 90, 112, 0.3)"
-            }
-          },
-          {
-            name: "theme-88",
-            colors: {
-              primary: "#D28FB9",
-              secondary: "#425F93",
-              background: "#ffffff",
-              textBlack: "#000000",
-              textWhite: "#ffffff",
-              complementary: "#BDA153",
-              hover: "#B87FA9",
-              accent: "#BDA153",
-              gradient: "linear-gradient(135deg, #D28FB9 0%, #425F93 100%)",
-              shadow: "0 8px 32px rgba(210, 143, 185, 0.3)"
-            }
-          },
-          {
-            name: "theme-89",
-            colors: {
-              primary: "#131313",
-              secondary: "#F6A9CB",
-              background: "#ffffff",
-              textBlack: "#000000",
-              textWhite: "#ffffff",
-              complementary: "#425F93",
-              hover: "#2A2A2A",
-              accent: "#F6A9CB",
-              gradient: "linear-gradient(135deg, #131313 0%, #F6A9CB 100%)",
-              shadow: "0 8px 32px rgba(19, 19, 19, 0.3)"
-            }
-          },
-          {
-            name: "theme-90",
-            colors: {
-              primary: "#F05970",
-              secondary: "#F6A9CB",
-              background: "#ffffff",
-              textBlack: "#000000",
-              textWhite: "#ffffff",
-              complementary: "#425F93",
-              hover: "#D94960",
-              accent: "#F6A9CB",
-              gradient: "linear-gradient(135deg, #F05970 0%, #F6A9CB 100%)",
-              shadow: "0 8px 32px rgba(240, 89, 112, 0.3)"
-            }
-          },
-          {
-            name: "theme-91",
-            colors: {
-              primary: "#F15E36",
-              secondary: "#F6A9CB",
-              background: "#ffffff",
-              textBlack: "#000000",
-              textWhite: "#ffffff",
-              complementary: "#10B49F",
-              hover: "#D94E26",
-              accent: "#10B49F",
-              gradient: "linear-gradient(135deg, #F15E36 0%, #F6A9CB 100%)",
-              shadow: "0 8px 32px rgba(241, 94, 54, 0.3)"
-            }
-          }
-        ];
-
-                                  // Enhanced function to apply complete theme to all sections and clones
-         const applyScrollTheme = (theme, intensity = 1) => {
-           // Update theme indicator
-           const themeIndicator = document.getElementById('current-theme');
-           if (themeIndicator) {
-             themeIndicator.textContent = theme.name;
-             themeIndicator.style.color = theme.colors.textWhite;
-             themeIndicator.style.background = theme.colors.gradient;
-             themeIndicator.style.boxShadow = theme.colors.shadow;
-           }
-           
-           // Apply theme to document root for global variables
-           const root = document.documentElement;
-           root.style.setProperty('--primary-color', theme.colors.primary);
-           root.style.setProperty('--secondary-color', theme.colors.secondary);
-           root.style.setProperty('--background-color', theme.colors.background);
-           root.style.setProperty('--text-black', theme.colors.textBlack);
-           root.style.setProperty('--text-white', theme.colors.textWhite);
-           root.style.setProperty('--complementary-color', theme.colors.complementary);
-           root.style.setProperty('--hover-color', theme.colors.hover);
-           root.style.setProperty('--accent-color', theme.colors.accent);
-           root.style.setProperty('--theme-gradient', theme.colors.gradient);
-           root.style.setProperty('--theme-shadow', theme.colors.shadow);
-           
-           // Apply theme to all main-wrapper instances (original + clones)
-           const mainWrappers = document.querySelectorAll('.main-wrapper');
-           mainWrappers.forEach((wrapper, wrapperIndex) => {
-             if (!wrapper) return;
-             
-             // Apply theme to wrapper background
-             wrapper.style.background = theme.colors.background;
-             
-             // Apply enhanced styling to all sections within this wrapper
-             const sections = wrapper.querySelectorAll('section, .quad-cta, .top-marquee, .city-story, .about.vision, .pinned');
-             sections.forEach((section, sectionIndex) => {
-               if (!section) return;
-               
-               // Add section-specific color variations for visual interest
-               const hueShift = (sectionIndex * 20 + wrapperIndex * 30) % 360;
-               const primaryHSL = hexToHSL(theme.colors.primary);
-               const adjustedPrimary = `hsl(${(primaryHSL.h + hueShift) % 360}, ${primaryHSL.s * 100}%, ${primaryHSL.l * 100}%)`;
-               
-               // Apply comprehensive styling to each section
-               section.style.setProperty('--primary-color', adjustedPrimary);
-               section.style.setProperty('--secondary-color', theme.colors.secondary);
-               section.style.setProperty('--background-color', theme.colors.background);
-               section.style.setProperty('--text-black', theme.colors.textBlack);
-               section.style.setProperty('--text-white', theme.colors.textWhite);
-               section.style.setProperty('--complementary-color', theme.colors.complementary);
-               section.style.setProperty('--hover-color', theme.colors.hover);
-               section.style.setProperty('--accent-color', theme.colors.accent);
-               
-               // Add gradient backgrounds to specific sections
-               if (section.classList.contains('top-marquee')) {
-                 section.style.background = theme.colors.gradient;
-                 section.style.boxShadow = theme.colors.shadow;
-               }
-               
-               if (section.classList.contains('brand-splash')) {
-                 section.style.background = `linear-gradient(135deg, ${theme.colors.background} 0%, ${theme.colors.secondary}20 100%)`;
-               }
-               
-               if (section.classList.contains('quad-cta')) {
-                 section.style.background = `linear-gradient(135deg, ${theme.colors.primary}10 0%, ${theme.colors.accent}10 100%)`;
-               }
-               
-               if (section.classList.contains('about') && section.classList.contains('vision')) {
-                 section.style.background = `linear-gradient(135deg, ${theme.colors.background} 0%, ${theme.colors.complementary}10 100%)`;
-               }
-               
-               if (section.classList.contains('pinned')) {
-                 section.style.background = `linear-gradient(135deg, ${theme.colors.primary}05 0%, ${theme.colors.secondary}05 100%)`;
-               }
-             });
-             
-             // Apply theme to SVG elements
-             const svgElements = wrapper.querySelectorAll('.svg-piece');
-             svgElements.forEach((svg, index) => {
-               const colorVariation = (index * 15) % 360;
-               const svgHSL = hexToHSL(theme.colors.primary);
-               const svgColor = `hsl(${(svgHSL.h + colorVariation) % 360}, ${svgHSL.s * 100}%, ${svgHSL.l * 100}%)`;
-               svg.style.fill = svgColor;
-             });
-             
-             // Apply theme to buttons and interactive elements
-             const buttons = wrapper.querySelectorAll('a, button, .small-link, .vision-cta');
-             buttons.forEach((button) => {
-               button.style.setProperty('--primary-color', theme.colors.primary);
-               button.style.setProperty('--hover-color', theme.colors.hover);
-               button.style.setProperty('--accent-color', theme.colors.accent);
-             });
-           });
-           
-           // Update body background with gradient
-           document.body.style.background = `linear-gradient(135deg, ${theme.colors.background} 0%, ${theme.colors.secondary}10 100%)`;
-           
-           // Add subtle animation to theme change
-           gsap.to('body', {
-             duration: 0.8,
-             ease: "power2.out",
-             background: `linear-gradient(135deg, ${theme.colors.background} 0%, ${theme.colors.secondary}10 100%)`
-           });
-         };
-
-        // Helper function to convert hex to HSL
-        const hexToHSL = (hex) => {
-          const r = parseInt(hex.slice(1, 3), 16) / 255;
-          const g = parseInt(hex.slice(3, 5), 16) / 255;
-          const b = parseInt(hex.slice(5, 7), 16) / 255;
-
-          const max = Math.max(r, g, b);
-          const min = Math.min(r, g, b);
-          let h, s, l = (max + min) / 2;
-
-          if (max === min) {
-            h = s = 0;
-          } else {
-            const d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-            switch (max) {
-              case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-              case g: h = (b - r) / d + 2; break;
-              case b: h = (r - g) / d + 4; break;
-            }
-            h /= 6;
-          }
-
-          return { h: h * 360, s, l };
-        };
-
-        // Helper function to adjust brightness
-        const adjustBrightness = (hex, percent) => {
-          const num = parseInt(hex.replace("#", ""), 16);
-          const amt = Math.round(2.55 * percent);
-          const R = (num >> 16) + amt;
-          const G = (num >> 8 & 0x00FF) + amt;
-          const B = (num & 0x0000FF) + amt;
-          return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-            (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-            (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
-        };
-
-                          // Create enhanced scroll-triggered theme animations for all copies
-         const createScrollColorTriggers = () => {
-           // Get all main-wrapper instances (original + clones)
-           const mainWrappers = document.querySelectorAll('.main-wrapper');
-           if (!mainWrappers.length) return;
-
-           // Throttle function to limit theme updates
-           let lastThemeUpdate = 0;
-           const throttleDelay = 80; // Slightly faster updates for smoother experience
-
-           // Create triggers for each main-wrapper to ensure all copies get themed
-           mainWrappers.forEach((wrapper, wrapperIndex) => {
-             // Create a trigger for theme changes based on scroll position for each wrapper
-             ScrollTrigger.create({
-               trigger: wrapper,
-               start: "top top",
-               end: "bottom bottom",
-               onUpdate: (self) => {
-                 const now = Date.now();
-                 if (now - lastThemeUpdate < throttleDelay) return;
-                 lastThemeUpdate = now;
-
-                 const scrollProgress = self.progress;
-                 const themeIndex = Math.floor(scrollProgress * scrollThemes.length);
-                 const currentThemeIndex = Math.min(themeIndex, scrollThemes.length - 1);
-                 const nextThemeIndex = Math.min(currentThemeIndex + 1, scrollThemes.length - 1);
-                 
-                 const currentTheme = scrollThemes[currentThemeIndex];
-                 const nextTheme = scrollThemes[nextThemeIndex];
-                 
-                 // Calculate interpolation factor within the current theme segment
-                 const segmentProgress = (scrollProgress * scrollThemes.length) % 1;
-                 
-                 // Create interpolated theme with enhanced properties
-                 const interpolatedTheme = {
-                   name: `${currentTheme.name}-${nextTheme.name}`,
-                   colors: {
-                     primary: interpolateColor(currentTheme.colors.primary, nextTheme.colors.primary, segmentProgress),
-                     secondary: interpolateColor(currentTheme.colors.secondary, nextTheme.colors.secondary, segmentProgress),
-                     background: interpolateColor(currentTheme.colors.background, nextTheme.colors.background, segmentProgress),
-                     textBlack: interpolateColor(currentTheme.colors.textBlack, nextTheme.colors.textBlack, segmentProgress),
-                     textWhite: interpolateColor(currentTheme.colors.textWhite, nextTheme.colors.textWhite, segmentProgress),
-                     complementary: interpolateColor(currentTheme.colors.complementary, nextTheme.colors.complementary, segmentProgress),
-                     hover: interpolateColor(currentTheme.colors.hover, nextTheme.colors.hover, segmentProgress),
-                     accent: interpolateColor(currentTheme.colors.accent, nextTheme.colors.accent, segmentProgress),
-                     gradient: `linear-gradient(135deg, ${interpolateColor(currentTheme.colors.primary, nextTheme.colors.primary, segmentProgress)} 0%, ${interpolateColor(currentTheme.colors.secondary, nextTheme.colors.secondary, segmentProgress)} 100%)`,
-                     shadow: `0 8px 32px ${interpolateColor(currentTheme.colors.primary, nextTheme.colors.primary, segmentProgress)}40`
-                   }
-                 };
-                 
-                 // Apply the interpolated theme
-                 applyScrollTheme(interpolatedTheme, 0.95);
-               }
-             });
-           });
-
-           // Create additional section-specific triggers for more granular control
-           mainWrappers.forEach((wrapper) => {
-             const sections = wrapper.querySelectorAll('section, .quad-cta, .top-marquee, .city-story, .about.vision, .pinned');
-             
-             sections.forEach((section, sectionIndex) => {
-               ScrollTrigger.create({
-                 trigger: section,
-                 start: "top 80%",
-                 end: "bottom 20%",
-                 onEnter: () => {
-                   // Add entrance animation
-                   gsap.fromTo(section, 
-                     { opacity: 0.8, y: 20 },
-                     { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
-                   );
-                 },
-                 onLeave: () => {
-                   // Add exit animation
-                   gsap.to(section, { opacity: 0.9, y: -10, duration: 0.4, ease: "power2.in" });
-                 },
-                 onEnterBack: () => {
-                   // Add re-entrance animation
-                   gsap.to(section, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" });
-                 },
-                 onLeaveBack: () => {
-                   // Add re-exit animation
-                   gsap.to(section, { opacity: 0.9, y: 10, duration: 0.4, ease: "power2.in" });
-                 }
-               });
-             });
-           });
-         };
-
-        // Helper function to interpolate between two hex colors
-        const interpolateColor = (color1, color2, factor) => {
-          const r1 = parseInt(color1.slice(1, 3), 16);
-          const g1 = parseInt(color1.slice(3, 5), 16);
-          const b1 = parseInt(color1.slice(5, 7), 16);
-          
-          const r2 = parseInt(color2.slice(1, 3), 16);
-          const g2 = parseInt(color2.slice(3, 5), 16);
-          const b2 = parseInt(color2.slice(5, 7), 16);
-          
-          const r = Math.round(r1 + (r2 - r1) * factor);
-          const g = Math.round(g1 + (g2 - g1) * factor);
-          const b = Math.round(b1 + (b2 - b1) * factor);
-          
-          return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-        };
-
-        // Initialize scroll color triggers after DOM is ready
-        const initScrollColorTriggers = () => {
-          // Wait for GSAP and ScrollTrigger to be ready
-          if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            createScrollColorTriggers();
-          } else {
-            // Retry after a short delay
-            setTimeout(initScrollColorTriggers, 100);
-          }
-        };
-
-                 // Start the scroll theme triggers
-         initScrollColorTriggers();
-
-
-
-         // Re-initialize when clones are created
-         window.addEventListener('clones-created', () => {
-           setTimeout(() => {
-             initScrollColorTriggers();
-           }, 200);
-         });
-
-                 // Add manual theme cycle function for testing
-         window.cycleScrollThemes = (direction = 'forward') => {
-           const currentThemeIndex = Math.floor(Math.random() * scrollThemes.length);
-           const theme = scrollThemes[currentThemeIndex];
-           applyScrollTheme(theme, 1);
-         };
-
-         // Add function to apply specific theme
-         window.applyTheme = (themeName) => {
-           const theme = scrollThemes.find(t => t.name === themeName);
-           if (theme) {
-             applyScrollTheme(theme, 1);
-             console.log(`Applied theme: ${themeName}`);
-           } else {
-             console.log(`Theme "${themeName}" not found. Available themes:`, scrollThemes.map(t => t.name));
-           }
-         };
-
-         // Add function to cycle through themes sequentially
-         window.cycleThemesSequentially = () => {
-           let currentIndex = 0;
-           const interval = setInterval(() => {
-             const theme = scrollThemes[currentIndex];
-             applyScrollTheme(theme, 1);
-             currentIndex = (currentIndex + 1) % scrollThemes.length;
-           }, 2000); // Change theme every 2 seconds
-           
-           // Return function to stop cycling
-           return () => clearInterval(interval);
-         };
-
-         // Add function to get current theme info
-         window.getCurrentTheme = () => {
-           const themeIndicator = document.getElementById('current-theme');
-           return themeIndicator ? themeIndicator.textContent : 'Unknown';
-         };
-
-         // Add function to apply theme by ID (matching API structure)
-         window.applyThemeById = (id) => {
-           const theme = scrollThemes.find(t => t.name === `theme-${id}`);
-           if (theme) {
-             applyScrollTheme(theme, 1);
-             console.log(`Applied theme ID: ${id}`);
-           } else {
-             console.log(`Theme ID "${id}" not found. Available IDs: 87, 88, 89, 90, 91`);
-           }
-         };
-
-         console.log('🎨 API-based scroll theme triggers initialized!');
-         console.log('Available themes:', scrollThemes.map(t => t.name));
-         console.log('Available theme IDs: 87, 88, 89, 90, 91');
-         console.log('Commands:');
-         console.log('  cycleScrollThemes() - Apply random theme');
-         console.log('  applyTheme("theme-87") - Apply specific theme');
-         console.log('  applyThemeById(87) - Apply theme by ID');
-         console.log('  cycleThemesSequentially() - Cycle through themes every 2s');
-         console.log('  getCurrentTheme() - Get current theme name');
+        
+        console.log('💡 Use window.reapplyThemes() to manually reapply themes');
+        console.log('💡 Use window.getThemeInfo() to see current theme assignments');
+        console.log('💡 Use window.showThemePattern(20) to see theme pattern for 20 wrappers');
       } catch (e) {
-        console.error('Error initializing scroll color triggers:', e);
+        console.error('Error initializing theme system:', e);
       }
+
+
 
       // 3) Top marquees (cities)
       try {
@@ -1345,7 +997,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!main) return;
       
       const fragment = document.createDocumentFragment();
-      const copies = 5; // adjust as needed
+      const copies = 10; // Increased for better infinite experience
       
       for (let i = 0; i < copies; i++) {
         // Simple deep clone - keep everything exactly the same
@@ -1363,7 +1015,11 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.appendChild(fragment);
       prepareMarquees();
       window.dispatchEvent(new Event('clones-created'));
-    } catch (e) {}
+      
+      console.log(`🔄 Created ${copies} clones for infinite experience`);
+    } catch (e) {
+      console.error('Error creating clones:', e);
+    }
   }
   function onReadyCreateAndRender() {
     // Ensure brand-splash animation init runs at least once before cloning

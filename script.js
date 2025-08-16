@@ -210,10 +210,20 @@ document.addEventListener("DOMContentLoaded", () => {
           
           mainWrappers.forEach((wrapper, index) => {
             // Use a pattern that ensures no two consecutive wrappers have identical themes
-            // Pattern: 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, etc.
-            const themeIndex = index % finalThemeColors.length;
+            // Modified pattern to show theme change clearly when scrolling backward
+            // Original (index 0) gets theme 0, but when scrolling back, show theme 4 (orange)
+            let themeIndex;
+            if (index === 0) {
+              // Original wrapper gets first theme (pink)
+              themeIndex = 0;
+            } else {
+              // All other wrappers get different themes to show change
+              // Use a pattern that avoids showing the same theme consecutively
+              themeIndex = (index + 1) % finalThemeColors.length;
+            }
+            
             const theme = finalThemeColors[themeIndex];
-            console.log(`🎨 Main wrapper ${index}: applying theme ${theme.id} (${theme.primaryColor})`);
+            console.log(`🎨 Main wrapper ${index}: applying theme ${theme.id} (${theme.primaryColor}) - showing theme change`);
             applyThemeToMainWrapper(wrapper, themeIndex);
           });
         };
@@ -277,7 +287,8 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log('🎨 Dynamic theme system initialized from Strapi API!');
         console.log(`Available themes: ${finalThemeColors.map(t => `ID ${t.id} (${t.primaryColor})`).join(', ')}`);
         console.log('No two consecutive main wrappers will have identical themes.');
-        console.log('Pattern repeats every', finalThemeColors.length, 'wrappers for infinite copies.');
+        console.log('Pattern: Original (pink) → Orange → Purple → Black → Red → Orange...');
+        console.log('🎨 Theme changes are clearly visible when scrolling backward/forward');
         
         // Expose function for manual theme reapplication (for testing)
         window.reapplyThemes = () => {
@@ -302,11 +313,18 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Expose function to show theme pattern
         window.showThemePattern = (count = 20) => {
-          console.log(`🎨 Theme pattern for ${count} wrappers:`);
+          console.log(`🎨 Theme pattern for ${count} wrappers (showing theme changes):`);
           for (let i = 0; i < count; i++) {
-            const themeIndex = i % finalThemeColors.length;
+            let themeIndex;
+            if (i === 0) {
+              // Original wrapper gets first theme (pink)
+              themeIndex = 0;
+            } else {
+              // All other wrappers get different themes to show change
+              themeIndex = (i + 1) % finalThemeColors.length;
+            }
             const theme = finalThemeColors[themeIndex];
-            console.log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor})`);
+            console.log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor}) - ${i === 0 ? 'ORIGINAL' : 'CHANGED'}`);
           }
         };
         

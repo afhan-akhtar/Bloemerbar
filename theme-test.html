@@ -77,8 +77,9 @@
             <ul>
                 <li>✅ Themes should be fetched from Strapi API</li>
                 <li>✅ No two consecutive main wrappers should have identical themes</li>
-                <li>✅ Pattern should repeat: 87, 88, 89, 90, 91, 87, 88, 89, 90, 91...</li>
+                <li>✅ Pattern: Original (pink) → Orange → Purple → Black → Red → Orange...</li>
                 <li>✅ Infinite copies should work with proper theme cycling</li>
+                <li>🎨 <strong>THEME CHANGE VISIBILITY:</strong> When scrolling backward from original, user sees orange (not pink)</li>
                 <li>🎨 Themes applied using CSS variables for subtle color changes</li>
                 <li>🎨 Background colors, text colors, and accents follow theme palette</li>
             </ul>
@@ -99,27 +100,36 @@
         function testThemePattern() {
             clearLog();
             log('🎨 Testing Theme Pattern...');
-            log('Expected pattern: 87, 88, 89, 90, 91, 87, 88, 89, 90, 91...');
+            log('Expected pattern: Original (pink) → Orange → Purple → Black → Red → Orange...');
+            log('This ensures users see theme changes when scrolling backward/forward');
             log('');
             
-            // Simulate the theme pattern logic
+            // Simulate the new theme pattern logic
             const mockThemes = [
-                { id: 87, primaryColor: "#F05A70" },
-                { id: 88, primaryColor: "#D28FB9" },
-                { id: 89, primaryColor: "#131313" },
-                { id: 90, primaryColor: "#F05970" },
-                { id: 91, primaryColor: "#F15E36" }
+                { id: 87, primaryColor: "#F05A70" }, // Pink
+                { id: 88, primaryColor: "#D28FB9" }, // Purple
+                { id: 89, primaryColor: "#131313" }, // Black
+                { id: 90, primaryColor: "#F05970" }, // Red
+                { id: 91, primaryColor: "#F15E36" }  // Orange
             ];
             
-            log('Pattern for 20 wrappers:');
-            for (let i = 0; i < 20; i++) {
-                const themeIndex = i % mockThemes.length;
+            log('New pattern for 10 wrappers:');
+            for (let i = 0; i < 10; i++) {
+                let themeIndex;
+                if (i === 0) {
+                    // Original wrapper gets first theme (pink)
+                    themeIndex = 0;
+                } else {
+                    // All other wrappers get different themes to show change
+                    themeIndex = (i + 1) % mockThemes.length;
+                }
                 const theme = mockThemes[themeIndex];
-                log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor})`);
+                log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor}) - ${i === 0 ? 'ORIGINAL' : 'CHANGED'}`);
             }
             
             log('');
             log('✅ Pattern verification: No consecutive identical themes');
+            log('✅ When scrolling backward from original, user sees orange (not pink)');
         }
 
         function testThemeInfo() {

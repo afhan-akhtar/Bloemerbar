@@ -455,15 +455,15 @@
     </div>
     </div>
 
-    <!-- Book Now Popup (outside main wrapper to avoid cloning) -->
-    <div id="book-now-popup" class="book-popup" aria-hidden="true" role="dialog" aria-label="Book now" aria-modal="true">
+    <!-- Reserveer Popup (outside main wrapper to avoid cloning) -->
+    <div id="book-now-popup" class="book-popup" aria-hidden="true" role="dialog" aria-label="Reserveer" aria-modal="true">
       <div class="book-popup__inner">
         <button type="button" class="book-popup__close" aria-label="Close">×</button>
         <div class="book-popup__content">
           <h3 class="book-popup__title">Ready to Book?</h3>
           <p class="book-popup__desc">Reserve your table in seconds.</p>
         </div>
-        <a class="book-popup__cta" href="#ft-open" aria-label="Book now">Book now</a>
+        <a class="book-popup__cta" href="#ft-open" aria-label="Reserveer">Reserveer</a>
       </div>
     </div>
 
@@ -516,7 +516,7 @@
             const widget = document.getElementById('ft-widget');
             if (widget) {
               widget.style.display = 'block';
-              // Show toolbar and open widget when Book Now is clicked
+              // Show toolbar and open widget when Reserveer is clicked
               if (window.FT) {
                 // Show the toolbar first
                 if (window.FT.widgetService && window.FT.widgetService.showToolbar) {

@@ -568,20 +568,19 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
           
-          // Update button text and link from booking-section
-          if (bookingBlock && bookingBlock.book) {
-            const bookButton = document.querySelector('.about.vision .vision-cta');
-            if (bookButton) {
-              if (bookingBlock.book.label) {
-                bookButton.textContent = bookingBlock.book.label;
+                      // Update button text and link from booking-section
+            if (bookingBlock && bookingBlock.book) {
+              const bookButton = document.querySelector('.about.vision .vision-cta');
+              if (bookButton) {
+                // Use hardcoded "Reserveer" instead of fetching from Strapi
+                bookButton.textContent = 'Reserveer';
+                // Use hardcoded href instead of fetching from Strapi
+                bookButton.setAttribute('href', '#ft-open');
+                // Remove external link attributes since we're using a local anchor
+                bookButton.removeAttribute('target');
+                bookButton.removeAttribute('rel');
               }
-              // Use hardcoded href instead of fetching from Strapi
-              bookButton.setAttribute('href', '#ft-open');
-              // Remove external link attributes since we're using a local anchor
-              bookButton.removeAttribute('target');
-              bookButton.removeAttribute('rel');
             }
-          }
         } catch (_) {}
         
         // vision media image from booking-section block
@@ -633,7 +632,8 @@ document.addEventListener("DOMContentLoaded", () => {
               // Remove external link attributes since we're using a local anchor
               a.removeAttribute('target');
               a.removeAttribute('rel');
-              if (cta.label) a.textContent = cta.label;
+              // Use hardcoded "Reserveer" instead of fetching from Strapi
+              a.textContent = 'Reserveer';
             }
           }
         }
@@ -901,9 +901,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (bookingBlock && bookingBlock.book) {
               const bookButton = document.querySelector('.about.vision .vision-cta');
               if (bookButton) {
-                if (bookingBlock.book.label) {
-                  bookButton.textContent = bookingBlock.book.label;
-                }
+                // Use hardcoded "Reserveer" instead of fetching from Strapi
+                bookButton.textContent = 'Reserveer';
                 // Use hardcoded href instead of fetching from Strapi
                 bookButton.setAttribute('href', '#ft-open');
                 // Remove external link attributes since we're using a local anchor

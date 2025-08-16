@@ -1167,23 +1167,28 @@ section {
 }
 
 .book-popup__content { padding: 28px 22px 8px 22px; }
-.book-popup__title { font-size: 32px; color: #194d38; text-transform: uppercase; }
-.book-popup__desc { color: #2e3a67; text-transform: none; margin-top: 8px; }
+.book-popup__title { font-size: 32px; color: var(--primary-color); text-transform: uppercase; }
+.book-popup__desc { color: var(--primary-color); text-transform: none; margin-top: 8px; }
 
 .book-popup__cta {
   display: block;
   margin: 14px 22px 22px 22px;
   text-align: center;
   text-decoration: none;
-  background: #194d38;
-  color: #fff3d7;
+  background: var(--primary-color);
+  color: var(--background-color);
   padding: 14px 18px;
   border-radius: 10px;
   font-weight: 800;
   letter-spacing: .5px;
+  transition: all 0.3s ease;
 }
 
-.book-popup__cta:hover { filter: brightness(1.08); }
+.book-popup__cta:hover { 
+  background: var(--hover-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
 
 /* ===== Enhanced Theme Styling - Tripletta Inspired ===== */
 /* Brand Splash Section - Enhanced with warm, vibrant colors */

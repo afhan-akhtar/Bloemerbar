@@ -1106,6 +1106,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function openBookPopup() {
     if (!bookPopup || isBookPopupOpen) return;
+    
+    // Get the current main wrapper that triggered the popup
+    const currentMainWrapper = window.currentPopupWrapper || document.querySelector('.main-wrapper:has(.pinned)');
+    if (currentMainWrapper) {
+      // Apply the theme colors from the current wrapper to the popup
+      const computedStyle = getComputedStyle(currentMainWrapper);
+      bookPopup.style.setProperty('--primary-color', computedStyle.getPropertyValue('--primary-color'));
+      bookPopup.style.setProperty('--secondary-color', computedStyle.getPropertyValue('--secondary-color'));
+      bookPopup.style.setProperty('--background-color', computedStyle.getPropertyValue('--background-color'));
+      bookPopup.style.setProperty('--text-black', computedStyle.getPropertyValue('--text-black'));
+      bookPopup.style.setProperty('--text-white', computedStyle.getPropertyValue('--text-white'));
+      bookPopup.style.setProperty('--complementary-color', computedStyle.getPropertyValue('--complementary-color'));
+      bookPopup.style.setProperty('--hover-color', computedStyle.getPropertyValue('--hover-color'));
+      bookPopup.style.setProperty('--accent-color', computedStyle.getPropertyValue('--accent-color'));
+    }
+    
     previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     inertBackground(true);
     bookPopup.removeAttribute('inert');
@@ -1142,6 +1158,9 @@ document.addEventListener("DOMContentLoaded", () => {
     bookPopup.setAttribute('inert', '');
     inertBackground(false);
     isBookPopupOpen = false;
+    
+    // Clean up the wrapper reference
+    window.currentPopupWrapper = null;
   }
 
   try {
@@ -1748,6 +1767,8 @@ document.addEventListener("DOMContentLoaded", () => {
           
           // Show popup only on original (index 0) and first copy (index 1)
           if (currentIndex <= 1) {
+            // Store reference to the current wrapper for popup theming
+            window.currentPopupWrapper = mainWrapper;
             openBookPopup();
           }
         }

@@ -75,10 +75,12 @@ body { overflow-x: hidden; }
 /* SVG elements for smooth color changes */
 .svg-piece {
   transition: fill 0.8s ease, transform 0.3s ease;
+  fill: var(--primary-color);
 }
 
 .svg-piece:hover {
   transform: scale(1.05);
+  fill: var(--hover-color);
 }
 
 /* Enhanced button and link styling */
@@ -1205,6 +1207,7 @@ section {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
+  fill: var(--primary-color);
 }
 
 .brand-splash:hover .brand-illustration .svg-piece {
@@ -1521,12 +1524,12 @@ body {
 }
 
 .brand-splash .brand-illustration .svg-piece {
-    fill: var(--primary-pink);
+    fill: var(--primary-color);
     transition: fill 0.3s ease;
 }
 
 .brand-splash .brand-illustration .svg-piece:hover {
-    fill: var(--primary-orange);
+    fill: var(--hover-color);
 }
 
 

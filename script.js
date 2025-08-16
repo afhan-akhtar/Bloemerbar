@@ -1457,24 +1457,13 @@ document.addEventListener("DOMContentLoaded", () => {
         try { el.style.fill = 'var(--primary-color)'; } catch (_) {}
       });
 
-      const partyColors = ['#d946ef', '#06b6d4', '#34d399', '#f59e0b', '#ef4444', '#6366f1'];
+      // Use theme primary color for all SVG pieces
+      const themePrimaryColor = getComputedStyle(brandSplashEl).getPropertyValue('--primary-color').trim();
       
-      // Create a global color animation timeline that works for all instances
-      if (!window.globalColorAnimation) {
-        window.globalColorAnimation = gsap.timeline({ repeat: -1 });
-        partyColors.forEach((color) => {
-          window.globalColorAnimation.to(
-            '.svg-piece',
-            {
-              duration: 0.7,
-              fill: color,
-              ease: 'power1.inOut',
-              stagger: { each: 0.03, from: 0 },
-            },
-            '+=0.2'
-          );
-        });
-      }
+      // Set all SVG pieces to use the theme's primary color
+      pieces.forEach((piece) => {
+        try { piece.style.fill = themePrimaryColor; } catch (_) {}
+      });
 
       // Stateless deterministic PRNG based on index so clones match 1:1
       const randForIndex = (i, salt) => {
@@ -1489,39 +1478,17 @@ document.addEventListener("DOMContentLoaded", () => {
         x: (i) => (randForIndex(i, 0) - 0.5) * 400,
         y: (i) => (randForIndex(i, 1) - 0.5) * 400,
         rotation: (i) => (randForIndex(i, 2) - 0.5) * 360,
-        fill: 'var(--primary-color)',
+        fill: themePrimaryColor,
       });
 
       function startPartyLights() {
-        // Use the global color animation that affects all SVG pieces
-        if (window.globalColorAnimation) {
-          // Ensure the global animation is running
-          if (!window.globalColorAnimation.isActive()) {
-            window.globalColorAnimation.play();
-          }
-        } else {
-          // Fallback to local animation
-          const colorsTl = gsap.timeline({ repeat: -1 });
-          partyColors.forEach((color) => {
-            colorsTl.to(
-              pieces,
-              {
-                duration: 0.7,
-                fill: color,
-                ease: 'power1.inOut',
-                stagger: { each: 0.03, from: 0 },
-              },
-              '+=0.2'
-            );
-          });
-        }
+        // Keep all SVG pieces using the theme's primary color
+        const themePrimaryColor = getComputedStyle(brandSplashEl).getPropertyValue('--primary-color').trim();
         
-        // Ensure the animation starts immediately for all pieces
-        setTimeout(() => {
-          pieces.forEach((piece) => {
-            piece.style.fill = partyColors[0];
-          });
-        }, 100);
+        // Ensure all pieces maintain the theme color
+        pieces.forEach((piece) => {
+          try { piece.style.fill = themePrimaryColor; } catch (_) {}
+        });
       }
 
       const assembleTl = gsap.timeline({ onComplete: startPartyLights });

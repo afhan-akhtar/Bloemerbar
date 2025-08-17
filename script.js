@@ -9,6 +9,138 @@ window.scrollTo(0, 10);
 
 document.addEventListener("DOMContentLoaded", () => {
   gsap.registerPlugin(ScrollTrigger);
+  
+  // === Mobile Menu Toggle Functionality ===
+  function initializeMobileMenu() {
+    // Get all mobile menu toggles and nav-hero elements
+    const mobileMenuToggles = document.querySelectorAll('.mobile-menu-toggle');
+    const navHeroes = document.querySelectorAll('.nav-hero');
+    
+    // Function to close all mobile menus
+    function closeAllMobileMenus() {
+      mobileMenuToggles.forEach(toggle => {
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+      navHeroes.forEach(nav => {
+        nav.classList.remove('mobile-open');
+      });
+      document.body.style.overflow = '';
+    }
+    
+    // Add click event listeners to all mobile menu toggles
+    mobileMenuToggles.forEach(toggle => {
+      // Remove existing listeners to prevent duplicates
+      toggle.removeEventListener('click', toggle.clickHandler);
+      
+      toggle.clickHandler = () => {
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        
+        // Close all other menus first
+        closeAllMobileMenus();
+        
+        if (!isExpanded) {
+          // Find the corresponding nav-hero (closest one in the same top-marquee)
+          const topMarquee = toggle.closest('.top-marquee');
+          const navHero = topMarquee ? topMarquee.querySelector('.nav-hero') : null;
+          
+          if (navHero) {
+            toggle.setAttribute('aria-expanded', 'true');
+            navHero.classList.add('mobile-open');
+            document.body.style.overflow = 'hidden';
+          }
+        }
+      };
+      
+      toggle.addEventListener('click', toggle.clickHandler);
+    });
+    
+    // Close menu when clicking outside (using event delegation)
+    document.removeEventListener('click', document.outsideClickHandler);
+    document.outsideClickHandler = (e) => {
+      const isToggleClick = e.target.closest('.mobile-menu-toggle');
+      const isNavClick = e.target.closest('.nav-hero');
+      
+      if (!isToggleClick && !isNavClick) {
+        closeAllMobileMenus();
+      }
+    };
+    document.addEventListener('click', document.outsideClickHandler);
+    
+    // Close menu on window resize if screen becomes larger
+    window.removeEventListener('resize', window.resizeHandler);
+    window.resizeHandler = () => {
+      if (window.innerWidth > 900) {
+        closeAllMobileMenus();
+      }
+    };
+    window.addEventListener('resize', window.resizeHandler);
+    
+    // Close menu when pressing Escape key
+    document.removeEventListener('keydown', document.escapeHandler);
+    document.escapeHandler = (e) => {
+      if (e.key === 'Escape') {
+        closeAllMobileMenus();
+      }
+    };
+    document.addEventListener('keydown', document.escapeHandler);
+  }
+  
+  // Initialize mobile menu on page load
+  initializeMobileMenu();
+  
+  // Close mobile menus on scroll
+  let scrollTimeout;
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      const mobileMenuToggles = document.querySelectorAll('.mobile-menu-toggle');
+      const navHeroes = document.querySelectorAll('.nav-hero');
+      
+      // Close all mobile menus
+      mobileMenuToggles.forEach(toggle => {
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+      navHeroes.forEach(nav => {
+        nav.classList.remove('mobile-open');
+      });
+      document.body.style.overflow = '';
+    }, 100);
+  });
+  
+  // Re-initialize mobile menu when new elements are added (for cloned content)
+  const observer = new MutationObserver((mutations) => {
+    let shouldReinitialize = false;
+    
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.matches && (node.matches('.mobile-menu-toggle') || node.matches('.nav-hero') || node.querySelector('.mobile-menu-toggle') || node.querySelector('.nav-hero'))) {
+              shouldReinitialize = true;
+            }
+            if (node.querySelectorAll) {
+              const toggles = node.querySelectorAll('.mobile-menu-toggle');
+              const navs = node.querySelectorAll('.nav-hero');
+              if (toggles.length > 0 || navs.length > 0) {
+                shouldReinitialize = true;
+              }
+            }
+          }
+        });
+      }
+    });
+    
+    if (shouldReinitialize) {
+      // Small delay to ensure DOM is fully updated
+      setTimeout(initializeMobileMenu, 10);
+    }
+  });
+  
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+  
   // === Strapi dynamic content integration ===
   (async function integrateStrapi() {
     const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://localhost:1337";
@@ -1020,10 +1152,22 @@ document.addEventListener("DOMContentLoaded", () => {
         // Simple deep clone - keep everything exactly the same
         const clone = main.cloneNode(true);
         
-        // Only fix SVG ID conflicts to prevent reference issues
+        // Fix SVG ID conflicts to prevent reference issues
         clone.querySelectorAll('svg[id]').forEach((svg) => {
           const newId = 'svg-clone-' + i + '-' + Math.random().toString(36).substr(2, 9);
           svg.setAttribute('id', newId);
+        });
+        
+        // Fix mobile menu toggle ID conflicts
+        clone.querySelectorAll('.mobile-menu-toggle[id]').forEach((toggle) => {
+          const newId = 'mobile-menu-toggle-clone-' + i + '-' + Math.random().toString(36).substr(2, 9);
+          toggle.setAttribute('id', newId);
+        });
+        
+        // Fix nav-hero ID conflicts
+        clone.querySelectorAll('.nav-hero[id]').forEach((nav) => {
+          const newId = 'nav-hero-clone-' + i + '-' + Math.random().toString(36).substr(2, 9);
+          nav.setAttribute('id', newId);
         });
         
         fragment.appendChild(clone);
@@ -1886,13 +2030,8 @@ lenis.on("scroll", ({ scroll, limit }) => {
     overlay.id = "preloader";
     overlay.setAttribute("role", "status");
     overlay.setAttribute("aria-live", "polite");
+    overlay.className = "preloader-overlay";
     overlay.style.cssText = [
-      "position:fixed",
-      "inset:0",
-      "display:flex",
-      "align-items:center",
-      "justify-content:center",
-      "z-index:9999",
       "background:#e3f2fd",
       "opacity:1",
       "transition:opacity 0.6s ease",
@@ -1900,24 +2039,16 @@ lenis.on("scroll", ({ scroll, limit }) => {
 
     // Ticker frame
     const frame = document.createElement("div");
+    frame.className = "preloader-frame";
     frame.style.cssText = [
-      "display:inline-flex",
-      "align-items:center",
-      "justify-content:center",
-      "padding:6px 18px",
-      "border-radius:999px",
       "background:transparent",
     ].join(";");
 
     // Current name
     const label = document.createElement("span");
+    label.className = "preloader-label";
     label.style.cssText = [
-      "font-size:clamp(48px,18vw,200px)",
       "color:#0d47a1",
-      "letter-spacing:0.01em",
-      "text-transform:uppercase",
-      "line-height:1",
-      "font-weight:900",
       "will-change:transform,opacity",
     ].join(";");
 

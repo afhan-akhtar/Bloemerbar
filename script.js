@@ -2509,96 +2509,148 @@ lenis.on("scroll", ({ scroll, limit }) => {
       // Create unique ID for this instance
       const uniqueId = `scroll-lottie-reserveer-${wrapperIndex}-${Date.now()}`;
       
-      // Create the animated "Reserveer" SVG wrapped in anchor tag for the badge
+      // Create the animated "Reserveer" SVG with wine glasses and music theme
       const reserveerSVG = `
         <a href="#ft-open" style="display: block; text-decoration: none; cursor: pointer;">
           <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" 
                style="cursor: pointer; transition: transform 0.2s ease;" class="scroll-reserveer-svg">
             <defs>
-              <linearGradient id="gradient-${uniqueId}" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:var(--primary-color);stop-opacity:1" />
-                <stop offset="50%" style="stop-color:var(--secondary-color);stop-opacity:1" />
-                <stop offset="100%" style="stop-color:var(--complementary-color);stop-opacity:1" />
-              </linearGradient>
-              <radialGradient id="radial-${uniqueId}" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" style="stop-color:var(--primary-color);stop-opacity:0.3" />
-                <stop offset="100%" style="stop-color:var(--primary-color);stop-opacity:0" />
+              <!-- Button gradient -->
+              <radialGradient id="buttonGrad-${uniqueId}" cx="50%" cy="30%">
+                <stop offset="0%" style="stop-color:#2a2a4e;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />
               </radialGradient>
+              <!-- Glow effect -->
               <filter id="glow-${uniqueId}">
-                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
                 <feMerge> 
                   <feMergeNode in="coloredBlur"/>
                   <feMergeNode in="SourceGraphic"/>
                 </feMerge>
               </filter>
+              <!-- Shadow effect -->
               <filter id="shadow-${uniqueId}">
-                <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.2)"/>
+                <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="rgba(0,0,0,0.3)"/>
               </filter>
             </defs>
             
-            <!-- Background glow -->
-            <circle cx="100" cy="100" r="90" fill="url(#radial-${uniqueId})" opacity="0.4"/>
-            
-            <!-- Outer ring with rotation -->
-            <circle cx="100" cy="100" r="75" fill="none" stroke="url(#gradient-${uniqueId})" stroke-width="2" 
-                    opacity="0.6" class="outer-ring">
-              <animateTransform attributeName="transform" type="rotate" values="0 100 100;360 100 100" 
-                                dur="8s" repeatCount="indefinite"/>
-            </circle>
-            
-            <!-- Middle ring -->
-            <circle cx="100" cy="100" r="65" fill="none" stroke="url(#gradient-${uniqueId})" stroke-width="1.5" 
-                    opacity="0.8" class="middle-ring">
-              <animateTransform attributeName="transform" type="rotate" values="360 100 100;0 100 100" 
-                                dur="6s" repeatCount="indefinite"/>
-            </circle>
-            
-            <!-- Main circle with pulse animation -->
-            <circle cx="100" cy="100" r="55" fill="none" stroke="url(#gradient-${uniqueId})" stroke-width="3" 
-                    filter="url(#glow-${uniqueId})" class="main-circle">
-              <animate attributeName="r" values="55;60;55" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
+            <!-- Main circular button with pulse animation -->
+            <circle cx="100" cy="100" r="90" fill="url(#buttonGrad-${uniqueId})" stroke="#eee" stroke-width="2" 
+                    filter="url(#shadow-${uniqueId})" class="main-button">
+              <animate attributeName="r" values="90;95;90" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
               <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
             </circle>
             
-            <!-- Inner circle -->
-            <circle cx="100" cy="100" r="45" fill="url(#gradient-${uniqueId})" opacity="0.1" 
-                    filter="url(#shadow-${uniqueId})"/>
+            <!-- Inner circle for depth -->
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#eee" stroke-width="1" opacity="0.3" class="inner-ring">
+              <animateTransform attributeName="transform" type="rotate" values="0 100 100;360 100 100" 
+                                dur="10s" repeatCount="indefinite"/>
+            </circle>
             
-            <!-- Text "Reserveer" with sophisticated animation -->
-            <text x="100" y="98" text-anchor="middle" fill="#ffffff" 
-                  font-family="Arial, sans-serif" font-size="12" font-weight="bold" 
-                  class="reserveer-text" filter="url(#shadow-${uniqueId})">
+            <!-- Wine glasses with animation -->
+            <g transform="translate(60, 50)" class="wine-glasses">
+              <!-- Left wine glass -->
+              <path d="M 5 0 L 15 0 L 14 12.5 L 6 12.5 Z" fill="#eee" class="glass-left">
+                <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+              </path>
+              <rect x="9" y="12.5" width="2" height="15" fill="#eee" class="stem-left"/>
+              <ellipse cx="10" cy="29" rx="6" ry="1.5" fill="#eee" class="base-left"/>
+              <!-- Wine in left glass -->
+              <path d="M 6 7.5 L 14 7.5 L 13.25 12.5 L 6.75 12.5 Z" fill="#8B0000" class="wine-left">
+                <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/>
+              </path>
+            </g>
+            
+            <g transform="translate(120, 50)" class="wine-glasses">
+              <!-- Right wine glass -->
+              <path d="M 5 0 L 15 0 L 14 12.5 L 6 12.5 Z" fill="#eee" class="glass-right">
+                <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+              </path>
+              <rect x="9" y="12.5" width="2" height="15" fill="#eee" class="stem-right"/>
+              <ellipse cx="10" cy="29" rx="6" ry="1.5" fill="#eee" class="base-right"/>
+              <!-- Wine in right glass -->
+              <path d="M 6 6 L 14 6 L 13.5 12.5 L 6.5 12.5 Z" fill="#722F37" class="wine-right">
+                <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
+              </path>
+            </g>
+            
+            <!-- Musical notes with animation -->
+            <g transform="translate(40, 100)" class="music-notes">
+              <circle cx="0" cy="10" r="4" fill="#eee" class="note-1">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+              </circle>
+              <rect x="4" y="2.5" width="1.5" height="7.5" fill="#eee" class="stem-1"/>
+              <path d="M 4 2.5 Q 7.5 0 11 2.5 L 11 7.5 Q 7.5 5 4 7.5" fill="none" stroke="#eee" stroke-width="1" class="flag-1">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+              </path>
+            </g>
+            
+            <g transform="translate(150, 100)" class="music-notes">
+              <circle cx="0" cy="7.5" r="3" fill="#eee" class="note-2">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
+              </circle>
+              <rect x="3" y="2.5" width="1" height="5" fill="#eee" class="stem-2"/>
+              <circle cx="7.5" cy="5" r="2.5" fill="#eee" class="note-3">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.6s"/>
+              </circle>
+              <rect x="10" y="1" width="1" height="4" fill="#eee" class="stem-3"/>
+            </g>
+            
+            <!-- Main text "RESERVEER" with sophisticated animation -->
+            <text x="100" y="140" text-anchor="middle" fill="#eee" 
+                  font-family="Arial, sans-serif" font-size="14" font-weight="bold" 
+                  letter-spacing="1px" class="reserveer-text" filter="url(#shadow-${uniqueId})">
               <tspan x="100" dy="0">RESERVEER</tspan>
               <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" ease="easeInOut"/>
             </text>
             
-            <!-- Floating particles -->
-            <circle cx="60" cy="60" r="2" fill="var(--secondary-color)" opacity="0.7" class="particle-1">
-              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
-              <animate attributeName="r" values="2;3;2" dur="2s" repeatCount="indefinite"/>
+            <!-- Decorative music staff lines -->
+            <g opacity="0.2" class="staff-lines">
+              <line x1="30" y1="165" x2="70" y2="165" stroke="#eee" stroke-width="0.5" class="staff-1">
+                <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite"/>
+              </line>
+              <line x1="30" y1="170" x2="70" y2="170" stroke="#eee" stroke-width="0.5" class="staff-2">
+                <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+              </line>
+              <line x1="30" y1="175" x2="70" y2="175" stroke="#eee" stroke-width="0.5" class="staff-3">
+                <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" begin="1s"/>
+              </line>
+              <line x1="130" y1="165" x2="170" y2="165" stroke="#eee" stroke-width="0.5" class="staff-4">
+                <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+              </line>
+              <line x1="130" y1="170" x2="170" y2="170" stroke="#eee" stroke-width="0.5" class="staff-5">
+                <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" begin="2s"/>
+              </line>
+              <line x1="130" y1="175" x2="170" y2="175" stroke="#eee" stroke-width="0.5" class="staff-6">
+                <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" begin="2.5s"/>
+              </line>
+            </g>
+            
+            <!-- Corner accent dots -->
+            <circle cx="100" cy="25" r="2" fill="#eee" opacity="0.6" class="corner-dot-1">
+              <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/>
             </circle>
-            <circle cx="140" cy="140" r="1.5" fill="var(--primary-color)" opacity="0.7" class="particle-2">
-              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="0.5s"/>
-              <animate attributeName="r" values="1.5;2.5;1.5" dur="2s" repeatCount="indefinite" begin="0.5s"/>
-            </circle>
-            <circle cx="140" cy="60" r="2.5" fill="var(--complementary-color)" opacity="0.7" class="particle-3">
-              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="1s"/>
-              <animate attributeName="r" values="2.5;3.5;2.5" dur="2s" repeatCount="indefinite" begin="1s"/>
-            </circle>
-            <circle cx="60" cy="140" r="1.8" fill="var(--secondary-color)" opacity="0.7" class="particle-4">
-              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="1.5s"/>
-              <animate attributeName="r" values="1.8;2.8;1.8" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+            <circle cx="100" cy="175" r="2" fill="#eee" opacity="0.6" class="corner-dot-2">
+              <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite" begin="1s"/>
             </circle>
             
-            <!-- Corner accents -->
-            <path d="M 85 85 L 95 85 L 95 95 L 85 95 Z" fill="var(--primary-color)" opacity="0.3" class="corner-1">
-              <animateTransform attributeName="transform" type="rotate" values="0 90 90;360 90 90" 
-                                dur="4s" repeatCount="indefinite"/>
-            </path>
-            <path d="M 105 105 L 115 105 L 115 115 L 105 115 Z" fill="var(--secondary-color)" opacity="0.3" class="corner-2">
-              <animateTransform attributeName="transform" type="rotate" values="360 110 110;0 110 110" 
-                                dur="4s" repeatCount="indefinite"/>
-            </path>
+            <!-- Floating sparkles -->
+            <circle cx="30" cy="30" r="1" fill="#eee" opacity="0.7" class="sparkle-1">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="r" values="1;1.5;1" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="170" cy="30" r="1.5" fill="#eee" opacity="0.7" class="sparkle-2">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+              <animate attributeName="r" values="1.5;2;1.5" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>
+            <circle cx="30" cy="170" r="1.2" fill="#eee" opacity="0.7" class="sparkle-3">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="1s"/>
+              <animate attributeName="r" values="1.2;1.8;1.2" dur="2s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <circle cx="170" cy="170" r="1" fill="#eee" opacity="0.7" class="sparkle-4">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+              <animate attributeName="r" values="1;1.6;1" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+            </circle>
           </svg>
         </a>
       `;
@@ -2731,9 +2783,9 @@ lenis.on("scroll", ({ scroll, limit }) => {
           
           // Check if scroll is complete (progress >= 0.95)
           if (progress >= 0.95) {
-            // Scroll is complete - make lottie static and hide it
+            // Scroll is complete - make lottie static and keep it visible
             gsap.set(floatingContainer, {
-              opacity: 0,
+              opacity: 1,
               duration: 0.3,
               ease: "power2.out"
             });
@@ -2761,9 +2813,8 @@ lenis.on("scroll", ({ scroll, limit }) => {
           // Gentle scale effect
           const scale = gsap.utils.interpolate(1, 1.2, progress);
           
-          // Opacity (start from 0, fade in, then slight fade at edges)
-          const opacity = gsap.utils.interpolate(0, 1, Math.min(progress * 2, 1)) * 
-                         gsap.utils.interpolate(1, 0.8, progress);
+          // Opacity (always visible)
+          const opacity = 1;
           
           // Add some floating movement
           const floatY = Math.sin(progress * Math.PI * 3) * 15;

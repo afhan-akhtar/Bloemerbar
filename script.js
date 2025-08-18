@@ -2729,6 +2729,28 @@ lenis.on("scroll", ({ scroll, limit }) => {
           const finalY = wrapperHeight - 200;
           const finalX = wrapperWidth - 200;
           
+          // Check if scroll is complete (progress >= 0.95)
+          if (progress >= 0.95) {
+            // Scroll is complete - make lottie static and hide it
+            gsap.set(floatingContainer, {
+              opacity: 0,
+              duration: 0.3,
+              ease: "power2.out"
+            });
+            
+            // Show the original badge when scroll is complete
+            if (isAnimationActive) {
+              isAnimationActive = false;
+              gsap.to(svg, {
+                opacity: 1,
+                duration: 0.5,
+                ease: "power2.out"
+              });
+            }
+            return;
+          }
+          
+          // Normal animation when scroll is not complete
           // Smooth movement from badge position to full wrapper
           const y = gsap.utils.interpolate(initialBadgeTop, finalY, progress);
           const x = gsap.utils.interpolate(initialBadgeLeft, finalX, progress);

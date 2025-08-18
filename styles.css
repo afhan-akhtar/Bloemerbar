@@ -1690,7 +1690,7 @@ section {
 
 .vision-cta {
   background: linear-gradient(45deg, var(--primary-color) 0%, var(--hover-color) 100%);
-  color: var(--text-white);
+  color: #ffffff;
   border: 3px solid var(--secondary-color);
   transition: all 0.4s ease;
   font-weight: 700;

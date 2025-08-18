@@ -2276,7 +2276,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
                   filter="url(#shadow-${uniqueId})"/>
           
           <!-- Text "Reserveer" with sophisticated animation -->
-          <text x="100" y="98" text-anchor="middle" fill="var(--primary-color)" 
+          <text x="100" y="98" text-anchor="middle" fill="#ffffff" 
                 font-family="Arial, sans-serif" font-size="12" font-weight="bold" 
                 class="reserveer-text" filter="url(#shadow-${uniqueId})">
             <tspan x="100" dy="0">RESERVEER</tspan>

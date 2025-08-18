@@ -2509,131 +2509,114 @@ lenis.on("scroll", ({ scroll, limit }) => {
       // Create unique ID for this instance
       const uniqueId = `scroll-lottie-reserveer-${wrapperIndex}-${Date.now()}`;
       
-      // Create the animated "Reserveer" SVG for the badge
+      // Create the animated "Reserveer" SVG wrapped in anchor tag for the badge
       const reserveerSVG = `
-        <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" 
-             style="cursor: pointer; transition: transform 0.2s ease;" class="scroll-reserveer-svg">
-          <defs>
-            <linearGradient id="gradient-${uniqueId}" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:var(--primary-color);stop-opacity:1" />
-              <stop offset="50%" style="stop-color:var(--secondary-color);stop-opacity:1" />
-              <stop offset="100%" style="stop-color:var(--complementary-color);stop-opacity:1" />
-            </linearGradient>
-            <radialGradient id="radial-${uniqueId}" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" style="stop-color:var(--primary-color);stop-opacity:0.3" />
-              <stop offset="100%" style="stop-color:var(--primary-color);stop-opacity:0" />
-            </radialGradient>
-            <filter id="glow-${uniqueId}">
-              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-              <feMerge> 
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-            <filter id="shadow-${uniqueId}">
-              <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.2)"/>
-            </filter>
-          </defs>
-          
-          <!-- Background glow -->
-          <circle cx="100" cy="100" r="90" fill="url(#radial-${uniqueId})" opacity="0.4"/>
-          
-          <!-- Outer ring with rotation -->
-          <circle cx="100" cy="100" r="75" fill="none" stroke="url(#gradient-${uniqueId})" stroke-width="2" 
-                  opacity="0.6" class="outer-ring">
-            <animateTransform attributeName="transform" type="rotate" values="0 100 100;360 100 100" 
-                              dur="8s" repeatCount="indefinite"/>
-          </circle>
-          
-          <!-- Middle ring -->
-          <circle cx="100" cy="100" r="65" fill="none" stroke="url(#gradient-${uniqueId})" stroke-width="1.5" 
-                  opacity="0.8" class="middle-ring">
-            <animateTransform attributeName="transform" type="rotate" values="360 100 100;0 100 100" 
-                              dur="6s" repeatCount="indefinite"/>
-          </circle>
-          
-          <!-- Main circle with pulse animation -->
-          <circle cx="100" cy="100" r="55" fill="none" stroke="url(#gradient-${uniqueId})" stroke-width="3" 
-                  filter="url(#glow-${uniqueId})" class="main-circle">
-            <animate attributeName="r" values="55;60;55" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
-            <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
-          </circle>
-          
-          <!-- Inner circle -->
-          <circle cx="100" cy="100" r="45" fill="url(#gradient-${uniqueId})" opacity="0.1" 
-                  filter="url(#shadow-${uniqueId})"/>
-          
-          <!-- Text "Reserveer" with sophisticated animation -->
-          <text x="100" y="98" text-anchor="middle" fill="#ffffff" 
-                font-family="Arial, sans-serif" font-size="12" font-weight="bold" 
-                class="reserveer-text" filter="url(#shadow-${uniqueId})">
-            <tspan x="100" dy="0">RESERVEER</tspan>
-            <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" ease="easeInOut"/>
-          </text>
-          
-          <!-- Floating particles -->
-          <circle cx="60" cy="60" r="2" fill="var(--secondary-color)" opacity="0.7" class="particle-1">
-            <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
-            <animate attributeName="r" values="2;3;2" dur="2s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="140" cy="140" r="1.5" fill="var(--primary-color)" opacity="0.7" class="particle-2">
-            <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="0.5s"/>
-            <animate attributeName="r" values="1.5;2.5;1.5" dur="2s" repeatCount="indefinite" begin="0.5s"/>
-          </circle>
-          <circle cx="140" cy="60" r="2.5" fill="var(--complementary-color)" opacity="0.7" class="particle-3">
-            <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="1s"/>
-            <animate attributeName="r" values="2.5;3.5;2.5" dur="2s" repeatCount="indefinite" begin="1s"/>
-          </circle>
-          <circle cx="60" cy="140" r="1.8" fill="var(--secondary-color)" opacity="0.7" class="particle-4">
-            <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="1.5s"/>
-            <animate attributeName="r" values="1.8;2.8;1.8" dur="2s" repeatCount="indefinite" begin="1.5s"/>
-          </circle>
-          
-          <!-- Corner accents -->
-          <path d="M 85 85 L 95 85 L 95 95 L 85 95 Z" fill="var(--primary-color)" opacity="0.3" class="corner-1">
-            <animateTransform attributeName="transform" type="rotate" values="0 90 90;360 90 90" 
-                              dur="4s" repeatCount="indefinite"/>
-          </path>
-          <path d="M 105 105 L 115 105 L 115 115 L 105 115 Z" fill="var(--secondary-color)" opacity="0.3" class="corner-2">
-            <animateTransform attributeName="transform" type="rotate" values="360 110 110;0 110 110" 
-                              dur="4s" repeatCount="indefinite"/>
-          </path>
-        </svg>
+        <a href="#ft-open" style="display: block; text-decoration: none; cursor: pointer;">
+          <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" 
+               style="cursor: pointer; transition: transform 0.2s ease;" class="scroll-reserveer-svg">
+            <defs>
+              <linearGradient id="gradient-${uniqueId}" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:var(--primary-color);stop-opacity:1" />
+                <stop offset="50%" style="stop-color:var(--secondary-color);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:var(--complementary-color);stop-opacity:1" />
+              </linearGradient>
+              <radialGradient id="radial-${uniqueId}" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" style="stop-color:var(--primary-color);stop-opacity:0.3" />
+                <stop offset="100%" style="stop-color:var(--primary-color);stop-opacity:0" />
+              </radialGradient>
+              <filter id="glow-${uniqueId}">
+                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                <feMerge> 
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+              <filter id="shadow-${uniqueId}">
+                <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.2)"/>
+              </filter>
+            </defs>
+            
+            <!-- Background glow -->
+            <circle cx="100" cy="100" r="90" fill="url(#radial-${uniqueId})" opacity="0.4"/>
+            
+            <!-- Outer ring with rotation -->
+            <circle cx="100" cy="100" r="75" fill="none" stroke="url(#gradient-${uniqueId})" stroke-width="2" 
+                    opacity="0.6" class="outer-ring">
+              <animateTransform attributeName="transform" type="rotate" values="0 100 100;360 100 100" 
+                                dur="8s" repeatCount="indefinite"/>
+            </circle>
+            
+            <!-- Middle ring -->
+            <circle cx="100" cy="100" r="65" fill="none" stroke="url(#gradient-${uniqueId})" stroke-width="1.5" 
+                    opacity="0.8" class="middle-ring">
+              <animateTransform attributeName="transform" type="rotate" values="360 100 100;0 100 100" 
+                                dur="6s" repeatCount="indefinite"/>
+            </circle>
+            
+            <!-- Main circle with pulse animation -->
+            <circle cx="100" cy="100" r="55" fill="none" stroke="url(#gradient-${uniqueId})" stroke-width="3" 
+                    filter="url(#glow-${uniqueId})" class="main-circle">
+              <animate attributeName="r" values="55;60;55" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
+              <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
+            </circle>
+            
+            <!-- Inner circle -->
+            <circle cx="100" cy="100" r="45" fill="url(#gradient-${uniqueId})" opacity="0.1" 
+                    filter="url(#shadow-${uniqueId})"/>
+            
+            <!-- Text "Reserveer" with sophisticated animation -->
+            <text x="100" y="98" text-anchor="middle" fill="#ffffff" 
+                  font-family="Arial, sans-serif" font-size="12" font-weight="bold" 
+                  class="reserveer-text" filter="url(#shadow-${uniqueId})">
+              <tspan x="100" dy="0">RESERVEER</tspan>
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" ease="easeInOut"/>
+            </text>
+            
+            <!-- Floating particles -->
+            <circle cx="60" cy="60" r="2" fill="var(--secondary-color)" opacity="0.7" class="particle-1">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="r" values="2;3;2" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="140" cy="140" r="1.5" fill="var(--primary-color)" opacity="0.7" class="particle-2">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+              <animate attributeName="r" values="1.5;2.5;1.5" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>
+            <circle cx="140" cy="60" r="2.5" fill="var(--complementary-color)" opacity="0.7" class="particle-3">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="1s"/>
+              <animate attributeName="r" values="2.5;3.5;2.5" dur="2s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <circle cx="60" cy="140" r="1.8" fill="var(--secondary-color)" opacity="0.7" class="particle-4">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+              <animate attributeName="r" values="1.8;2.8;1.8" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+            </circle>
+            
+            <!-- Corner accents -->
+            <path d="M 85 85 L 95 85 L 95 95 L 85 95 Z" fill="var(--primary-color)" opacity="0.3" class="corner-1">
+              <animateTransform attributeName="transform" type="rotate" values="0 90 90;360 90 90" 
+                                dur="4s" repeatCount="indefinite"/>
+            </path>
+            <path d="M 105 105 L 115 105 L 115 115 L 105 115 Z" fill="var(--secondary-color)" opacity="0.3" class="corner-2">
+              <animateTransform attributeName="transform" type="rotate" values="360 110 110;0 110 110" 
+                                dur="4s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+        </a>
       `;
       
       badgeContainer.innerHTML = reserveerSVG;
       
-      // Add click functionality to the SVG
+      // Get the anchor tag and SVG for hover effects
+      const anchor = badgeContainer.querySelector('a[href="#ft-open"]');
       const svg = badgeContainer.querySelector('.scroll-reserveer-svg');
-      if (svg) {
-        svg.addEventListener('click', function(e) {
-          // Use the universal Reserveer handler
-          e.preventDefault();
-          e.stopPropagation();
-          
-          const widget = document.getElementById('ft-widget');
-          if (widget) {
-            // Slide in from right
-            widget.style.right = '0px';
-            // Show toolbar and open widget
-            if (window.FT) {
-              if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
-                window.FT.widgetService.showToolbar();
-              }
-              if (window.FT.open) {
-                window.FT.open();
-              }
-            }
-          }
+      
+      if (anchor && svg) {
+        // Add hover effect to the anchor
+        anchor.addEventListener('mouseenter', function() {
+          svg.style.transform = 'scale(1.05)';
         });
         
-        // Add hover effect
-        svg.addEventListener('mouseenter', function() {
-          this.style.transform = 'scale(1.05)';
-        });
-        
-        svg.addEventListener('mouseleave', function() {
-          this.style.transform = 'scale(1)';
+        anchor.addEventListener('mouseleave', function() {
+          svg.style.transform = 'scale(1)';
         });
       }
       
@@ -2650,38 +2633,28 @@ lenis.on("scroll", ({ scroll, limit }) => {
         transition: opacity 0.3s ease;
       `;
       
+      // Create anchor tag wrapper for the floating container
+      const floatingAnchor = document.createElement('a');
+      floatingAnchor.href = '#ft-open';
+      floatingAnchor.style.cssText = `
+        display: block;
+        width: 100%;
+        height: 100%;
+        text-decoration: none;
+        cursor: pointer;
+        pointer-events: auto;
+      `;
+      
       // Clone the SVG for the floating container
       const floatingSVG = svg.cloneNode(true);
       floatingSVG.style.cssText = `
         width: 100%;
         height: 100%;
         cursor: pointer;
-        pointer-events: auto;
       `;
       
-      // Add click functionality to floating SVG
-      floatingSVG.addEventListener('click', function(e) {
-        // Use the universal Reserveer handler
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const widget = document.getElementById('ft-widget');
-        if (widget) {
-          // Slide in from right
-          widget.style.right = '0px';
-          // Show toolbar and open widget
-          if (window.FT) {
-            if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
-              window.FT.widgetService.showToolbar();
-            }
-            if (window.FT.open) {
-              window.FT.open();
-            }
-          }
-        }
-      });
-      
-      floatingContainer.appendChild(floatingSVG);
+      floatingAnchor.appendChild(floatingSVG);
+      floatingContainer.appendChild(floatingAnchor);
       mainWrapper.appendChild(floatingContainer);
       
       // Track animation state

@@ -1915,7 +1915,19 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentActiveIndex = -1;
 
     cards.forEach((card, index) => {
-      gsap.set(card, { rotation: startRotations[index] });
+      // Set initial positions immediately to prevent cards from appearing at top first
+      if (index === 0) {
+        gsap.set(card, { 
+          rotation: endRotations[0],
+          top: "50%"
+        });
+      } else {
+        gsap.set(card, { 
+          rotation: startRotations[index],
+          top: "115%"
+        });
+      }
+      
       function getDynamicSequence() {
         try {
           if (card.dataset && card.dataset.images) {
@@ -1990,13 +2002,13 @@ document.addEventListener("DOMContentLoaded", () => {
       animateIndexOpacity(-1);
     }
 
+    // Single scroll trigger for the entire pinned section with step-by-step card animations
     ScrollTrigger.create({
       trigger: pinnedSection,
       start: "top top",
       end: `+=${pinnedHeight + scrollBuffer}`,
       pin: true,
       pinSpacing: true,
-      // Ensure smooth scrolling behavior
       anticipatePin: 1,
       onLeave: () => {
         hideProgressAndIndices();
@@ -2035,7 +2047,7 @@ document.addEventListener("DOMContentLoaded", () => {
           background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 
         });
         
-        // Sticky header is always visible - removed opacity animation
+        // Sticky header is always visible
         if (stickyHeader) {
           gsap.set(stickyHeader, { opacity: 1 });
         }
@@ -2077,19 +2089,22 @@ document.addEventListener("DOMContentLoaded", () => {
           animateIndexOpacity(colorIndex); 
         }
         
-        // Handle card animations with smooth transitions
+        // Handle card animations with step-by-step approach
         cards.forEach((card, index) => {
-          if (index < currentCard) {
-            // Cards that have completed their animation
+          if (index === 0) {
+            // First card always stays at center
+            gsap.set(card, { top: "50%", rotation: endRotations[0] });
+          } else if (index < currentCard) {
+            // Cards that have completed their animation - keep them at center
             gsap.set(card, { top: "50%", rotation: endRotations[index] });
           } else if (index === currentCard) {
-            // Currently animating card
+            // Currently animating card - animate from bottom to center
             const cardProgress = progress - currentCard;
             const newTop = gsap.utils.interpolate(115, 50, cardProgress);
             const newRotation = gsap.utils.interpolate(startRotations[index], endRotations[index], cardProgress);
             gsap.set(card, { top: `${newTop}%`, rotation: newRotation });
           } else {
-            // Cards waiting to animate
+            // Cards waiting to animate - keep them at bottom
             gsap.set(card, { top: "115%", rotation: startRotations[index] });
           }
         });

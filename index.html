@@ -378,7 +378,7 @@
     <!-- Formitable Booking Widget -->
     <div id="ft-widget" 
          class="ft-widget-b2" 
-         style="width:100%; max-width:400px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; display: none;"
+         style="width:100%; max-width:400px; position: fixed; top: 50%; right: -400px; transform: translateY(-50%); z-index: 10000; transition: right 0.3s ease-in-out;"
          data-restaurant="67e30298"
          data-open="false"
          data-open-mobile="false"
@@ -417,13 +417,68 @@
           // You can add a success message or redirect here
         });
 
-        // Handle anchor links for widget control
+        // Universal Reserveer button handler - works for ALL Reserveer buttons
         document.addEventListener('click', function(e) {
-          if (e.target.matches('a[href="#ft-open"]')) {
+          let targetElement = e.target;
+          let shouldOpenWidget = false;
+          
+          // Check for various Reserveer button types
+          for (let i = 0; i < 5; i++) {
+            if (!targetElement) break;
+            
+            // Check for anchor links with #ft-open
+            if (targetElement.matches && targetElement.matches('a[href="#ft-open"]')) {
+              shouldOpenWidget = true;
+              break;
+            }
+            
+            // Check for vision-cta buttons (original and cloned)
+            if (targetElement.classList && targetElement.classList.contains('vision-cta')) {
+              shouldOpenWidget = true;
+              break;
+            }
+            
+            // Check for book-popup__cta buttons
+            if (targetElement.classList && targetElement.classList.contains('book-popup__cta')) {
+              shouldOpenWidget = true;
+              break;
+            }
+            
+            // Check for SVG Reserveer buttons
+            if (targetElement.classList && (
+                targetElement.classList.contains('scroll-reserveer-svg') ||
+                targetElement.closest('.scroll-reserveer-svg')
+            )) {
+              shouldOpenWidget = true;
+              break;
+            }
+            
+            // Check for floating SVG Reserveer buttons
+            if (targetElement.classList && (
+                targetElement.classList.contains('floating-lottie-container') ||
+                targetElement.closest('.floating-lottie-container')
+            )) {
+              shouldOpenWidget = true;
+              break;
+            }
+            
+            // Check for any element with "Reserveer" text
+            if (targetElement.textContent && targetElement.textContent.trim().toLowerCase() === 'reserveer') {
+              shouldOpenWidget = true;
+              break;
+            }
+            
+            targetElement = targetElement.parentElement;
+          }
+          
+          if (shouldOpenWidget) {
             e.preventDefault();
+            e.stopPropagation();
+            
             const widget = document.getElementById('ft-widget');
             if (widget) {
-              widget.style.display = 'block';
+              // Slide in from right
+              widget.style.right = '0px';
               // Show toolbar and open widget when Reserveer is clicked
               if (window.FT) {
                 // Show the toolbar first
@@ -438,11 +493,24 @@
             }
           }
           
-          if (e.target.matches('a[href="#ft-close"]')) {
+          // Check for ft-close links (both original and cloned elements)
+          let isFtCloseLink = false;
+          targetElement = e.target;
+          
+          for (let i = 0; i < 3; i++) {
+            if (targetElement && targetElement.matches && targetElement.matches('a[href="#ft-close"]')) {
+              isFtCloseLink = true;
+              break;
+            }
+            targetElement = targetElement.parentElement;
+          }
+          
+          if (isFtCloseLink) {
             e.preventDefault();
             const widget = document.getElementById('ft-widget');
             if (widget) {
-              widget.style.display = 'none';
+              // Slide out to right
+              widget.style.right = '-400px';
               // Hide toolbar and close widget
               if (window.FT) {
                 if (window.FT.close) {
@@ -455,22 +523,40 @@
             }
           }
           
-          if (e.target.matches('a[href="#ft-toggle"]')) {
+          // Check for ft-toggle links (both original and cloned elements)
+          let isFtToggleLink = false;
+          targetElement = e.target;
+          
+          for (let i = 0; i < 3; i++) {
+            if (targetElement && targetElement.matches && targetElement.matches('a[href="#ft-toggle"]')) {
+              isFtToggleLink = true;
+              break;
+            }
+            targetElement = targetElement.parentElement;
+          }
+          
+          if (isFtToggleLink) {
             e.preventDefault();
             const widget = document.getElementById('ft-widget');
             if (widget) {
-              const isVisible = widget.style.display !== 'none';
-              widget.style.display = isVisible ? 'none' : 'block';
-              // Toggle widget and toolbar
-              if (window.FT) {
-                if (isVisible) {
+              const isVisible = widget.style.right === '0px';
+              if (isVisible) {
+                // Slide out to right
+                widget.style.right = '-400px';
+                // Toggle widget and toolbar
+                if (window.FT) {
                   if (window.FT.close) {
                     window.FT.close();
                   }
                   if (window.FT.widgetService && window.FT.widgetService.hideToolbar) {
                     window.FT.widgetService.hideToolbar();
                   }
-                } else {
+                }
+              } else {
+                // Slide in from right
+                widget.style.right = '0px';
+                // Toggle widget and toolbar
+                if (window.FT) {
                   if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
                     window.FT.widgetService.showToolbar();
                   }
@@ -482,6 +568,30 @@
             }
           }
         });
+        
+        // Function to ensure all Reserveer buttons work (called when clones are created)
+        function ensureAllReserveerButtonsWork() {
+          // Find all vision-cta buttons in cloned wrappers and ensure they have #ft-open href
+          document.querySelectorAll('.main-wrapper .vision-cta').forEach(button => {
+            if (!button.getAttribute('href') || button.getAttribute('href') !== '#ft-open') {
+              button.setAttribute('href', '#ft-open');
+            }
+          });
+          
+          // Find all book-popup__cta buttons and ensure they have #ft-open href
+          document.querySelectorAll('.book-popup__cta').forEach(button => {
+            if (!button.getAttribute('href') || button.getAttribute('href') !== '#ft-open') {
+              button.setAttribute('href', '#ft-open');
+            }
+          });
+        }
+        
+        // Call this function when clones are created
+        window.addEventListener('clones-created', ensureAllReserveerButtonsWork);
+        
+        // Also call it on initial load
+        document.addEventListener('DOMContentLoaded', ensureAllReserveerButtonsWork);
+        
       })();
     </script>
   </body>

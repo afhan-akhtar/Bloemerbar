@@ -2606,20 +2606,23 @@ lenis.on("scroll", ({ scroll, limit }) => {
       // Add click functionality to the SVG
       const svg = badgeContainer.querySelector('.scroll-reserveer-svg');
       if (svg) {
-        svg.addEventListener('click', function() {
-          // Trigger the reservation popup
-          if (window.FT && window.FT.open) {
-            window.FT.open();
-          } else {
-            // Fallback to anchor link
-            const event = new MouseEvent('click', {
-              view: window,
-              bubbles: true,
-              cancelable: true
-            });
-            const link = document.querySelector('a[href="#ft-open"]');
-            if (link) {
-              link.dispatchEvent(event);
+        svg.addEventListener('click', function(e) {
+          // Use the universal Reserveer handler
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const widget = document.getElementById('ft-widget');
+          if (widget) {
+            // Slide in from right
+            widget.style.right = '0px';
+            // Show toolbar and open widget
+            if (window.FT) {
+              if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
+                window.FT.widgetService.showToolbar();
+              }
+              if (window.FT.open) {
+                window.FT.open();
+              }
             }
           }
         });
@@ -2657,18 +2660,23 @@ lenis.on("scroll", ({ scroll, limit }) => {
       `;
       
       // Add click functionality to floating SVG
-      floatingSVG.addEventListener('click', function() {
-        if (window.FT && window.FT.open) {
-          window.FT.open();
-        } else {
-          const event = new MouseEvent('click', {
-            view: window,
-            bubbles: true,
-            cancelable: true
-          });
-          const link = document.querySelector('a[href="#ft-open"]');
-          if (link) {
-            link.dispatchEvent(event);
+      floatingSVG.addEventListener('click', function(e) {
+        // Use the universal Reserveer handler
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const widget = document.getElementById('ft-widget');
+        if (widget) {
+          // Slide in from right
+          widget.style.right = '0px';
+          // Show toolbar and open widget
+          if (window.FT) {
+            if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
+              window.FT.widgetService.showToolbar();
+            }
+            if (window.FT.open) {
+              window.FT.open();
+            }
           }
         }
       });

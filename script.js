@@ -88,6 +88,39 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize mobile menu on page load
   initializeMobileMenu();
   
+  // Initialize enhanced bg-title effects
+  function initializeEnhancedBgTitle() {
+    document.querySelectorAll('.bg-title').forEach((bgTitle) => {
+      // Apply theme color to bg-title
+      const mainWrapper = bgTitle.closest('.main-wrapper');
+      if (mainWrapper) {
+        const computedStyle = getComputedStyle(mainWrapper);
+        const primaryColor = computedStyle.getPropertyValue('--primary-color').trim();
+        
+        // Update color with current theme primary color
+        bgTitle.style.color = primaryColor;
+        
+        // Add scroll-based blur effect
+        const updateBlurEffect = () => {
+          const scrollY = window.scrollY;
+          const maxBlur = 6;
+          const minBlur = 1;
+          const blurValue = Math.max(minBlur, Math.min(maxBlur, scrollY / 50));
+          bgTitle.style.filter = `blur(${blurValue}px)`;
+        };
+        
+        // Initial blur effect
+        updateBlurEffect();
+        
+        // Add scroll listener for dynamic blur
+        window.addEventListener('scroll', updateBlurEffect, { passive: true });
+      }
+    });
+  }
+  
+  // Initialize enhanced bg-title effects
+  initializeEnhancedBgTitle();
+  
   // Close mobile menus on scroll
   let scrollTimeout;
   window.addEventListener('scroll', () => {
@@ -110,6 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Re-initialize mobile menu when new elements are added (for cloned content)
   const observer = new MutationObserver((mutations) => {
     let shouldReinitialize = false;
+    let shouldReinitializeBgTitle = false;
     
     mutations.forEach((mutation) => {
       if (mutation.type === 'childList') {
@@ -118,11 +152,18 @@ document.addEventListener("DOMContentLoaded", () => {
             if (node.matches && (node.matches('.mobile-menu-toggle') || node.matches('.nav-hero') || node.querySelector('.mobile-menu-toggle') || node.querySelector('.nav-hero'))) {
               shouldReinitialize = true;
             }
+            if (node.matches && node.matches('.bg-title') || node.querySelector && node.querySelector('.bg-title')) {
+              shouldReinitializeBgTitle = true;
+            }
             if (node.querySelectorAll) {
               const toggles = node.querySelectorAll('.mobile-menu-toggle');
               const navs = node.querySelectorAll('.nav-hero');
+              const bgTitles = node.querySelectorAll('.bg-title');
               if (toggles.length > 0 || navs.length > 0) {
                 shouldReinitialize = true;
+              }
+              if (bgTitles.length > 0) {
+                shouldReinitializeBgTitle = true;
               }
             }
           }
@@ -133,6 +174,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (shouldReinitialize) {
       // Small delay to ensure DOM is fully updated
       setTimeout(initializeMobileMenu, 10);
+    }
+    
+    if (shouldReinitializeBgTitle) {
+      // Small delay to ensure DOM is fully updated
+      setTimeout(initializeEnhancedBgTitle, 10);
     }
   });
   
@@ -333,6 +379,12 @@ document.addEventListener("DOMContentLoaded", () => {
               section.style.setProperty('--accent-color', theme.secondaryColor);
             }
           });
+          
+          // Apply theme color to bg-title elements in this wrapper
+          const bgTitles = mainWrapper.querySelectorAll('.bg-title');
+          bgTitles.forEach((bgTitle) => {
+            bgTitle.style.color = theme.primaryColor;
+          });
         };
 
         // Function to apply themes to all main wrappers (original + clones)
@@ -460,6 +512,21 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         };
         
+        // Apply theme colors to bg-title elements after theme changes
+        const applyThemeToBgTitle = () => {
+          document.querySelectorAll('.bg-title').forEach((bgTitle) => {
+            const mainWrapper = bgTitle.closest('.main-wrapper');
+            if (mainWrapper) {
+              const computedStyle = getComputedStyle(mainWrapper);
+              const primaryColor = computedStyle.getPropertyValue('--primary-color').trim();
+              bgTitle.style.color = primaryColor;
+            }
+          });
+        };
+        
+        // Apply theme colors to bg-title after theme application
+        setTimeout(applyThemeToBgTitle, 100);
+        
         console.log('💡 Use window.reapplyThemes() to manually reapply themes');
         console.log('💡 Use window.getThemeInfo() to see current theme assignments');
         console.log('💡 Use window.showThemePattern(20) to see theme pattern for 20 wrappers');
@@ -555,13 +622,38 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (_) {}
 
-      // 6) Logo section background text
+      // 6) Logo section background text with theme color
       try {
         const logoSectionBlock = findBlock(blocks, "block.logo-section");
         if (logoSectionBlock && logoSectionBlock.backgroundText) {
-          // Update all bg-title elements (original and clones)
+          // Update all bg-title elements (original and clones) with theme color
           document.querySelectorAll('.bg-title').forEach((bgTitle) => {
             bgTitle.textContent = logoSectionBlock.backgroundText;
+            
+            // Apply theme color to bg-title
+            const mainWrapper = bgTitle.closest('.main-wrapper');
+            if (mainWrapper) {
+              const computedStyle = getComputedStyle(mainWrapper);
+              const primaryColor = computedStyle.getPropertyValue('--primary-color').trim();
+              
+              // Update color with current theme primary color
+              bgTitle.style.color = primaryColor;
+              
+              // Add scroll-based blur effect
+              const updateBlurEffect = () => {
+                const scrollY = window.scrollY;
+                const maxBlur = 6;
+                const minBlur = 1;
+                const blurValue = Math.max(minBlur, Math.min(maxBlur, scrollY / 50));
+                bgTitle.style.filter = `blur(${blurValue}px)`;
+              };
+              
+              // Initial blur effect
+              updateBlurEffect();
+              
+              // Add scroll listener for dynamic blur
+              window.addEventListener('scroll', updateBlurEffect, { passive: true });
+            }
           });
         }
       } catch (_) {}
@@ -872,12 +964,37 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (_) {}
 
         try {
-          // Logo section background text
+          // Logo section background text with enhanced blur effects
           const logoSectionBlock = findBlock(blocks, "block.logo-section");
           if (logoSectionBlock && logoSectionBlock.backgroundText) {
-            // Update all bg-title elements (original and clones)
+            // Update all bg-title elements (original and clones) with enhanced blur effects
             document.querySelectorAll('.bg-title').forEach((bgTitle) => {
               bgTitle.textContent = logoSectionBlock.backgroundText;
+              
+              // Add dynamic blur effect based on theme colors
+              const mainWrapper = bgTitle.closest('.main-wrapper');
+              if (mainWrapper) {
+                const computedStyle = getComputedStyle(mainWrapper);
+                const primaryColor = computedStyle.getPropertyValue('--primary-color').trim();
+                
+                // Update color with current theme primary color
+                bgTitle.style.color = primaryColor;
+                
+                // Add scroll-based blur effect
+                const updateBlurEffect = () => {
+                  const scrollY = window.scrollY;
+                  const maxBlur = 6;
+                  const minBlur = 1;
+                  const blurValue = Math.max(minBlur, Math.min(maxBlur, scrollY / 50));
+                  bgTitle.style.filter = `blur(${blurValue}px)`;
+                };
+                
+                // Initial blur effect
+                updateBlurEffect();
+                
+                // Add scroll listener for dynamic blur
+                window.addEventListener('scroll', updateBlurEffect, { passive: true });
+              }
             });
           }
         } catch (_) {}
@@ -1176,6 +1293,9 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.appendChild(fragment);
       prepareMarquees();
       window.dispatchEvent(new Event('clones-created'));
+      
+      // Initialize enhanced bg-title effects for new clones
+      setTimeout(initializeEnhancedBgTitle, 50);
       
       console.log(`🔄 Created ${copies} clones for infinite experience`);
     } catch (e) {

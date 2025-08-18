@@ -387,6 +387,75 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         };
 
+        // Function to update pinned section backgrounds with theme-specific gradients
+        const updatePinnedSectionBackgrounds = () => {
+          const pinnedSections = document.querySelectorAll('.pinned');
+          pinnedSections.forEach(pinnedSection => {
+            // Get the current theme colors from the pinned section's computed styles
+            const primaryColor = getComputedStyle(pinnedSection).getPropertyValue('--primary-color').trim() || '#F05A70';
+            const secondaryColor = getComputedStyle(pinnedSection).getPropertyValue('--secondary-color').trim() || '#F7AACC';
+            const backgroundColor = getComputedStyle(pinnedSection).getPropertyValue('--background-color').trim() || '#ffffff';
+            
+            // Create theme-specific gradient based on primary color
+            let gradient;
+            
+            // Convert hex to RGB for better color analysis
+            const hexToRgb = (hex) => {
+              const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+              return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+              } : null;
+            };
+            
+            const rgb = hexToRgb(primaryColor);
+            
+            if (rgb) {
+              // Pink theme detection (high red, medium green, medium blue)
+              if (rgb.r > 200 && rgb.g > 80 && rgb.g < 180 && rgb.b > 100 && rgb.b < 200) {
+                gradient = `linear-gradient(135deg, #FFE8F0 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
+              }
+              // Orange theme detection (high red, medium green, low blue)
+              else if (rgb.r > 200 && rgb.g > 100 && rgb.g < 200 && rgb.b < 100) {
+                gradient = `linear-gradient(135deg, #FFF8F0 0%, ${primaryColor} 50%, #FFB366 100%)`;
+              }
+              // Black theme detection (low values)
+              else if (rgb.r < 50 && rgb.g < 50 && rgb.b < 50) {
+                gradient = `linear-gradient(135deg, #2a2a2a 0%, ${primaryColor} 50%, #4a4a4a 100%)`;
+              }
+              // Purple theme detection (medium red, low green, high blue)
+              else if (rgb.r > 100 && rgb.r < 200 && rgb.g < 100 && rgb.b > 100) {
+                gradient = `linear-gradient(135deg, #F0E8FF 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
+              }
+              // Red theme detection (high red, low green, low blue)
+              else if (rgb.r > 200 && rgb.g < 100 && rgb.b < 100) {
+                gradient = `linear-gradient(135deg, #FFE8E8 0%, ${primaryColor} 50%, #FFB3B3 100%)`;
+              }
+              // Blue theme detection (low red, low green, high blue)
+              else if (rgb.r < 100 && rgb.g < 100 && rgb.b > 150) {
+                gradient = `linear-gradient(135deg, #E8F0FF 0%, ${primaryColor} 50%, #B3D9FF 100%)`;
+              }
+              // Green theme detection (low red, high green, low blue)
+              else if (rgb.r < 100 && rgb.g > 150 && rgb.b < 100) {
+                gradient = `linear-gradient(135deg, #E8FFE8 0%, ${primaryColor} 50%, #B3FFB3 100%)`;
+              }
+              // Default theme - use primary and secondary colors
+              else {
+                gradient = `linear-gradient(135deg, ${backgroundColor} 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
+              }
+            } else {
+              // Fallback for invalid colors
+              gradient = `linear-gradient(135deg, ${backgroundColor} 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
+            }
+            
+            // Update both CSS and GSAP background
+            pinnedSection.style.background = gradient;
+            pinnedSection.style.backgroundImage = gradient;
+            gsap.set(pinnedSection, { background: gradient });
+          });
+        };
+
         // Function to apply themes to all main wrappers (original + clones)
         const applyThemesToAllMainWrappers = () => {
           const mainWrappers = document.querySelectorAll('.main-wrapper');
@@ -410,6 +479,9 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log(`🎨 Main wrapper ${index}: applying theme ${theme.id} (${theme.primaryColor}) - showing theme change`);
             applyThemeToMainWrapper(wrapper, themeIndex);
           });
+          
+          // Update pinned section backgrounds after theme changes
+          setTimeout(updatePinnedSectionBackgrounds, 50);
         };
 
         // Apply themes initially
@@ -440,6 +512,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // Listen for clones-created event to reapply themes
         window.addEventListener('clones-created', () => {
           setTimeout(applyThemesToAllMainWrappers, 100);
+          // Also update pinned sections for new clones
+          setTimeout(updatePinnedSectionBackgrounds, 150);
         });
 
         // Set default theme for the entire document (fallback)
@@ -478,6 +552,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.reapplyThemes = () => {
           console.log('🔄 Manually reapplying themes...');
           applyThemesToAllMainWrappers();
+          updatePinnedSectionBackgrounds();
         };
         
         // Expose function to get current theme info
@@ -1876,9 +1951,66 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!pinnedSection || initializedPinned.has(pinnedSection)) return;
       initializedPinned.add(pinnedSection);
       
-      // Ensure background is set immediately
+      // Helper function to get theme-specific gradient
+      function getThemeGradient() {
+        const primaryColor = getComputedStyle(pinnedSection).getPropertyValue('--primary-color').trim() || '#F05A70';
+        const secondaryColor = getComputedStyle(pinnedSection).getPropertyValue('--secondary-color').trim() || '#F7AACC';
+        const backgroundColor = getComputedStyle(pinnedSection).getPropertyValue('--background-color').trim() || '#ffffff';
+        
+        // Convert hex to RGB for better color analysis
+        const hexToRgb = (hex) => {
+          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+          return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+          } : null;
+        };
+        
+        const rgb = hexToRgb(primaryColor);
+        
+        if (rgb) {
+          // Pink theme detection (high red, medium green, medium blue)
+          if (rgb.r > 200 && rgb.g > 80 && rgb.g < 180 && rgb.b > 100 && rgb.b < 200) {
+            return `linear-gradient(135deg, #FFE8F0 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
+          }
+          // Orange theme detection (high red, medium green, low blue)
+          else if (rgb.r > 200 && rgb.g > 100 && rgb.g < 200 && rgb.b < 100) {
+            return `linear-gradient(135deg, #FFF8F0 0%, ${primaryColor} 50%, #FFB366 100%)`;
+          }
+          // Black theme detection (low values)
+          else if (rgb.r < 50 && rgb.g < 50 && rgb.b < 50) {
+            return `linear-gradient(135deg, #2a2a2a 0%, ${primaryColor} 50%, #4a4a4a 100%)`;
+          }
+          // Purple theme detection (medium red, low green, high blue)
+          else if (rgb.r > 100 && rgb.r < 200 && rgb.g < 100 && rgb.b > 100) {
+            return `linear-gradient(135deg, #F0E8FF 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
+          }
+          // Red theme detection (high red, low green, low blue)
+          else if (rgb.r > 200 && rgb.g < 100 && rgb.b < 100) {
+            return `linear-gradient(135deg, #FFE8E8 0%, ${primaryColor} 50%, #FFB3B3 100%)`;
+          }
+          // Blue theme detection (low red, low green, high blue)
+          else if (rgb.r < 100 && rgb.g < 100 && rgb.b > 150) {
+            return `linear-gradient(135deg, #E8F0FF 0%, ${primaryColor} 50%, #B3D9FF 100%)`;
+          }
+          // Green theme detection (low red, high green, low blue)
+          else if (rgb.r < 100 && rgb.g > 150 && rgb.b < 100) {
+            return `linear-gradient(135deg, #E8FFE8 0%, ${primaryColor} 50%, #B3FFB3 100%)`;
+          }
+          // Default theme - use primary and secondary colors
+          else {
+            return `linear-gradient(135deg, ${backgroundColor} 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
+          }
+        } else {
+          // Fallback for invalid colors
+          return `linear-gradient(135deg, ${backgroundColor} 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
+        }
+      }
+      
+      // Ensure background is set immediately with dynamic theme colors
       gsap.set(pinnedSection, { 
-        background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 
+        background: getThemeGradient() 
       });
 
     const stickyHeader = pinnedSection.querySelector(".sticky-header");
@@ -2027,24 +2159,24 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
         
-        // Ensure background is maintained when leaving
+        // Ensure background is maintained when leaving with dynamic theme colors
         gsap.set(pinnedSection, { 
-          background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 
+          background: getThemeGradient() 
         });
       },
       onEnterBack: () => { 
         showProgressAndIndices(); 
-        // Ensure background is visible when scrolling back
+        // Ensure background is visible when scrolling back with dynamic theme colors
         gsap.set(pinnedSection, { 
-          background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 
+          background: getThemeGradient() 
         });
       },
       onUpdate: (self) => {
         const sectionProgress = self.progress * (cardCount + 1);
         
-        // Ensure background is always visible during scrolling
+        // Ensure background is always visible during scrolling with dynamic theme colors
         gsap.set(pinnedSection, { 
-          background: "linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%)" 
+          background: getThemeGradient() 
         });
         
         // Sticky header is always visible

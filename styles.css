@@ -151,7 +151,9 @@ body {
 }
 
 .pinned {
-  background: linear-gradient(135deg, var(--primary-color)05 0%, var(--secondary-color)05 100%) !important;
+  /* Theme-specific gradients will be set by JavaScript */
+  /* Ensure smooth theme transitions */
+  transition: background 0.8s ease, border-color 0.8s ease;
 }
 
 /* ===== Top Marquee ===== */
@@ -1176,10 +1178,9 @@ section {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  /* Ensure consistent background to prevent white flashes in both directions */
-  background: linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%) !important;
+  /* Theme-specific gradients will be set by JavaScript */
   /* Ensure smooth transitions and prevent white background flashes */
-  transition: background-color 0.3s ease;
+  transition: background 0.8s ease;
   will-change: transform;
 }
 
@@ -1190,6 +1191,9 @@ section {
   transform: none;
   opacity: 1;
   z-index: 10;
+  /* Enhanced styling for better visibility with dynamic themes */
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  transition: all 0.8s ease;
 }
 
 /* ===== Quad CTA (after cards) ===== */
@@ -1350,9 +1354,48 @@ section {
 .sticky-header h1 {
   font-size: 8vw;
   font-weight: 900;
-  /* color: transparent; */
-  -webkit-text-stroke: 2px #ffffff;
+  /* Dynamic color using theme variables */
+  color: var(--primary-color);
+  -webkit-text-stroke: 2px var(--secondary-color);
   text-align: left;
+  /* Smooth transition for theme changes */
+  transition: color 0.8s ease, -webkit-text-stroke 0.8s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+/* Hover effect for sticky header */
+.sticky-header:hover h1 {
+  color: var(--hover-color);
+  -webkit-text-stroke: 2px var(--primary-color);
+  transform: scale(1.05);
+}
+
+/* Additional styling for better contrast and readability */
+.sticky-header h1 {
+  /* Ensure text is always readable */
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  /* Add a subtle glow effect */
+  text-shadow: 
+    0 0 10px rgba(255,255,255,0.3),
+    2px 2px 4px rgba(0,0,0,0.3);
+  /* Ensure dynamic theme colors are applied */
+  color: var(--primary-color) !important;
+  -webkit-text-stroke: 2px var(--secondary-color) !important;
+}
+
+/* Responsive adjustments for sticky header */
+@media (max-width: 900px) {
+  .sticky-header h1 {
+    font-size: 10vw;
+    -webkit-text-stroke: 1.5px var(--secondary-color);
+  }
+}
+
+@media (max-width: 600px) {
+  .sticky-header h1 {
+    font-size: 12vw;
+    -webkit-text-stroke: 1px var(--secondary-color);
+  }
 }
 
 .card {
@@ -1705,10 +1748,9 @@ section {
   box-shadow: 0 12px 35px rgba(0,0,0,0.25);
 }
 
-/* Pinned Section - Enhanced with warm, inviting colors */
+/* Pinned Section - Enhanced with dynamic theme colors */
 .pinned {
-  /* Ensure consistent background to prevent white flashes */
-  background: linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%) !important;
+  /* Theme-specific gradients will be set by JavaScript */
   border-top: 2px solid var(--secondary-color);
   border-bottom: 2px solid var(--secondary-color);
   position: relative;
@@ -1719,9 +1761,11 @@ section {
   background-attachment: fixed !important;
   background-size: cover !important;
   background-repeat: no-repeat !important;
+  /* Smooth transition for theme changes */
+  transition: background 0.8s ease, border-color 0.8s ease;
 }
 
-/* Additional safety class to prevent white background */
+/* Additional safety class to prevent white background with dynamic theme */
 .pinned::before {
   content: '';
   position: absolute;
@@ -1729,9 +1773,10 @@ section {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #fef8dd 0%, #f7aacc 100%);
+  /* Theme-specific gradients will be set by JavaScript */
   z-index: -1;
   pointer-events: none;
+  transition: background 0.8s ease;
 }
 
 .card {

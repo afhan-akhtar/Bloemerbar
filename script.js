@@ -592,7 +592,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const navHero = document.getElementById('nav-hero');
           if (navHero) {
             const navHtml = navItems.map((item) => {
-              let href = item.href || "#";
+              let href = item.href || "";
               const target = item.isExternal ? ' target="_blank"' : '';
               
               // Special handling for Contact link - convert to mailto if it's the contact item
@@ -605,8 +605,16 @@ document.addEventListener("DOMContentLoaded", () => {
               const dataEmail = isMailto ? ` data-email="${href.replace('mailto:', '')}"` : '';
               const linkClass = isMailto ? 'small-link small-link-contact' : 'small-link';
               
+              // Remove href attribute for recruitment, loyalty, and terms links
+              const isRecruitment = (item.label || '').toLowerCase() === 'recruitment';
+              const isLoyalty = (item.label || '').toLowerCase() === 'loyalty';
+              const isTerms = (item.label || '').toLowerCase().includes('terms');
+              const shouldRemoveHref = isRecruitment || isLoyalty || isTerms;
+              
+              const hrefAttr = shouldRemoveHref ? '' : `href="${href}"`;
+              
               return `
-                <a href="${href}"${target} class="${linkClass}"${dataEmail}>
+                <a ${hrefAttr}${target} class="${linkClass}"${dataEmail}>
                   <div class="small-link-text">${item.label || ''}</div>
                   <div class="link-arrow" aria-hidden="true">
                     <svg width="100%" height="100%" viewBox="0 0 17 27" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -680,9 +688,14 @@ document.addEventListener("DOMContentLoaded", () => {
           const recruitmentHref = (recruitmentBlock && recruitmentBlock.href) || 
                                  (global.recruitment && global.recruitment.href) || 
                                  (global.cornerLinks && global.cornerLinks.recruitmentHref) ||
-                                 '#';
+                                 '';
           
-          recruitmentAnchor.setAttribute('href', recruitmentHref);
+          // Remove href attribute completely for recruitment links
+          if (recruitmentHref && recruitmentHref.trim() !== '') {
+            recruitmentAnchor.setAttribute('href', recruitmentHref);
+          } else {
+            recruitmentAnchor.removeAttribute('href');
+          }
         }
       } catch (_) {}
 
@@ -1011,7 +1024,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (navItems.length > 0) {
             document.querySelectorAll('#nav-hero').forEach((navHero) => {
               const navHtml = navItems.map((item) => {
-                let href = item.href || "#";
+                let href = item.href || "";
                 const target = item.isExternal ? ' target="_blank"' : '';
                 
                 // Special handling for Contact link - convert to mailto if it's the contact item
@@ -1024,8 +1037,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 const dataEmail = isMailto ? ` data-email="${href.replace('mailto:', '')}"` : '';
                 const linkClass = isMailto ? 'small-link small-link-contact' : 'small-link';
                 
+                // Remove href attribute for recruitment, loyalty, and terms links
+                const isRecruitment = (item.label || '').toLowerCase() === 'recruitment';
+                const isLoyalty = (item.label || '').toLowerCase() === 'loyalty';
+                const isTerms = (item.label || '').toLowerCase().includes('terms');
+                const shouldRemoveHref = isRecruitment || isLoyalty || isTerms;
+                
+                const hrefAttr = shouldRemoveHref ? '' : `href="${href}"`;
+                
                 return `
-                  <a href="${href}"${target} class="${linkClass}"${dataEmail}>
+                  <a ${hrefAttr}${target} class="${linkClass}"${dataEmail}>
                     <div class="small-link-text">${item.label || ''}</div>
                     <div class="link-arrow" aria-hidden="true">
                       <svg width="100%" height="100%" viewBox="0 0 17 27" fill="none" xmlns="http://www.w3.org/2000/svg">

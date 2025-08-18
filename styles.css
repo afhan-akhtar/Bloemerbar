@@ -626,90 +626,82 @@ body {
   }
 }
 
-/* Make main wrapper a positioning context for the floating Lottie */
+/* Make main wrapper a positioning context */
 .main-wrapper {
   position: relative;
   overflow: hidden;
 }
 
-.lottie-reserveer-container {
-  width: 200px;
-  height: 200px;
-  position: absolute;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  will-change: transform, top, left;
-  z-index: 100;
-  pointer-events: auto;
-  /* Fixed in badge area by default, movement controlled by JavaScript */
-}
-
-/* Enhanced Responsive Design for Lottie Container */
-@media (max-width: 1200px) {
-  .lottie-reserveer-container {
-    width: 180px;
-    height: 180px;
-  }
-}
-
-@media (max-width: 900px) {
-  .lottie-reserveer-container {
-    width: 160px;
-    height: 160px;
-  }
-}
-
-@media (max-width: 768px) {
-  .lottie-reserveer-container {
-    width: 140px;
-    height: 140px;
-    position: relative;
-    margin: 0 auto;
-  }
-}
-
-/* These styles are now handled by the enhanced responsive design above */
-
-/* Add a subtle trail effect for the floating Lottie */
-.lottie-reserveer-container::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
+/* Scroll-Triggered Lottie Reserveer SVG styling */
+.scroll-reserveer-svg {
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
+  max-width: 200px;
+  max-height: 200px;
+  display: block;
+  margin: 0 auto;
+  transition: opacity 0.5s ease;
+}
+
+/* Floating Lottie Container for dynamic movement */
+.floating-lottie-container {
+  position: absolute;
+  width: 200px;
+  height: 200px;
   pointer-events: none;
+  z-index: 100;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.lottie-reserveer-container:hover::after {
-  opacity: 1;
-}
-
-.lottie-reserveer-container:hover {
-  transform: scale(1.08) rotate(5deg);
-  filter: brightness(1.1);
-}
-
-.lottie-reserveer-container:active {
-  transform: scale(0.95);
-  transition: transform 0.1s ease;
-}
-
-.lottie-reserveer-container svg {
+.floating-lottie-container svg {
   width: 100%;
   height: 100%;
+  cursor: pointer;
+  pointer-events: auto;
   filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15));
-  transition: filter 0.3s ease;
+  transition: filter 0.3s ease, transform 0.2s ease;
 }
 
-  .lottie-reserveer-container:hover svg {
-    filter: drop-shadow(0 12px 32px rgba(0,0,0,0.25));
+.floating-lottie-container svg:hover {
+  filter: drop-shadow(0 12px 32px rgba(0,0,0,0.25));
+  transform: scale(1.05);
+}
+
+/* Enhanced Responsive Design for Scroll-Triggered Lottie */
+@media (max-width: 1200px) {
+  .scroll-reserveer-svg,
+  .floating-lottie-container {
+    max-width: 180px;
+    max-height: 180px;
   }
+}
+
+@media (max-width: 900px) {
+  .scroll-reserveer-svg,
+  .floating-lottie-container {
+    max-width: 160px;
+    max-height: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .scroll-reserveer-svg,
+  .floating-lottie-container {
+    max-width: 140px;
+    max-height: 140px;
+  }
+}
+
+/* Scroll-Triggered Lottie Reserveer hover effects */
+.scroll-reserveer-svg {
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15));
+  transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+.scroll-reserveer-svg:hover {
+  filter: drop-shadow(0 12px 32px rgba(0,0,0,0.25));
+}
   
   /* Add subtle background effect */
   .city-story__badge::before {

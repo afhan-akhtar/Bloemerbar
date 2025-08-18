@@ -2206,27 +2206,25 @@ lenis.on("scroll", ({ scroll, limit }) => {
   }
 })();
 
-  // ===== Lottie Reserveer Animation =====
-  function initLottieReserveer() {
+  // ===== Scroll-Triggered Dynamic Lottie Reserveer Animation =====
+  function initScrollTriggeredLottieReserveer() {
     const mainWrappers = document.querySelectorAll('.main-wrapper');
     
     mainWrappers.forEach((mainWrapper, wrapperIndex) => {
-      // Remove any existing Lottie containers in this wrapper
-      const existingContainers = mainWrapper.querySelectorAll('.lottie-reserveer-container');
-      existingContainers.forEach(container => container.remove());
+      // Find the city-story__badge in this wrapper
+      const badgeContainer = mainWrapper.querySelector('.city-story__badge');
+      if (!badgeContainer) return;
       
-      // Create a new floating Lottie container for this main wrapper
-      const container = document.createElement('div');
-      container.className = 'lottie-reserveer-container';
-      const uniqueId = `lottie-reserveer-${wrapperIndex}-${Date.now()}`;
-      container.id = uniqueId;
+      // Remove any existing content
+      badgeContainer.innerHTML = '';
       
-      // Add the container to the main wrapper
-      mainWrapper.appendChild(container);
+      // Create unique ID for this instance
+      const uniqueId = `scroll-lottie-reserveer-${wrapperIndex}-${Date.now()}`;
       
-      // Create a sophisticated animated "Reserveer" SVG inspired by Tripletta
+      // Create the animated "Reserveer" SVG for the badge
       const reserveerSVG = `
-        <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" 
+             style="cursor: pointer; transition: transform 0.2s ease;" class="scroll-reserveer-svg">
           <defs>
             <linearGradient id="gradient-${uniqueId}" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:var(--primary-color);stop-opacity:1" />
@@ -2315,15 +2313,66 @@ lenis.on("scroll", ({ scroll, limit }) => {
         </svg>
       `;
       
-      container.innerHTML = reserveerSVG;
+      badgeContainer.innerHTML = reserveerSVG;
       
-      // Add click functionality to open reservation
-      container.addEventListener('click', function() {
-        // Trigger the reservation popup
+      // Add click functionality to the SVG
+      const svg = badgeContainer.querySelector('.scroll-reserveer-svg');
+      if (svg) {
+        svg.addEventListener('click', function() {
+          // Trigger the reservation popup
+          if (window.FT && window.FT.open) {
+            window.FT.open();
+          } else {
+            // Fallback to anchor link
+            const event = new MouseEvent('click', {
+              view: window,
+              bubbles: true,
+              cancelable: true
+            });
+            const link = document.querySelector('a[href="#ft-open"]');
+            if (link) {
+              link.dispatchEvent(event);
+            }
+          }
+        });
+        
+        // Add hover effect
+        svg.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.05)';
+        });
+        
+        svg.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+        });
+      }
+      
+      // Create a floating container for dynamic movement
+      const floatingContainer = document.createElement('div');
+      floatingContainer.className = 'floating-lottie-container';
+      floatingContainer.style.cssText = `
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        pointer-events: none;
+        z-index: 100;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      `;
+      
+      // Clone the SVG for the floating container
+      const floatingSVG = svg.cloneNode(true);
+      floatingSVG.style.cssText = `
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        pointer-events: auto;
+      `;
+      
+      // Add click functionality to floating SVG
+      floatingSVG.addEventListener('click', function() {
         if (window.FT && window.FT.open) {
           window.FT.open();
         } else {
-          // Fallback to anchor link
           const event = new MouseEvent('click', {
             view: window,
             bubbles: true,
@@ -2336,48 +2385,61 @@ lenis.on("scroll", ({ scroll, limit }) => {
         }
       });
       
-      // Position the Lottie container in the city-story badge section by default
-      setTimeout(() => {
-        const cityStorySection = mainWrapper.querySelector('.city-story');
-        if (cityStorySection) {
-          // Calculate position to center in city-story badge area
-          const cityStoryTop = cityStorySection.offsetTop;
-          const cityStoryHeight = cityStorySection.offsetHeight;
-          const cityStoryWidth = cityStorySection.offsetWidth;
-          
-          // Position in the badge area of city-story (right side)
-          const badgeTop = cityStoryTop + (cityStoryHeight * 0.5) - 100; // Center vertically
-          const badgeLeft = Math.max(0, cityStoryWidth * 0.75 - 100); // Position in badge area
-          
-          gsap.set(container, {
-            position: 'absolute',
-            top: badgeTop,
-            left: badgeLeft,
-            rotation: 0,
-            scale: 1,
-            opacity: 1
-          });
-          
-          // Add subtle floating animation when in fixed position
-          gsap.to(container, {
+      floatingContainer.appendChild(floatingSVG);
+      mainWrapper.appendChild(floatingContainer);
+      
+      // Track animation state
+      let isAnimationActive = false;
+      let hasBeenVisible = false;
+      
+      // Create scroll trigger for the badge visibility
+      ScrollTrigger.create({
+        trigger: badgeContainer,
+        start: "top 80%", // When badge is 80% visible
+        end: "bottom 20%",
+        onEnter: () => {
+          hasBeenVisible = true;
+          // Start subtle floating animation on the badge
+          gsap.to(svg, {
             y: -10,
             duration: 2,
             ease: "power1.inOut",
             yoyo: true,
             repeat: -1
           });
+        },
+        onLeave: () => {
+          // Stop floating animation when leaving
+          gsap.killTweensOf(svg, "y");
+          gsap.set(svg, { y: 0 });
+        },
+        onEnterBack: () => {
+          // Resume floating animation when coming back
+          gsap.to(svg, {
+            y: -10,
+            duration: 2,
+            ease: "power1.inOut",
+            yoyo: true,
+            repeat: -1
+          });
+        },
+        onLeaveBack: () => {
+          // Stop floating animation when going back up
+          gsap.killTweensOf(svg, "y");
+          gsap.set(svg, { y: 0 });
         }
-      }, 100);
+      });
       
-      // Add sophisticated scroll-based movement starting from the badge position
-      const scrollTrigger = ScrollTrigger.create({
+      // Create scroll trigger for dynamic movement after badge has been seen
+      ScrollTrigger.create({
         trigger: mainWrapper,
         start: "top top",
         end: "bottom bottom",
         scrub: 1,
         onUpdate: (self) => {
-          // Stop the floating animation when scrolling
-          gsap.killTweensOf(container, "y");
+          // Only start dynamic movement after badge has been visible
+          if (!hasBeenVisible) return;
+          
           const progress = self.progress;
           
           // Get the initial badge position
@@ -2402,39 +2464,58 @@ lenis.on("scroll", ({ scroll, limit }) => {
           const y = gsap.utils.interpolate(initialBadgeTop, finalY, progress);
           const x = gsap.utils.interpolate(initialBadgeLeft, finalX, progress);
           
-          // Smooth rotation with easing (start from 0)
+          // Smooth rotation with easing
           const rotation = gsap.utils.interpolate(0, 360, progress);
           
-          // Gentle scale effect (start from 1)
+          // Gentle scale effect
           const scale = gsap.utils.interpolate(1, 1.2, progress);
           
-          // Opacity (start from 1, slight fade at edges)
-          const opacity = gsap.utils.interpolate(1, 0.8, progress);
+          // Opacity (start from 0, fade in, then slight fade at edges)
+          const opacity = gsap.utils.interpolate(0, 1, Math.min(progress * 2, 1)) * 
+                         gsap.utils.interpolate(1, 0.8, progress);
           
           // Add some floating movement
           const floatY = Math.sin(progress * Math.PI * 3) * 15;
           
-          gsap.set(container, {
-            position: 'absolute',
+          // Update floating container position
+          gsap.set(floatingContainer, {
             top: y + floatY,
             left: x,
             rotation: rotation,
             scale: scale,
-            opacity: opacity,
-            duration: 0.1,
-            ease: "power2.out"
+            opacity: opacity
           });
+          
+          // Hide the original badge when floating animation starts
+          if (progress > 0.1 && !isAnimationActive) {
+            isAnimationActive = true;
+            gsap.to(svg, {
+              opacity: 0,
+              duration: 0.5,
+              ease: "power2.out"
+            });
+          }
+          
+          // Show the original badge when going back up
+          if (progress < 0.1 && isAnimationActive) {
+            isAnimationActive = false;
+            gsap.to(svg, {
+              opacity: 1,
+              duration: 0.5,
+              ease: "power2.out"
+            });
+          }
         }
       });
     });
   }
   
-  // Initialize Lottie Reserveer animations
-  initLottieReserveer();
+  // Initialize scroll-triggered Lottie Reserveer animations
+  initScrollTriggeredLottieReserveer();
   
   // Re-initialize when clones are created
   window.addEventListener('clones-created', () => {
-    setTimeout(initLottieReserveer, 100);
+    setTimeout(initScrollTriggeredLottieReserveer, 100);
   });
 
   // ===== Audio Player Functionality =====

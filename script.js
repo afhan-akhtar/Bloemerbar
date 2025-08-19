@@ -292,7 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "secondaryColor": "#425F93",
             "whiteColor": "#ffffff",
             "blackColor": "#000000",
-            "primaryColor": "#D28FB9",
+            "primaryColor": "#736fa1",
             "backgroundColor": "#ffffff",
             "complementary": "#BDA153"
           },
@@ -429,8 +429,9 @@ document.addEventListener("DOMContentLoaded", () => {
               else if (rgb.r < 50 && rgb.g < 50 && rgb.b < 50) {
                 gradient = `linear-gradient(135deg, #2a2a2a 0%, ${primaryColor} 50%, #4a4a4a 100%)`;
               }
-              // Purple theme detection (medium red, low green, high blue)
-              else if (rgb.r > 100 && rgb.r < 200 && rgb.g < 100 && rgb.b > 100) {
+              // Purple theme detection (medium red, low green, high blue) - including #736fa1
+              else if ((rgb.r > 100 && rgb.r < 200 && rgb.g < 100 && rgb.b > 100) || 
+                       (rgb.r === 115 && rgb.g === 111 && rgb.b === 161)) {
                 gradient = `linear-gradient(135deg, #F0E8FF 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
               }
               // Red theme detection (high red, low green, low blue)
@@ -466,22 +467,16 @@ document.addEventListener("DOMContentLoaded", () => {
           const mainWrappers = document.querySelectorAll('.main-wrapper');
           console.log(`🎨 Applying themes to ${mainWrappers.length} main wrapper(s) using ${finalThemeColors.length} available themes`);
           
+          // Define the specific theme sequence: Pink → Black → Orange → Purple → repeat
+          const themeSequence = [0, 2, 4, 1, 0, 2, 4, 1, 0, 2, 4, 1]; // 0=pink, 2=black, 4=orange, 1=purple
+          
           mainWrappers.forEach((wrapper, index) => {
-            // Use a pattern that ensures no two consecutive wrappers have identical themes
-            // Modified pattern to show theme change clearly when scrolling backward
-            // Original (index 0) gets theme 0, but when scrolling back, show theme 4 (orange)
-            let themeIndex;
-            if (index === 0) {
-              // Original wrapper gets first theme (pink)
-              themeIndex = 0;
-            } else {
-              // All other wrappers get different themes to show change
-              // Use a pattern that avoids showing the same theme consecutively
-              themeIndex = (index + 1) % finalThemeColors.length;
-            }
+            // Use the specific sequence pattern
+            const sequenceIndex = index % themeSequence.length;
+            const themeIndex = themeSequence[sequenceIndex];
             
             const theme = finalThemeColors[themeIndex];
-            console.log(`🎨 Main wrapper ${index}: applying theme ${theme.id} (${theme.primaryColor}) - showing theme change`);
+            console.log(`🎨 Main wrapper ${index}: applying theme ${theme.id} (${theme.primaryColor}) - sequence position ${sequenceIndex}`);
             applyThemeToMainWrapper(wrapper, themeIndex);
           });
           
@@ -549,9 +544,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log('🎨 Dynamic theme system initialized from Strapi API!');
         console.log(`Available themes: ${finalThemeColors.map(t => `ID ${t.id} (${t.primaryColor})`).join(', ')}`);
-        console.log('No two consecutive main wrappers will have identical themes.');
-        console.log('Pattern: Original (pink) → Orange → Purple → Black → Red → Orange...');
-        console.log('🎨 Theme changes are clearly visible when scrolling backward/forward');
+        console.log('Theme sequence: Pink → Black → Orange → Purple → repeat');
+        console.log('🎨 Theme changes follow the specified sequence when scrolling');
         
         // Expose function for manual theme reapplication (for testing)
         window.reapplyThemes = () => {
@@ -577,19 +571,34 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Expose function to show theme pattern
         window.showThemePattern = (count = 20) => {
-          console.log(`🎨 Theme pattern for ${count} wrappers (showing theme changes):`);
+          console.log(`🎨 Theme pattern for ${count} wrappers (following sequence: Pink → Black → Orange → Purple → repeat):`);
+          const themeSequence = [0, 2, 4, 1, 0, 2, 4, 1, 0, 2, 4, 1]; // 0=pink, 2=black, 4=orange, 1=purple
           for (let i = 0; i < count; i++) {
-            let themeIndex;
-            if (i === 0) {
-              // Original wrapper gets first theme (pink)
-              themeIndex = 0;
-            } else {
-              // All other wrappers get different themes to show change
-              themeIndex = (i + 1) % finalThemeColors.length;
-            }
+            const sequenceIndex = i % themeSequence.length;
+            const themeIndex = themeSequence[sequenceIndex];
             const theme = finalThemeColors[themeIndex];
-            console.log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor}) - ${i === 0 ? 'ORIGINAL' : 'CHANGED'}`);
+            const themeNames = ['Pink', 'Purple', 'Black', 'Orange'];
+            const themeName = themeNames[sequenceIndex % 4];
+            console.log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor}) - ${themeName}`);
           }
+        };
+        
+        // Expose function to test the current theme sequence
+        window.testThemeSequence = () => {
+          console.log('🧪 Testing current theme sequence...');
+          const mainWrappers = document.querySelectorAll('.main-wrapper');
+          const themeSequence = [0, 2, 4, 1, 0, 2, 4, 1, 0, 2, 4, 1];
+          const themeNames = ['Pink', 'Purple', 'Black', 'Orange'];
+          
+          mainWrappers.forEach((wrapper, index) => {
+            const sequenceIndex = index % themeSequence.length;
+            const themeIndex = themeSequence[sequenceIndex];
+            const theme = finalThemeColors[themeIndex];
+            const themeName = themeNames[sequenceIndex % 4];
+            const actualColor = getComputedStyle(wrapper).getPropertyValue('--primary-color').trim();
+            
+            console.log(`  Wrapper ${index}: Expected ${themeName} (${theme.primaryColor}), Actual: ${actualColor} - ${actualColor === theme.primaryColor ? '✅' : '❌'}`);
+          });
         };
         
         // Apply theme colors to bg-title elements after theme changes
@@ -617,6 +626,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log('💡 Use window.reapplyThemes() to manually reapply themes');
         console.log('💡 Use window.getThemeInfo() to see current theme assignments');
         console.log('💡 Use window.showThemePattern(20) to see theme pattern for 20 wrappers');
+        console.log('💡 Use window.testThemeSequence() to test if current sequence is correct');
       } catch (e) {
         console.error('Error initializing theme system:', e);
       }
@@ -1994,8 +2004,9 @@ document.addEventListener("DOMContentLoaded", () => {
           else if (rgb.r < 50 && rgb.g < 50 && rgb.b < 50) {
             return `linear-gradient(135deg, #2a2a2a 0%, ${primaryColor} 50%, #4a4a4a 100%)`;
           }
-          // Purple theme detection (medium red, low green, high blue)
-          else if (rgb.r > 100 && rgb.r < 200 && rgb.g < 100 && rgb.b > 100) {
+          // Purple theme detection (medium red, low green, high blue) - including #736fa1
+          else if ((rgb.r > 100 && rgb.r < 200 && rgb.g < 100 && rgb.b > 100) || 
+                   (rgb.r === 115 && rgb.g === 111 && rgb.b === 161)) {
             return `linear-gradient(135deg, #F0E8FF 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
           }
           // Red theme detection (high red, low green, low blue)

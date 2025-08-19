@@ -385,6 +385,11 @@ document.addEventListener("DOMContentLoaded", () => {
           bgTitles.forEach((bgTitle) => {
             bgTitle.style.color = theme.primaryColor;
           });
+          
+          // Update Lottie colors if the update function exists
+          if (mainWrapper._updateLottieColors) {
+            mainWrapper._updateLottieColors();
+          }
         };
 
         // Function to update pinned section backgrounds with theme-specific gradients
@@ -595,6 +600,13 @@ document.addEventListener("DOMContentLoaded", () => {
               const computedStyle = getComputedStyle(mainWrapper);
               const primaryColor = computedStyle.getPropertyValue('--primary-color').trim();
               bgTitle.style.color = primaryColor;
+            }
+          });
+          
+          // Update Lottie colors for all main wrappers
+          document.querySelectorAll('.main-wrapper').forEach((mainWrapper) => {
+            if (mainWrapper._updateLottieColors) {
+              mainWrapper._updateLottieColors();
             }
           });
         };
@@ -2506,6 +2518,12 @@ lenis.on("scroll", ({ scroll, limit }) => {
       // Remove any existing content
       badgeContainer.innerHTML = '';
       
+      // Get theme colors from the current wrapper
+      const computedStyle = getComputedStyle(mainWrapper);
+      const primaryColor = computedStyle.getPropertyValue('--primary-color').trim() || '#F05A70';
+      const secondaryColor = computedStyle.getPropertyValue('--secondary-color').trim() || '#F7AACC';
+      const textColor = computedStyle.getPropertyValue('--text-white').trim() || '#ffffff';
+      
       // Create unique ID for this instance
       const uniqueId = `scroll-lottie-reserveer-${wrapperIndex}-${Date.now()}`;
       
@@ -2515,12 +2533,12 @@ lenis.on("scroll", ({ scroll, limit }) => {
           <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" 
                style="cursor: pointer; transition: transform 0.2s ease;" class="scroll-reserveer-svg">
             <defs>
-              <!-- Button gradient -->
+              <!-- Button gradient using theme colors -->
               <radialGradient id="buttonGrad-${uniqueId}" cx="50%" cy="30%">
-                <stop offset="0%" style="stop-color:#2a2a4e;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />
+                <stop offset="0%" style="stop-color:${primaryColor};stop-opacity:1" />
+                <stop offset="100%" style="stop-color:${secondaryColor};stop-opacity:1" />
               </radialGradient>
-              <!-- Glow effect -->
+              <!-- Glow effect with theme color -->
               <filter id="glow-${uniqueId}">
                 <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
                 <feMerge> 
@@ -2535,14 +2553,14 @@ lenis.on("scroll", ({ scroll, limit }) => {
             </defs>
             
             <!-- Main circular button with pulse animation -->
-            <circle cx="100" cy="100" r="90" fill="url(#buttonGrad-${uniqueId})" stroke="#eee" stroke-width="2" 
+            <circle cx="100" cy="100" r="90" fill="url(#buttonGrad-${uniqueId})" stroke="${textColor}" stroke-width="2" 
                     filter="url(#shadow-${uniqueId})" class="main-button">
               <animate attributeName="r" values="90;95;90" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
               <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
             </circle>
             
             <!-- Inner circle for depth -->
-            <circle cx="100" cy="100" r="80" fill="none" stroke="#eee" stroke-width="1" opacity="0.3" class="inner-ring">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="${textColor}" stroke-width="1" opacity="0.3" class="inner-ring">
               <animateTransform attributeName="transform" type="rotate" values="0 100 100;360 100 100" 
                                 dur="10s" repeatCount="indefinite"/>
             </circle>
@@ -2550,54 +2568,54 @@ lenis.on("scroll", ({ scroll, limit }) => {
             <!-- Wine glasses with animation -->
             <g transform="translate(60, 50)" class="wine-glasses">
               <!-- Left wine glass -->
-              <path d="M 5 0 L 15 0 L 14 12.5 L 6 12.5 Z" fill="#eee" class="glass-left">
+              <path d="M 5 0 L 15 0 L 14 12.5 L 6 12.5 Z" fill="${textColor}" class="glass-left">
                 <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
               </path>
-              <rect x="9" y="12.5" width="2" height="15" fill="#eee" class="stem-left"/>
-              <ellipse cx="10" cy="29" rx="6" ry="1.5" fill="#eee" class="base-left"/>
-              <!-- Wine in left glass -->
-              <path d="M 6 7.5 L 14 7.5 L 13.25 12.5 L 6.75 12.5 Z" fill="#8B0000" class="wine-left">
+              <rect x="9" y="12.5" width="2" height="15" fill="${textColor}" class="stem-left"/>
+              <ellipse cx="10" cy="29" rx="6" ry="1.5" fill="${textColor}" class="base-left"/>
+              <!-- Wine in left glass using theme primary color -->
+              <path d="M 6 7.5 L 14 7.5 L 13.25 12.5 L 6.75 12.5 Z" fill="${primaryColor}" class="wine-left">
                 <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/>
               </path>
             </g>
             
             <g transform="translate(120, 50)" class="wine-glasses">
               <!-- Right wine glass -->
-              <path d="M 5 0 L 15 0 L 14 12.5 L 6 12.5 Z" fill="#eee" class="glass-right">
+              <path d="M 5 0 L 15 0 L 14 12.5 L 6 12.5 Z" fill="${textColor}" class="glass-right">
                 <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="0.5s"/>
               </path>
-              <rect x="9" y="12.5" width="2" height="15" fill="#eee" class="stem-right"/>
-              <ellipse cx="10" cy="29" rx="6" ry="1.5" fill="#eee" class="base-right"/>
-              <!-- Wine in right glass -->
-              <path d="M 6 6 L 14 6 L 13.5 12.5 L 6.5 12.5 Z" fill="#722F37" class="wine-right">
+              <rect x="9" y="12.5" width="2" height="15" fill="${textColor}" class="stem-right"/>
+              <ellipse cx="10" cy="29" rx="6" ry="1.5" fill="${textColor}" class="base-right"/>
+              <!-- Wine in right glass using theme secondary color -->
+              <path d="M 6 6 L 14 6 L 13.5 12.5 L 6.5 12.5 Z" fill="${secondaryColor}" class="wine-right">
                 <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
               </path>
             </g>
             
             <!-- Musical notes with animation -->
             <g transform="translate(40, 100)" class="music-notes">
-              <circle cx="0" cy="10" r="4" fill="#eee" class="note-1">
+              <circle cx="0" cy="10" r="4" fill="${textColor}" class="note-1">
                 <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
               </circle>
-              <rect x="4" y="2.5" width="1.5" height="7.5" fill="#eee" class="stem-1"/>
-              <path d="M 4 2.5 Q 7.5 0 11 2.5 L 11 7.5 Q 7.5 5 4 7.5" fill="none" stroke="#eee" stroke-width="1" class="flag-1">
+              <rect x="4" y="2.5" width="1.5" height="7.5" fill="${textColor}" class="stem-1"/>
+              <path d="M 4 2.5 Q 7.5 0 11 2.5 L 11 7.5 Q 7.5 5 4 7.5" fill="none" stroke="${textColor}" stroke-width="1" class="flag-1">
                 <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
               </path>
             </g>
             
             <g transform="translate(150, 100)" class="music-notes">
-              <circle cx="0" cy="7.5" r="3" fill="#eee" class="note-2">
+              <circle cx="0" cy="7.5" r="3" fill="${textColor}" class="note-2">
                 <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
               </circle>
-              <rect x="3" y="2.5" width="1" height="5" fill="#eee" class="stem-2"/>
-              <circle cx="7.5" cy="5" r="2.5" fill="#eee" class="note-3">
+              <rect x="3" y="2.5" width="1" height="5" fill="${textColor}" class="stem-2"/>
+              <circle cx="7.5" cy="5" r="2.5" fill="${textColor}" class="note-3">
                 <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.6s"/>
               </circle>
-              <rect x="10" y="1" width="1" height="4" fill="#eee" class="stem-3"/>
+              <rect x="10" y="1" width="1" height="4" fill="${textColor}" class="stem-3"/>
             </g>
             
             <!-- Main text "RESERVEER" with sophisticated animation -->
-            <text x="100" y="140" text-anchor="middle" fill="#eee" 
+            <text x="100" y="140" text-anchor="middle" fill="${textColor}" 
                   font-family="Arial, sans-serif" font-size="14" font-weight="bold" 
                   letter-spacing="1px" class="reserveer-text" filter="url(#shadow-${uniqueId})">
               <tspan x="100" dy="0">RESERVEER</tspan>
@@ -2606,48 +2624,48 @@ lenis.on("scroll", ({ scroll, limit }) => {
             
             <!-- Decorative music staff lines -->
             <g opacity="0.2" class="staff-lines">
-              <line x1="30" y1="165" x2="70" y2="165" stroke="#eee" stroke-width="0.5" class="staff-1">
+              <line x1="30" y1="165" x2="70" y2="165" stroke="${textColor}" stroke-width="0.5" class="staff-1">
                 <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite"/>
               </line>
-              <line x1="30" y1="170" x2="70" y2="170" stroke="#eee" stroke-width="0.5" class="staff-2">
+              <line x1="30" y1="170" x2="70" y2="170" stroke="${textColor}" stroke-width="0.5" class="staff-2">
                 <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" begin="0.5s"/>
               </line>
-              <line x1="30" y1="175" x2="70" y2="175" stroke="#eee" stroke-width="0.5" class="staff-3">
+              <line x1="30" y1="175" x2="70" y2="175" stroke="${textColor}" stroke-width="0.5" class="staff-3">
                 <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" begin="1s"/>
               </line>
-              <line x1="130" y1="165" x2="170" y2="165" stroke="#eee" stroke-width="0.5" class="staff-4">
+              <line x1="130" y1="165" x2="170" y2="165" stroke="${textColor}" stroke-width="0.5" class="staff-4">
                 <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" begin="1.5s"/>
               </line>
-              <line x1="130" y1="170" x2="170" y2="170" stroke="#eee" stroke-width="0.5" class="staff-5">
+              <line x1="130" y1="170" x2="170" y2="170" stroke="${textColor}" stroke-width="0.5" class="staff-5">
                 <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" begin="2s"/>
               </line>
-              <line x1="130" y1="175" x2="170" y2="175" stroke="#eee" stroke-width="0.5" class="staff-6">
+              <line x1="130" y1="175" x2="170" y2="175" stroke="${textColor}" stroke-width="0.5" class="staff-6">
                 <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" begin="2.5s"/>
               </line>
             </g>
             
             <!-- Corner accent dots -->
-            <circle cx="100" cy="25" r="2" fill="#eee" opacity="0.6" class="corner-dot-1">
+            <circle cx="100" cy="25" r="2" fill="${textColor}" opacity="0.6" class="corner-dot-1">
               <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/>
             </circle>
-            <circle cx="100" cy="175" r="2" fill="#eee" opacity="0.6" class="corner-dot-2">
+            <circle cx="100" cy="175" r="2" fill="${textColor}" opacity="0.6" class="corner-dot-2">
               <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite" begin="1s"/>
             </circle>
             
             <!-- Floating sparkles -->
-            <circle cx="30" cy="30" r="1" fill="#eee" opacity="0.7" class="sparkle-1">
+            <circle cx="30" cy="30" r="1" fill="${textColor}" opacity="0.7" class="sparkle-1">
               <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
               <animate attributeName="r" values="1;1.5;1" dur="2s" repeatCount="indefinite"/>
             </circle>
-            <circle cx="170" cy="30" r="1.5" fill="#eee" opacity="0.7" class="sparkle-2">
+            <circle cx="170" cy="30" r="1.5" fill="${textColor}" opacity="0.7" class="sparkle-2">
               <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="0.5s"/>
               <animate attributeName="r" values="1.5;2;1.5" dur="2s" repeatCount="indefinite" begin="0.5s"/>
             </circle>
-            <circle cx="30" cy="170" r="1.2" fill="#eee" opacity="0.7" class="sparkle-3">
+            <circle cx="30" cy="170" r="1.2" fill="${textColor}" opacity="0.7" class="sparkle-3">
               <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="1s"/>
               <animate attributeName="r" values="1.2;1.8;1.2" dur="2s" repeatCount="indefinite" begin="1s"/>
             </circle>
-            <circle cx="170" cy="170" r="1" fill="#eee" opacity="0.7" class="sparkle-4">
+            <circle cx="170" cy="170" r="1" fill="${textColor}" opacity="0.7" class="sparkle-4">
               <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="1.5s"/>
               <animate attributeName="r" values="1;1.6;1" dur="2s" repeatCount="indefinite" begin="1.5s"/>
             </circle>
@@ -2712,6 +2730,51 @@ lenis.on("scroll", ({ scroll, limit }) => {
       // Track animation state
       let isAnimationActive = false;
       let hasBeenVisible = false;
+      
+      // Function to update Lottie colors when theme changes
+      function updateLottieColors() {
+        const computedStyle = getComputedStyle(mainWrapper);
+        const primaryColor = computedStyle.getPropertyValue('--primary-color').trim() || '#F05A70';
+        const secondaryColor = computedStyle.getPropertyValue('--secondary-color').trim() || '#F7AACC';
+        const textColor = computedStyle.getPropertyValue('--text-white').trim() || '#ffffff';
+        
+        // Update all SVG elements in both the badge container and floating container
+        const allSVGs = [
+          badgeContainer.querySelector('.scroll-reserveer-svg'),
+          floatingContainer.querySelector('.scroll-reserveer-svg')
+        ].filter(Boolean);
+        
+        allSVGs.forEach(svg => {
+          // Update gradient colors
+          const gradient = svg.querySelector(`#buttonGrad-${uniqueId}`);
+          if (gradient) {
+            const stops = gradient.querySelectorAll('stop');
+            if (stops[0]) stops[0].setAttribute('style', `stop-color:${primaryColor};stop-opacity:1`);
+            if (stops[1]) stops[1].setAttribute('style', `stop-color:${secondaryColor};stop-opacity:1`);
+          }
+          
+          // Update all text color elements
+          const textElements = svg.querySelectorAll('[fill="#eee"], [stroke="#eee"]');
+          textElements.forEach(el => {
+            if (el.getAttribute('fill') === '#eee') el.setAttribute('fill', textColor);
+            if (el.getAttribute('stroke') === '#eee') el.setAttribute('stroke', textColor);
+          });
+          
+          // Update wine colors
+          const wineLeft = svg.querySelector('.wine-left');
+          if (wineLeft) wineLeft.setAttribute('fill', primaryColor);
+          
+          const wineRight = svg.querySelector('.wine-right');
+          if (wineRight) wineRight.setAttribute('fill', secondaryColor);
+          
+          // Update text color
+          const textElement = svg.querySelector('.reserveer-text');
+          if (textElement) textElement.setAttribute('fill', textColor);
+        });
+      }
+      
+      // Store the update function on the wrapper for theme changes
+      mainWrapper._updateLottieColors = updateLottieColors;
       
       // Create scroll trigger for the badge visibility
       ScrollTrigger.create({

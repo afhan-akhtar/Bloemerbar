@@ -661,12 +661,12 @@ body {
   height: 100%;
   cursor: pointer;
   pointer-events: auto;
-  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15));
+  filter: none !important;
   transition: filter 0.3s ease, transform 0.2s ease;
 }
 
 .floating-lottie-container svg:hover {
-  filter: drop-shadow(0 12px 32px rgba(0,0,0,0.25));
+  filter: none !important;
   transform: scale(1.05);
 }
 

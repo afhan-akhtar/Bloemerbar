@@ -2554,7 +2554,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
             
             <!-- Main circular button with pulse animation -->
             <circle cx="100" cy="100" r="90" fill="url(#buttonGrad-${uniqueId})" stroke="${textColor}" stroke-width="2" 
-                    filter="url(#shadow-${uniqueId})" class="main-button">
+                    class="main-button">
               <animate attributeName="r" values="90;95;90" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
               <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" ease="easeInOut"/>
             </circle>

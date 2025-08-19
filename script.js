@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // === Strapi dynamic content integration ===
   (async function integrateStrapi() {
-    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://localhost:1337";
+    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://splendid-positivity-a98d9f1acb.strapiapp.com/";
     const endpoints = {
       sett: "/api/sett",
       global: "/api/global",

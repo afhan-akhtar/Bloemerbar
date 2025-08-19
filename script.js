@@ -1648,6 +1648,9 @@ document.addEventListener("DOMContentLoaded", () => {
     window.currentPopupWrapper = null;
   }
 
+  // Expose openBookPopup globally for onclick handlers
+  window.openBookPopup = openBookPopup;
+
   try {
     if (bookPopup) {
       const closeBtn = bookPopup.querySelector(".book-popup__close");
@@ -3271,7 +3274,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
       
       // Create the static "Reserveer" SVG with wine glasses and music theme
       const reserveerSVG = `
-        <a href="#ft-open" style="display: block; text-decoration: none; cursor: pointer;">
+        <a href="#book-now-popup" style="display: block; text-decoration: none; cursor: pointer;" onclick="window.currentPopupWrapper = this.closest('.main-wrapper'); openBookPopup(); return false;">
           <svg width="320" height="320" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" 
                style="cursor: pointer; transition: transform 0.2s ease; max-width: 100%; height: auto;" class="static-reserveer-svg">
             <defs>

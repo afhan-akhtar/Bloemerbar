@@ -447,7 +447,9 @@
             // Check for SVG Reserveer buttons
             if (targetElement.classList && (
                 targetElement.classList.contains('scroll-reserveer-svg') ||
-                targetElement.closest('.scroll-reserveer-svg')
+                targetElement.closest('.scroll-reserveer-svg') ||
+                targetElement.classList.contains('static-reserveer-svg') ||
+                targetElement.closest('.static-reserveer-svg')
             )) {
               shouldOpenWidget = true;
               break;

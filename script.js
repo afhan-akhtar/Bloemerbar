@@ -521,9 +521,9 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Handle backward scrolling logic
             if (index < 0) {
-              // Backward scrolling: -1=black, -2=orange, -3=purple, -4=teal, -5=pink, then repeat
+              // Backward scrolling: -1=teal, -2=purple, -3=orange, -4=black, -5=pink, then repeat
               const backwardIndex = Math.abs(index) % 5;
-              const backwardSequence = [2, 4, 1, 5, 0]; // black, orange, purple, teal, pink
+              const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, black, pink
               themeIndex = backwardSequence[backwardIndex];
             } else {
               // Forward scrolling: normal sequence
@@ -600,9 +600,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log('🎨 Dynamic theme system initialized from Strapi API!');
         console.log(`Available themes: ${finalThemeColors.map(t => `ID ${t.id} (${t.primaryColor})`).join(', ')}`);
-        console.log('Theme sequence: Pink → Black → Orange → Purple → repeat');
-        console.log('🎨 Backward scrolling: -1=Black, -2=Orange, -3=Purple, -4=Pink → repeat');
-        console.log('🎨 Forward scrolling: 0=Pink, 1=Black, 2=Orange, 3=Purple → repeat');
+        console.log('Theme sequence: Pink → Black → Orange → Purple → Teal → repeat');
+        console.log('🎨 Backward scrolling: -1=Teal, -2=Purple, -3=Orange, -4=Black, -5=Pink → repeat');
+        console.log('🎨 Forward scrolling: 0=Pink, 1=Black, 2=Orange, 3=Purple, 4=Teal → repeat');
         
         // Expose function for manual theme reapplication (for testing)
         window.reapplyThemes = () => {
@@ -629,12 +629,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Expose function to show theme pattern
         window.showThemePattern = (count = 20) => {
           console.log(`🎨 Theme pattern for ${count} wrappers (forward and backward sequences):`);
-          console.log('📈 Forward: 0=Pink, 1=Black, 2=Orange, 3=Purple → repeat');
-          console.log('📉 Backward: -1=Black, -2=Orange, -3=Purple, -4=Pink → repeat');
+          console.log('📈 Forward: 0=Pink, 1=Black, 2=Orange, 3=Purple, 4=Teal → repeat');
+          console.log('📉 Backward: -1=Teal, -2=Purple, -3=Orange, -4=Black, -5=Pink → repeat');
           
-          const themeSequence = [0, 2, 4, 1, 0, 2, 4, 1, 0, 2, 4, 1]; // 0=pink, 2=black, 4=orange, 1=purple
-          const backwardSequence = [2, 4, 1, 0]; // black, orange, purple, pink
-          const themeNames = ['Pink', 'Purple', 'Black', 'Orange'];
+          const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5]; // 0=pink, 2=black, 4=orange, 1=purple, 5=teal
+          const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, black, pink
+          const themeNames = ['Pink', 'Black', 'Orange', 'Purple', 'Teal'];
           
           for (let i = 0; i < count; i++) {
             let themeIndex;
@@ -642,14 +642,14 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (i < 0) {
               // Backward scrolling
-              const backwardIndex = Math.abs(i) % 4;
+              const backwardIndex = Math.abs(i) % 5;
               themeIndex = backwardSequence[backwardIndex];
-              themeName = themeNames[backwardIndex];
+              themeName = themeNames[themeIndex];
             } else {
               // Forward scrolling
               const sequenceIndex = i % themeSequence.length;
               themeIndex = themeSequence[sequenceIndex];
-              themeName = themeNames[sequenceIndex % 4];
+              themeName = themeNames[themeIndex % 5];
             }
             
             const theme = finalThemeColors[themeIndex];
@@ -661,9 +661,9 @@ document.addEventListener("DOMContentLoaded", () => {
         window.testThemeSequence = () => {
           console.log('🧪 Testing current theme sequence (forward and backward)...');
           const mainWrappers = document.querySelectorAll('.main-wrapper');
-          const themeSequence = [0, 2, 4, 1, 0, 2, 4, 1, 0, 2, 4, 1];
-          const backwardSequence = [2, 4, 1, 0]; // black, orange, purple, pink
-          const themeNames = ['Pink', 'Purple', 'Black', 'Orange'];
+          const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5];
+          const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, black, pink
+          const themeNames = ['Pink', 'Black', 'Orange', 'Purple', 'Teal'];
           
           mainWrappers.forEach((wrapper, index) => {
             let themeIndex;
@@ -671,14 +671,14 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (index < 0) {
               // Backward scrolling
-              const backwardIndex = Math.abs(index) % 4;
+              const backwardIndex = Math.abs(index) % 5;
               themeIndex = backwardSequence[backwardIndex];
-              themeName = themeNames[backwardIndex];
+              themeName = themeNames[themeIndex];
             } else {
               // Forward scrolling
               const sequenceIndex = index % themeSequence.length;
               themeIndex = themeSequence[sequenceIndex];
-              themeName = themeNames[sequenceIndex % 4];
+              themeName = themeNames[themeIndex % 5];
             }
             
             const theme = finalThemeColors[themeIndex];
@@ -691,11 +691,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Expose function to test backward scrolling specifically
         window.testBackwardScrolling = () => {
           console.log('🔄 Testing backward scrolling sequence...');
-          const backwardSequence = [2, 4, 1, 0]; // black, orange, purple, pink
-          const themeNames = ['Black', 'Orange', 'Purple', 'Pink'];
+          const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, black, pink
+          const themeNames = ['Teal', 'Purple', 'Orange', 'Black', 'Pink'];
           
           for (let i = -1; i >= -8; i--) {
-            const backwardIndex = Math.abs(i) % 4;
+            const backwardIndex = Math.abs(i) % 5;
             const themeIndex = backwardSequence[backwardIndex];
             const theme = finalThemeColors[themeIndex];
             const themeName = themeNames[backwardIndex];

@@ -471,12 +471,22 @@ document.addEventListener("DOMContentLoaded", () => {
           const themeSequence = [0, 2, 4, 1, 0, 2, 4, 1, 0, 2, 4, 1]; // 0=pink, 2=black, 4=orange, 1=purple
           
           mainWrappers.forEach((wrapper, index) => {
-            // Use the specific sequence pattern
-            const sequenceIndex = index % themeSequence.length;
-            const themeIndex = themeSequence[sequenceIndex];
+            let themeIndex;
+            
+            // Handle backward scrolling logic
+            if (index < 0) {
+              // Backward scrolling: -1=black, -2=orange, -3=purple, -4=pink, then repeat
+              const backwardIndex = Math.abs(index) % 4;
+              const backwardSequence = [2, 4, 1, 0]; // black, orange, purple, pink
+              themeIndex = backwardSequence[backwardIndex];
+            } else {
+              // Forward scrolling: normal sequence
+              const sequenceIndex = index % themeSequence.length;
+              themeIndex = themeSequence[sequenceIndex];
+            }
             
             const theme = finalThemeColors[themeIndex];
-            console.log(`🎨 Main wrapper ${index}: applying theme ${theme.id} (${theme.primaryColor}) - sequence position ${sequenceIndex}`);
+            console.log(`🎨 Main wrapper ${index}: applying theme ${theme.id} (${theme.primaryColor}) - ${index < 0 ? 'BACKWARD' : 'FORWARD'} scrolling`);
             applyThemeToMainWrapper(wrapper, themeIndex);
           });
           
@@ -545,7 +555,8 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log('🎨 Dynamic theme system initialized from Strapi API!');
         console.log(`Available themes: ${finalThemeColors.map(t => `ID ${t.id} (${t.primaryColor})`).join(', ')}`);
         console.log('Theme sequence: Pink → Black → Orange → Purple → repeat');
-        console.log('🎨 Theme changes follow the specified sequence when scrolling');
+        console.log('🎨 Backward scrolling: -1=Black, -2=Orange, -3=Purple, -4=Pink → repeat');
+        console.log('🎨 Forward scrolling: 0=Pink, 1=Black, 2=Orange, 3=Purple → repeat');
         
         // Expose function for manual theme reapplication (for testing)
         window.reapplyThemes = () => {
@@ -571,34 +582,80 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Expose function to show theme pattern
         window.showThemePattern = (count = 20) => {
-          console.log(`🎨 Theme pattern for ${count} wrappers (following sequence: Pink → Black → Orange → Purple → repeat):`);
+          console.log(`🎨 Theme pattern for ${count} wrappers (forward and backward sequences):`);
+          console.log('📈 Forward: 0=Pink, 1=Black, 2=Orange, 3=Purple → repeat');
+          console.log('📉 Backward: -1=Black, -2=Orange, -3=Purple, -4=Pink → repeat');
+          
           const themeSequence = [0, 2, 4, 1, 0, 2, 4, 1, 0, 2, 4, 1]; // 0=pink, 2=black, 4=orange, 1=purple
+          const backwardSequence = [2, 4, 1, 0]; // black, orange, purple, pink
+          const themeNames = ['Pink', 'Purple', 'Black', 'Orange'];
+          
           for (let i = 0; i < count; i++) {
-            const sequenceIndex = i % themeSequence.length;
-            const themeIndex = themeSequence[sequenceIndex];
+            let themeIndex;
+            let themeName;
+            
+            if (i < 0) {
+              // Backward scrolling
+              const backwardIndex = Math.abs(i) % 4;
+              themeIndex = backwardSequence[backwardIndex];
+              themeName = themeNames[backwardIndex];
+            } else {
+              // Forward scrolling
+              const sequenceIndex = i % themeSequence.length;
+              themeIndex = themeSequence[sequenceIndex];
+              themeName = themeNames[sequenceIndex % 4];
+            }
+            
             const theme = finalThemeColors[themeIndex];
-            const themeNames = ['Pink', 'Purple', 'Black', 'Orange'];
-            const themeName = themeNames[sequenceIndex % 4];
-            console.log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor}) - ${themeName}`);
+            console.log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor}) - ${themeName} ${i < 0 ? '(BACKWARD)' : '(FORWARD)'}`);
           }
         };
         
         // Expose function to test the current theme sequence
         window.testThemeSequence = () => {
-          console.log('🧪 Testing current theme sequence...');
+          console.log('🧪 Testing current theme sequence (forward and backward)...');
           const mainWrappers = document.querySelectorAll('.main-wrapper');
           const themeSequence = [0, 2, 4, 1, 0, 2, 4, 1, 0, 2, 4, 1];
+          const backwardSequence = [2, 4, 1, 0]; // black, orange, purple, pink
           const themeNames = ['Pink', 'Purple', 'Black', 'Orange'];
           
           mainWrappers.forEach((wrapper, index) => {
-            const sequenceIndex = index % themeSequence.length;
-            const themeIndex = themeSequence[sequenceIndex];
+            let themeIndex;
+            let themeName;
+            
+            if (index < 0) {
+              // Backward scrolling
+              const backwardIndex = Math.abs(index) % 4;
+              themeIndex = backwardSequence[backwardIndex];
+              themeName = themeNames[backwardIndex];
+            } else {
+              // Forward scrolling
+              const sequenceIndex = index % themeSequence.length;
+              themeIndex = themeSequence[sequenceIndex];
+              themeName = themeNames[sequenceIndex % 4];
+            }
+            
             const theme = finalThemeColors[themeIndex];
-            const themeName = themeNames[sequenceIndex % 4];
             const actualColor = getComputedStyle(wrapper).getPropertyValue('--primary-color').trim();
             
-            console.log(`  Wrapper ${index}: Expected ${themeName} (${theme.primaryColor}), Actual: ${actualColor} - ${actualColor === theme.primaryColor ? '✅' : '❌'}`);
+            console.log(`  Wrapper ${index}: Expected ${themeName} (${theme.primaryColor}), Actual: ${actualColor} - ${actualColor === theme.primaryColor ? '✅' : '❌'} ${index < 0 ? '(BACKWARD)' : '(FORWARD)'}`);
           });
+        };
+        
+        // Expose function to test backward scrolling specifically
+        window.testBackwardScrolling = () => {
+          console.log('🔄 Testing backward scrolling sequence...');
+          const backwardSequence = [2, 4, 1, 0]; // black, orange, purple, pink
+          const themeNames = ['Black', 'Orange', 'Purple', 'Pink'];
+          
+          for (let i = -1; i >= -8; i--) {
+            const backwardIndex = Math.abs(i) % 4;
+            const themeIndex = backwardSequence[backwardIndex];
+            const theme = finalThemeColors[themeIndex];
+            const themeName = themeNames[backwardIndex];
+            
+            console.log(`  Wrapper ${i}: ${themeName} (${theme.primaryColor})`);
+          }
         };
         
         // Apply theme colors to bg-title elements after theme changes
@@ -627,6 +684,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log('💡 Use window.getThemeInfo() to see current theme assignments');
         console.log('💡 Use window.showThemePattern(20) to see theme pattern for 20 wrappers');
         console.log('💡 Use window.testThemeSequence() to test if current sequence is correct');
+        console.log('💡 Use window.testBackwardScrolling() to test backward scrolling sequence');
       } catch (e) {
         console.error('Error initializing theme system:', e);
       }

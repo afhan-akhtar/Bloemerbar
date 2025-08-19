@@ -2439,7 +2439,7 @@ body {
 @media (max-width: 1200px) {
   #preloader span,
   .preloader-label {
-    font-size: clamp(28px, 9vw, 140px);
+    font-size: clamp(45px, 20vw, 180px);
     letter-spacing: 0.008em;
   }
   
@@ -2457,7 +2457,7 @@ body {
   
   #preloader span,
   .preloader-label {
-    font-size: clamp(24px, 8vw, 100px);
+    font-size: clamp(32px, 10vw, 120px);
     letter-spacing: 0.006em;
     line-height: 1.15;
   }
@@ -2477,7 +2477,7 @@ body {
   
   #preloader span,
   .preloader-label {
-    font-size: clamp(20px, 7vw, 80px);
+    font-size: clamp(28px, 9vw, 100px);
     letter-spacing: 0.004em;
     line-height: 1.2;
   }
@@ -2497,7 +2497,7 @@ body {
   
   #preloader span,
   .preloader-label {
-    font-size: clamp(18px, 6.5vw, 60px);
+    font-size: clamp(24px, 8vw, 80px);
     letter-spacing: 0.002em;
     line-height: 1.25;
   }
@@ -2517,7 +2517,7 @@ body {
   
   #preloader span,
   .preloader-label {
-    font-size: clamp(16px, 6vw, 50px);
+    font-size: clamp(32px, 10vw, 120px);
     letter-spacing: 0.001em;
     line-height: 1.3;
   }

@@ -2297,14 +2297,14 @@ document.addEventListener("DOMContentLoaded", () => {
       onLeave: () => {
         hideProgressAndIndices();
         
-        // Only show booking popup on original and first copy
+        // Only show booking popup on original main wrapper (not on cloned copies)
         const mainWrapper = pinnedSection.closest('.main-wrapper');
         if (mainWrapper) {
           const allMainWrappers = document.querySelectorAll('.main-wrapper');
           const currentIndex = Array.from(allMainWrappers).indexOf(mainWrapper);
           
-          // Show popup only on original (index 0) and first copy (index 1)
-          if (currentIndex <= 1) {
+          // Show popup only on original (index 0) - not on any cloned copies
+          if (currentIndex === 0) {
             // Store reference to the current wrapper for popup theming
             window.currentPopupWrapper = mainWrapper;
             openBookPopup();

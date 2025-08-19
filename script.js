@@ -2569,6 +2569,12 @@ lenis.on("scroll", ({ scroll, limit }) => {
 })();
 
   // ===== Scroll-Triggered Dynamic Lottie Reserveer Animation =====
+  // Global state to track which floating animation should be visible
+  window.floatingLottieState = {
+    activeWrapperIndex: -1,
+    activeContainer: null
+  };
+  
   function initScrollTriggeredLottieReserveer() {
     const mainWrappers = document.querySelectorAll('.main-wrapper');
     
@@ -2755,6 +2761,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
       // Create a floating container for dynamic movement
       const floatingContainer = document.createElement('div');
       floatingContainer.className = 'floating-lottie-container';
+      floatingContainer.dataset.wrapperIndex = wrapperIndex;
       floatingContainer.style.cssText = `
         position: absolute;
         width: 200px;
@@ -2792,6 +2799,26 @@ lenis.on("scroll", ({ scroll, limit }) => {
       // Track animation state
       let isAnimationActive = false;
       let hasBeenVisible = false;
+      
+      // Function to hide all other floating containers
+      function hideOtherFloatingContainers() {
+        document.querySelectorAll('.floating-lottie-container').forEach(container => {
+          if (container !== floatingContainer) {
+            gsap.set(container, {
+              opacity: 0,
+              duration: 0.3,
+              ease: "power2.out"
+            });
+          }
+        });
+      }
+      
+      // Function to show this floating container
+      function showThisFloatingContainer() {
+        window.floatingLottieState.activeWrapperIndex = wrapperIndex;
+        window.floatingLottieState.activeContainer = floatingContainer;
+        hideOtherFloatingContainers();
+      }
       
       // Function to update Lottie colors when theme changes
       function updateLottieColors() {
@@ -2915,6 +2942,12 @@ lenis.on("scroll", ({ scroll, limit }) => {
               ease: "power2.out"
             });
             
+            // Clear active state
+            if (window.floatingLottieState.activeWrapperIndex === wrapperIndex) {
+              window.floatingLottieState.activeWrapperIndex = -1;
+              window.floatingLottieState.activeContainer = null;
+            }
+            
             // Show the original badge when scroll is complete
             if (isAnimationActive) {
               isAnimationActive = false;
@@ -2956,6 +2989,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
           // Hide the original badge when floating animation starts
           if (progress > 0.1 && !isAnimationActive) {
             isAnimationActive = true;
+            showThisFloatingContainer(); // Show this container and hide others
             gsap.to(svg, {
               opacity: 0,
               duration: 0.5,
@@ -2966,6 +3000,19 @@ lenis.on("scroll", ({ scroll, limit }) => {
           // Show the original badge when going back up
           if (progress < 0.1 && isAnimationActive) {
             isAnimationActive = false;
+            // Hide this floating container when going back up
+            gsap.set(floatingContainer, {
+              opacity: 0,
+              duration: 0.3,
+              ease: "power2.out"
+            });
+            
+            // Clear active state
+            if (window.floatingLottieState.activeWrapperIndex === wrapperIndex) {
+              window.floatingLottieState.activeWrapperIndex = -1;
+              window.floatingLottieState.activeContainer = null;
+            }
+            
             gsap.to(svg, {
               opacity: 1,
               duration: 0.5,
@@ -2980,9 +3027,101 @@ lenis.on("scroll", ({ scroll, limit }) => {
   // Initialize scroll-triggered Lottie Reserveer animations
   initScrollTriggeredLottieReserveer();
   
+  // Function to ensure only one floating animation is visible
+  function ensureSingleFloatingAnimation() {
+    const floatingContainers = document.querySelectorAll('.floating-lottie-container');
+    if (floatingContainers.length > 0) {
+      // Hide all floating containers initially
+      floatingContainers.forEach(container => {
+        gsap.set(container, {
+          opacity: 0,
+          duration: 0.3,
+          ease: "power2.out"
+        });
+      });
+      
+      // Reset global state
+      window.floatingLottieState.activeWrapperIndex = -1;
+      window.floatingLottieState.activeContainer = null;
+    }
+  }
+  
+  // Function to clean up floating animations
+  function cleanupFloatingAnimations() {
+    // Kill any existing GSAP animations on floating containers
+    const floatingContainers = document.querySelectorAll('.floating-lottie-container');
+    floatingContainers.forEach(container => {
+      gsap.killTweensOf(container);
+    });
+    
+    // Reset all floating containers to hidden state
+    ensureSingleFloatingAnimation();
+  }
+  
+  // Ensure single animation on page load
+  ensureSingleFloatingAnimation();
+  
+  // Add scroll listener to manage floating animations
+  window.addEventListener('scroll', () => {
+    // Debounce scroll events
+    clearTimeout(window.scrollTimeout);
+    window.scrollTimeout = setTimeout(() => {
+      const floatingContainers = document.querySelectorAll('.floating-lottie-container');
+      if (floatingContainers.length > 1) {
+        // Find the container that should be most visible based on scroll position
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        
+        let mostVisibleContainer = null;
+        let maxVisibility = 0;
+        
+        floatingContainers.forEach(container => {
+          const wrapper = container.closest('.main-wrapper');
+          if (wrapper) {
+            const rect = wrapper.getBoundingClientRect();
+            const visibility = Math.max(0, Math.min(1, 
+              (windowHeight - Math.abs(rect.top)) / windowHeight
+            ));
+            
+            if (visibility > maxVisibility) {
+              maxVisibility = visibility;
+              mostVisibleContainer = container;
+            }
+          }
+        });
+        
+        // Show only the most visible container
+        floatingContainers.forEach(container => {
+          if (container === mostVisibleContainer && maxVisibility > 0.3) {
+            gsap.set(container, { opacity: 1 });
+            const wrapperIndex = parseInt(container.dataset.wrapperIndex);
+            window.floatingLottieState.activeWrapperIndex = wrapperIndex;
+            window.floatingLottieState.activeContainer = container;
+          } else {
+            gsap.set(container, { opacity: 0 });
+          }
+        });
+      }
+    }, 100);
+  });
+  
+  // Add resize listener to manage floating animations
+  window.addEventListener('resize', () => {
+    // Debounce resize events
+    clearTimeout(window.resizeTimeout);
+    window.resizeTimeout = setTimeout(() => {
+      cleanupFloatingAnimations();
+      ensureSingleFloatingAnimation();
+    }, 200);
+  });
+  
   // Re-initialize when clones are created
   window.addEventListener('clones-created', () => {
-    setTimeout(initScrollTriggeredLottieReserveer, 100);
+    setTimeout(() => {
+      cleanupFloatingAnimations(); // Clean up first
+      initScrollTriggeredLottieReserveer();
+      ensureSingleFloatingAnimation();
+    }, 100);
   });
 
   // ===== Audio Player Functionality =====

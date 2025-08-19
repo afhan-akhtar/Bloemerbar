@@ -545,7 +545,7 @@ body {
   flex: 0 0 33.3333%;
   max-width: 33.3333%;
   display: flex;
-  justify-content: center;
+  justify-content: end;
   align-items: center;
   position: relative;
   overflow: hidden;

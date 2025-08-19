@@ -3157,7 +3157,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
       // Create the static "Reserveer" SVG with wine glasses and music theme
       const reserveerSVG = `
         <a href="#ft-open" style="display: block; text-decoration: none; cursor: pointer;">
-          <svg width="300" height="300" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" 
+          <svg width="400" height="400" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" 
                style="cursor: pointer; transition: transform 0.2s ease;" class="static-reserveer-svg">
             <defs>
               <!-- Button gradient using theme colors -->

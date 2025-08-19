@@ -475,6 +475,9 @@
             e.preventDefault();
             e.stopPropagation();
             
+            // Update URL hash to #ft-open
+            window.location.hash = '#ft-open';
+            
             const widget = document.getElementById('ft-widget');
             if (widget) {
               // Slide in from right

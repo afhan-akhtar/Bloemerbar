@@ -2063,12 +2063,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (index === 0) {
         gsap.set(card, { 
           rotation: endRotations[0],
-          top: "50%"
+          top: "50%",
+          opacity: 1
         });
       } else {
         gsap.set(card, { 
           rotation: startRotations[index],
-          top: "115%"
+          top: "115%",
+          opacity: 1
         });
       }
       
@@ -2154,6 +2156,29 @@ document.addEventListener("DOMContentLoaded", () => {
       pin: true,
       pinSpacing: true,
       anticipatePin: 1,
+      // Add a small delay to prevent initial jumping
+      onRefresh: () => {
+        // Ensure cards are in correct initial positions after refresh
+        cards.forEach((card, index) => {
+          if (index === 0) {
+            gsap.to(card, { 
+              rotation: endRotations[0],
+              top: "50%",
+              opacity: 1,
+              duration: 0.3,
+              ease: "power2.out"
+            });
+          } else {
+            gsap.to(card, { 
+              rotation: startRotations[index],
+              top: "115%",
+              opacity: 1,
+              duration: 0.3,
+              ease: "power2.out"
+            });
+          }
+        });
+      },
       onLeave: () => {
         hideProgressAndIndices();
         
@@ -2201,9 +2226,17 @@ document.addEventListener("DOMContentLoaded", () => {
           if (isProgressBarVisible) hideProgressAndIndices();
           cards.forEach((card, index) => {
             if (index === 0) {
-              gsap.set(card, { top: "50%", rotation: endRotations[0] });
+              gsap.set(card, { 
+                top: "50%", 
+                rotation: endRotations[0], 
+                opacity: 1
+              });
             } else {
-              gsap.set(card, { top: "115%", rotation: startRotations[index] });
+              gsap.set(card, { 
+                top: "115%", 
+                rotation: startRotations[index], 
+                opacity: 1
+              });
             }
           });
           return;
@@ -2215,49 +2248,78 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         const progress = sectionProgress - 1;
-        const currentCardRaw = Math.floor(progress);
-        const currentCard = Math.max(1, currentCardRaw);
-        let progressHeight = (progress / cardCount) * 100;
-        progressHeight = Math.max(0, Math.min(progressHeight, 100));
-        const colorIndex = Math.min(Math.floor(progress), cardCount - 1);
+        // Calculate which card should be active based on scroll progress
+        // Each card gets its own scroll section
+        const cardSection = Math.floor(progress * cardCount);
+        const currentCard = Math.min(cardSection + 1, cardCount);
+        const cardProgress = (progress * cardCount) - cardSection;
+        // Update progress bar to show current card progress
+        const progressHeight = (cardProgress * 100);
+        const colorIndex = Math.min(currentCard - 1, cardCount - 1);
         
-        // Update progress bar
+        // Update progress bar to show current card progress
         gsap.to(progressBar, { 
           height: `${progressHeight}%`, 
           backgroundColor: progressColors[colorIndex], 
           duration: 0.3, 
-          ease: "power1.out" 
+          ease: "power2.out" 
         });
         
         if (isProgressBarVisible) { 
           animateIndexOpacity(colorIndex); 
         }
         
-        // Handle card animations with step-by-step approach
+        // Handle card animations with step-by-step approach - each scroll moves one card
         cards.forEach((card, index) => {
           if (index === 0) {
-            // First card always stays at center
-            gsap.set(card, { top: "50%", rotation: endRotations[0] });
+            // First card always stays at center (no animation)
+            gsap.set(card, { 
+              top: "50%", 
+              rotation: endRotations[0], 
+              opacity: 1
+            });
           } else if (index < currentCard) {
-            // Cards that have completed their animation - keep them at center
-            gsap.set(card, { top: "50%", rotation: endRotations[index] });
+            // Cards that have completed their animation - keep them at center (no animation)
+            gsap.set(card, { 
+              top: "50%", 
+              rotation: endRotations[index], 
+              opacity: 1
+            });
           } else if (index === currentCard) {
-            // Currently animating card - animate from bottom to center
-            const cardProgress = progress - currentCard;
-            const newTop = gsap.utils.interpolate(115, 50, cardProgress);
-            const newRotation = gsap.utils.interpolate(startRotations[index], endRotations[index], cardProgress);
-            gsap.set(card, { top: `${newTop}%`, rotation: newRotation });
+            // Current card animates from bottom to center based on scroll progress
+            const easedValue = gsap.utils.clamp(0, 1, cardProgress);
+            
+            const newTop = gsap.utils.interpolate(115, 50, easedValue);
+            const newRotation = gsap.utils.interpolate(startRotations[index], endRotations[index], easedValue);
+            
+            // Animate only this card
+            gsap.to(card, { 
+              top: `${newTop}%`, 
+              rotation: newRotation,
+              opacity: 1,
+              duration: 0.3,
+              ease: "power2.out"
+            });
           } else {
-            // Cards waiting to animate - keep them at bottom
-            gsap.set(card, { top: "115%", rotation: startRotations[index] });
+            // Cards waiting to animate - keep them at bottom (no animation)
+            gsap.set(card, { 
+              top: "115%", 
+              rotation: startRotations[index],
+              opacity: 1
+            });
           }
         });
         
-        // Prevent white background flash by ensuring smooth transition to next section
+        // Ensure all cards are in final position when section is complete
         if (self.progress >= 0.99) {
-          // When almost complete, ensure all cards are in final position
           cards.forEach((card, index) => {
-            gsap.set(card, { top: "50%", rotation: endRotations[index] });
+            gsap.to(card, { 
+              top: "50%", 
+              rotation: endRotations[index],
+              opacity: 1,
+              duration: 0.3,
+              ease: "power2.out"
+            });
           });
         }
       },

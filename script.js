@@ -2846,9 +2846,9 @@ lenis.on("scroll", ({ scroll, limit }) => {
           
           // Check if scroll is complete (progress >= 0.95)
           if (progress >= 0.95) {
-            // Scroll is complete - make lottie static and keep it visible
+            // Scroll is complete - hide floating container and show static badge
             gsap.set(floatingContainer, {
-              opacity: 1,
+              opacity: 0,
               duration: 0.3,
               ease: "power2.out"
             });

@@ -2148,7 +2148,7 @@ document.addEventListener("DOMContentLoaded", () => {
       animateIndexOpacity(-1);
     }
 
-    // Single scroll trigger for the entire pinned section with step-by-step card animations
+    // Single scroll trigger for the entire pinned section with one-card-per-scroll animation
     ScrollTrigger.create({
       trigger: pinnedSection,
       start: "top top",
@@ -2248,14 +2248,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         const progress = sectionProgress - 1;
-        // Calculate which card should be active based on scroll progress
-        // Each card gets its own scroll section
-        const cardSection = Math.floor(progress * cardCount);
-        const currentCard = Math.min(cardSection + 1, cardCount);
-        const cardProgress = (progress * cardCount) - cardSection;
+        
+        // One-card-per-scroll logic: Each card gets exactly one scroll section
+        const cardIndex = Math.floor(progress);
+        const cardProgress = progress - cardIndex;
+        
         // Update progress bar to show current card progress
         const progressHeight = (cardProgress * 100);
-        const colorIndex = Math.min(currentCard - 1, cardCount - 1);
+        const colorIndex = Math.min(cardIndex, cardCount - 1);
         
         // Update progress bar to show current card progress
         gsap.to(progressBar, { 
@@ -2269,23 +2269,23 @@ document.addEventListener("DOMContentLoaded", () => {
           animateIndexOpacity(colorIndex); 
         }
         
-        // Handle card animations with step-by-step approach - each scroll moves one card
+        // Handle card animations with one-card-per-scroll approach
         cards.forEach((card, index) => {
           if (index === 0) {
-            // First card always stays at center (no animation)
+            // First card always stays at center (already visible)
             gsap.set(card, { 
               top: "50%", 
               rotation: endRotations[0], 
               opacity: 1
             });
-          } else if (index < currentCard) {
-            // Cards that have completed their animation - keep them at center (no animation)
+          } else if (index <= cardIndex) {
+            // Cards that have completed their animation - keep them at center
             gsap.set(card, { 
               top: "50%", 
               rotation: endRotations[index], 
               opacity: 1
             });
-          } else if (index === currentCard) {
+          } else if (index === cardIndex + 1 && cardProgress > 0) {
             // Current card animates from bottom to center based on scroll progress
             const easedValue = gsap.utils.clamp(0, 1, cardProgress);
             
@@ -2301,7 +2301,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ease: "power2.out"
             });
           } else {
-            // Cards waiting to animate - keep them at bottom (no animation)
+            // Cards waiting to animate - keep them at bottom
             gsap.set(card, { 
               top: "115%", 
               rotation: startRotations[index],

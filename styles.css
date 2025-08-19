@@ -2123,7 +2123,7 @@ body {
     
     .opening-hours__open,
     .opening-hours__closed {
-        font-size: clamp(11px, 4vw, 14px);
+        font-size: clamp(7px, 2vw, 3px);
         padding: 0.3rem 0.6rem;
     }
 }
@@ -2517,7 +2517,7 @@ body {
   
   #preloader span,
   .preloader-label {
-    font-size: clamp(32px, 10vw, 120px);
+    font-size: clamp(47px, 17vw, 180px);
     letter-spacing: 0.001em;
     line-height: 1.3;
   }

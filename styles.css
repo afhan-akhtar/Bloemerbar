@@ -2613,3 +2613,18 @@ body {
     transition: opacity 0.3s ease;
   }
 }
+
+/* Responsive SVG sizing for Reserveer button */
+@media (max-width: 768px) {
+  .static-reserveer-svg {
+    width: 250px !important;
+    height: 250px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .static-reserveer-svg {
+    width: 250px !important;
+    height: 250px !important;
+  }
+}

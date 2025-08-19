@@ -526,7 +526,7 @@ body {
 
 /* ===== City story (8/4 flex layout) ===== */
 .city-story {
-  padding: clamp(1.25rem, 4vw, 3rem) clamp(1rem, 6vw, 7rem) clamp(2rem, 6vw, 7rem) clamp(1rem, 4vw, 4rem);
+  padding: clamp(2rem, 6vw, 7rem) clamp(1rem, 6vw, 7rem) clamp(2rem, 6vw, 7rem) clamp(1rem, 4vw, 4rem);
 }
 
 .city-story__inner {

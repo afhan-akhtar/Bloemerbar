@@ -322,6 +322,15 @@ document.addEventListener("DOMContentLoaded", () => {
             "primaryColor": "#F15E36",
             "backgroundColor": "#ffffff",
             "complementary": "#10B49F"
+          },
+          {
+            "id": 92,
+            "secondaryColor": "#98D2B3",
+            "whiteColor": "#ffffff",
+            "blackColor": "#000000",
+            "primaryColor": "#15B29F",
+            "backgroundColor": "#ffffff",
+            "complementary": "#F15E36"
           }
         ];
 
@@ -347,13 +356,41 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(`✅ Found ${validThemes.length} valid themes from Strapi API`);
         console.log('Theme IDs:', validThemes.map(t => t.id).join(', '));
         
-        // Use validated themes
-        const finalThemeColors = validThemes;
+        // Use validated themes and add hardcoded teal theme
+        const finalThemeColors = [...validThemes];
+        
+        // Add hardcoded teal theme if not already present
+        const tealThemeExists = finalThemeColors.some(theme => theme.id === 92);
+        if (!tealThemeExists) {
+          finalThemeColors.push({
+            "id": 92,
+            "secondaryColor": "#98D2B3",
+            "whiteColor": "#ffffff",
+            "blackColor": "#000000",
+            "primaryColor": "#15B29F",
+            "backgroundColor": "#ffffff",
+            "complementary": "#F15E36"
+          });
+        }
+        
+        console.log(`🎨 Final theme count: ${finalThemeColors.length} (including teal theme)`);
+        console.log('Final Theme IDs:', finalThemeColors.map(t => t.id).join(', '));
 
         // Function to apply theme to a main wrapper
         const applyThemeToMainWrapper = (mainWrapper, themeIndex) => {
           const theme = finalThemeColors[themeIndex % finalThemeColors.length];
           if (!mainWrapper || !theme) return;
+          
+          // Debug logging for teal theme
+          if (theme.id === 92) {
+            console.log('🎨 Applying TEAL theme:', theme);
+            console.log('🎨 Teal theme colors:', {
+              primary: theme.primaryColor,
+              secondary: theme.secondaryColor,
+              background: theme.backgroundColor,
+              complementary: theme.complementary
+            });
+          }
           
           // Apply theme to the main wrapper itself
           mainWrapper.style.setProperty('--primary-color', theme.primaryColor);
@@ -364,6 +401,8 @@ document.addEventListener("DOMContentLoaded", () => {
           mainWrapper.style.setProperty('--complementary-color', theme.complementary);
           mainWrapper.style.setProperty('--hover-color', theme.primaryColor);
           mainWrapper.style.setProperty('--accent-color', theme.secondaryColor);
+          mainWrapper.style.setProperty('--theme-gradient', `linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`);
+          mainWrapper.style.setProperty('--theme-shadow', `0 8px 32px ${theme.primaryColor}20`);
           
           // Apply theme to all sections within this wrapper
           const sections = mainWrapper.querySelectorAll('section, .quad-cta, .top-marquee, .city-story, .about.vision, .pinned, .brand-splash');
@@ -377,6 +416,8 @@ document.addEventListener("DOMContentLoaded", () => {
               section.style.setProperty('--complementary-color', theme.complementary);
               section.style.setProperty('--hover-color', theme.primaryColor);
               section.style.setProperty('--accent-color', theme.secondaryColor);
+              section.style.setProperty('--theme-gradient', `linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`);
+              section.style.setProperty('--theme-shadow', `0 8px 32px ${theme.primaryColor}20`);
             }
           });
           
@@ -434,6 +475,11 @@ document.addEventListener("DOMContentLoaded", () => {
                        (rgb.r === 115 && rgb.g === 111 && rgb.b === 161)) {
                 gradient = `linear-gradient(135deg, #F0E8FF 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
               }
+              // Teal theme detection (#15B29F) - medium red, high green, medium blue
+              else if ((rgb.r === 21 && rgb.g === 178 && rgb.b === 159) || 
+                       (rgb.r > 15 && rgb.r < 30 && rgb.g > 170 && rgb.g < 185 && rgb.b > 150 && rgb.b < 165)) {
+                gradient = `linear-gradient(135deg, #E8FFFD 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
+              }
               // Red theme detection (high red, low green, low blue)
               else if (rgb.r > 200 && rgb.g < 100 && rgb.b < 100) {
                 gradient = `linear-gradient(135deg, #FFE8E8 0%, ${primaryColor} 50%, #FFB3B3 100%)`;
@@ -467,17 +513,17 @@ document.addEventListener("DOMContentLoaded", () => {
           const mainWrappers = document.querySelectorAll('.main-wrapper');
           console.log(`🎨 Applying themes to ${mainWrappers.length} main wrapper(s) using ${finalThemeColors.length} available themes`);
           
-          // Define the specific theme sequence: Pink → Black → Orange → Purple → repeat
-          const themeSequence = [0, 2, 4, 1, 0, 2, 4, 1, 0, 2, 4, 1]; // 0=pink, 2=black, 4=orange, 1=purple
+          // Define the specific theme sequence: Pink → Black → Orange → Purple → Teal → repeat
+          const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5]; // 0=pink, 2=black, 4=orange, 1=purple, 5=teal
           
           mainWrappers.forEach((wrapper, index) => {
             let themeIndex;
             
             // Handle backward scrolling logic
             if (index < 0) {
-              // Backward scrolling: -1=black, -2=orange, -3=purple, -4=pink, then repeat
-              const backwardIndex = Math.abs(index) % 4;
-              const backwardSequence = [2, 4, 1, 0]; // black, orange, purple, pink
+              // Backward scrolling: -1=black, -2=orange, -3=purple, -4=teal, -5=pink, then repeat
+              const backwardIndex = Math.abs(index) % 5;
+              const backwardSequence = [2, 4, 1, 5, 0]; // black, orange, purple, teal, pink
               themeIndex = backwardSequence[backwardIndex];
             } else {
               // Forward scrolling: normal sequence
@@ -485,8 +531,8 @@ document.addEventListener("DOMContentLoaded", () => {
               themeIndex = themeSequence[sequenceIndex];
             }
             
-            const theme = finalThemeColors[themeIndex];
-            console.log(`🎨 Main wrapper ${index}: applying theme ${theme.id} (${theme.primaryColor}) - ${index < 0 ? 'BACKWARD' : 'FORWARD'} scrolling`);
+            const themeForLogging = finalThemeColors[themeIndex % finalThemeColors.length];
+            console.log(`🎨 Main wrapper ${index}: applying theme ${themeForLogging.id} (${themeForLogging.primaryColor}) - ${index < 0 ? 'BACKWARD' : 'FORWARD'} scrolling`);
             applyThemeToMainWrapper(wrapper, themeIndex);
           });
           

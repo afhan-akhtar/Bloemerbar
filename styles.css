@@ -1687,7 +1687,7 @@ section {
 }
 
 .book-popup__content { padding: 28px 22px 8px 22px; }
-.book-popup__title { font-size: 32px; color: var(--primary-color); text-transform: uppercase; }
+.book-popup__title { font-size: 24px; color: var(--primary-color); text-transform: uppercase; }
 .book-popup__desc { color: var(--primary-color); text-transform: none; margin-top: 8px; }
 
 .book-popup__cta {

@@ -1983,8 +1983,8 @@ section {
 
 .pinned.single-card .sticky-header {
   position: absolute;
-  top: 2rem;
-  left: 50%;
+  top: -5rem;
+  left: 20%;
   transform: translateX(-50%);
   z-index: 10;
   /* Ensure header is visible and properly styled */

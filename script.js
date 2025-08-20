@@ -950,9 +950,20 @@ document.addEventListener("DOMContentLoaded", () => {
           anchors.forEach((a) => {
             const label = (a.getAttribute('aria-label') || '').toLowerCase();
             const entry = map[label];
-            if (entry && entry.href) {
+            
+            // Check if link is valid (not "#" or empty)
+            const isValidLink = entry && entry.href && entry.href !== "#" && entry.href.trim() !== "";
+            
+            // Only show icons for Instagram, TikTok, and Facebook with valid links
+            const allowedPlatforms = ['instagram', 'tiktok', 'facebook'];
+            const isAllowedPlatform = allowedPlatforms.includes(label);
+            
+            if (isValidLink && isAllowedPlatform) {
               a.setAttribute('href', entry.href);
               if (entry.isExternal) a.setAttribute('target', '_blank');
+              a.style.display = ''; // Show the icon
+            } else {
+              a.style.display = 'none'; // Hide the icon
             }
           });
         });
@@ -1355,9 +1366,20 @@ document.addEventListener("DOMContentLoaded", () => {
             anchors.forEach((a) => {
               const label = (a.getAttribute('aria-label') || '').toLowerCase();
               const entry = map[label];
-              if (entry && entry.href) {
+              
+              // Check if link is valid (not "#" or empty)
+              const isValidLink = entry && entry.href && entry.href !== "#" && entry.href.trim() !== "";
+              
+              // Only show icons for Instagram, TikTok, and Facebook with valid links
+              const allowedPlatforms = ['instagram', 'tiktok', 'facebook'];
+              const isAllowedPlatform = allowedPlatforms.includes(label);
+              
+              if (isValidLink && isAllowedPlatform) {
                 a.setAttribute('href', entry.href);
                 if (entry.isExternal) a.setAttribute('target', '_blank');
+                a.style.display = ''; // Show the icon
+              } else {
+                a.style.display = 'none'; // Hide the icon
               }
             });
           });

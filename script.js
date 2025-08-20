@@ -933,7 +933,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll('.quad-cta').forEach((section) => {
           const barLinks = section.querySelectorAll('.quad-cta__bar .quad-cta__link');
           const gridImgs = section.querySelectorAll('.quad-cta__grid .quad-cta__item img');
-          // Fill titles/images; hide unused slots
+          
+          // Mobile pairs elements
+          const mobileLinks = section.querySelectorAll('.quad-cta__mobile-pairs .quad-cta__link-mobile');
+          const mobileImgs = section.querySelectorAll('.quad-cta__mobile-pairs .quad-cta__item-mobile img');
+          
+          // Fill titles/images for desktop; hide unused slots
           barLinks.forEach((link, i) => {
             const item = items[i];
             const span = link && link.querySelector('.quad-cta__text');
@@ -944,9 +949,37 @@ document.addEventListener("DOMContentLoaded", () => {
               link.style.display = 'none';
             }
           });
+          
           gridImgs.forEach((img, i) => {
             const item = items[i];
             const parent = img && img.closest('.quad-cta__item');
+            const imageUrl = item && item.image && item.image.url ? mediaUrl(item.image.url) : '';
+            if (item && imageUrl) {
+              img.src = imageUrl;
+              img.alt = item.title || '';
+              img.loading = 'lazy';
+              img.decoding = 'async';
+              if (parent) parent.style.display = '';
+            } else if (parent) {
+              parent.style.display = 'none';
+            }
+          });
+          
+          // Fill titles/images for mobile pairs; hide unused slots
+          mobileLinks.forEach((link, i) => {
+            const item = items[i];
+            const span = link && link.querySelector('.quad-cta__text');
+            if (item && span) {
+              span.textContent = item.title || '';
+              link.style.display = '';
+            } else if (link) {
+              link.style.display = 'none';
+            }
+          });
+          
+          mobileImgs.forEach((img, i) => {
+            const item = items[i];
+            const parent = img && img.closest('.quad-cta__item-mobile');
             const imageUrl = item && item.image && item.image.url ? mediaUrl(item.image.url) : '';
             if (item && imageUrl) {
               img.src = imageUrl;
@@ -1305,6 +1338,11 @@ document.addEventListener("DOMContentLoaded", () => {
           document.querySelectorAll('.quad-cta').forEach((section) => {
             const barLinks = section.querySelectorAll('.quad-cta__bar .quad-cta__link');
             const gridImgs = section.querySelectorAll('.quad-cta__grid .quad-cta__item img');
+            
+            // Mobile pairs elements
+            const mobileLinks = section.querySelectorAll('.quad-cta__mobile-pairs .quad-cta__link-mobile');
+            const mobileImgs = section.querySelectorAll('.quad-cta__mobile-pairs .quad-cta__item-mobile img');
+            
             barLinks.forEach((link, i) => {
               const item = items[i];
               const span = link && link.querySelector('.quad-cta__text');
@@ -1315,9 +1353,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 link.style.display = 'none';
               }
             });
+            
             gridImgs.forEach((img, i) => {
               const item = items[i];
               const parent = img && img.closest('.quad-cta__item');
+              const imageUrl = item && item.image && item.image.url ? mediaUrl(item.image.url) : '';
+              if (item && imageUrl) {
+                img.src = imageUrl;
+                img.alt = item.title || '';
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                if (parent) parent.style.display = '';
+              } else if (parent) {
+                parent.style.display = 'none';
+              }
+            });
+            
+            // Fill titles/images for mobile pairs; hide unused slots
+            mobileLinks.forEach((link, i) => {
+              const item = items[i];
+              const span = link && link.querySelector('.quad-cta__text');
+              if (item && span) {
+                span.textContent = item.title || '';
+                link.style.display = '';
+              } else if (link) {
+                link.style.display = 'none';
+              }
+            });
+            
+            mobileImgs.forEach((img, i) => {
+              const item = items[i];
+              const parent = img && img.closest('.quad-cta__item-mobile');
               const imageUrl = item && item.image && item.image.url ? mediaUrl(item.image.url) : '';
               if (item && imageUrl) {
                 img.src = imageUrl;

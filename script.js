@@ -1008,16 +1008,21 @@ document.addEventListener("DOMContentLoaded", () => {
           
                       // Update button text and link from booking-section
             if (bookingBlock && bookingBlock.book) {
-              const bookButton = document.querySelector('.about.vision .vision-cta');
-              if (bookButton) {
-                // Use hardcoded "Reserveer" instead of fetching from Strapi
-                bookButton.textContent = 'Reserveer';
-                // Use hardcoded href instead of fetching from Strapi
-                bookButton.setAttribute('href', '#ft-open');
-                // Remove external link attributes since we're using a local anchor
-                bookButton.removeAttribute('target');
-                bookButton.removeAttribute('rel');
-              }
+              // Update ALL vision-cta buttons in ALL main wrappers (original and cloned)
+              document.querySelectorAll('.main-wrapper .about.vision .vision-cta').forEach(bookButton => {
+                if (bookButton) {
+                  // Use hardcoded "Reserveer" instead of fetching from Strapi
+                  bookButton.textContent = 'Reserveer';
+                  // Use hardcoded href instead of fetching from Strapi
+                  bookButton.setAttribute('href', '#ft-open');
+                  // Remove external link attributes since we're using a local anchor
+                  bookButton.removeAttribute('target');
+                  bookButton.removeAttribute('rel');
+                  // Ensure the button is clickable
+                  bookButton.style.cursor = 'pointer';
+                  bookButton.style.display = 'block';
+                }
+              });
             }
         } catch (_) {}
         
@@ -1025,13 +1030,15 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           const bookingBlock = findBlock(blocks, "block.booking-section");
           if (bookingBlock && bookingBlock.image && bookingBlock.image.url) {
-            const img = document.querySelector('.about.vision .vision-media img');
-            if (img) {
-              img.src = mediaUrl(bookingBlock.image.url);
-              img.alt = bookingBlock.image.alternativeText || bookingBlock.image.name || 'Terrace service image';
-              img.loading = 'lazy';
-              img.decoding = 'async';
-            }
+            // Update ALL vision media images in ALL main wrappers (original and cloned)
+            document.querySelectorAll('.main-wrapper .about.vision .vision-media img').forEach(img => {
+              if (img) {
+                img.src = mediaUrl(bookingBlock.image.url);
+                img.alt = bookingBlock.image.alternativeText || bookingBlock.image.name || 'Terrace service image';
+                img.loading = 'lazy';
+                img.decoding = 'async';
+              }
+            });
           }
         } catch (_) {}
         
@@ -1039,13 +1046,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const featureBlock = findBlock(blocks, "block.feature-list");
         const firstFeature = featureBlock && Array.isArray(featureBlock.features) ? featureBlock.features[0] : null;
         if (firstFeature && firstFeature.image && firstFeature.image.url) {
-          const img = document.querySelector('.about.vision .vision-media img');
-          if (img) {
-            img.src = mediaUrl(firstFeature.image.url);
-            img.alt = firstFeature.title || 'Feature image';
-            img.loading = 'lazy';
-            img.decoding = 'async';
-          }
+          // Update ALL vision media images in ALL main wrappers (original and cloned)
+          document.querySelectorAll('.main-wrapper .about.vision .vision-media img').forEach(img => {
+            if (img) {
+              img.src = mediaUrl(firstFeature.image.url);
+              img.alt = firstFeature.title || 'Feature image';
+              img.loading = 'lazy';
+              img.decoding = 'async';
+            }
+          });
         }
         // Do not override brand-splash from backend
       } catch (_) {}
@@ -1370,16 +1379,21 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Update button text and link from booking-section
             if (bookingBlock && bookingBlock.book) {
-              const bookButton = document.querySelector('.about.vision .vision-cta');
-              if (bookButton) {
-                // Use hardcoded "Reserveer" instead of fetching from Strapi
-                bookButton.textContent = 'Reserveer';
-                // Use hardcoded href instead of fetching from Strapi
-                bookButton.setAttribute('href', '#ft-open');
-                // Remove external link attributes since we're using a local anchor
-                bookButton.removeAttribute('target');
-                bookButton.removeAttribute('rel');
-              }
+              // Update ALL vision-cta buttons in ALL main wrappers (original and cloned)
+              document.querySelectorAll('.main-wrapper .about.vision .vision-cta').forEach(bookButton => {
+                if (bookButton) {
+                  // Use hardcoded "Reserveer" instead of fetching from Strapi
+                  bookButton.textContent = 'Reserveer';
+                  // Use hardcoded href instead of fetching from Strapi
+                  bookButton.setAttribute('href', '#ft-open');
+                  // Remove external link attributes since we're using a local anchor
+                  bookButton.removeAttribute('target');
+                  bookButton.removeAttribute('rel');
+                  // Ensure the button is clickable
+                  bookButton.style.cursor = 'pointer';
+                  bookButton.style.display = 'block';
+                }
+              });
             }
           } catch (_) {}
           
@@ -1387,13 +1401,15 @@ document.addEventListener("DOMContentLoaded", () => {
           try {
             const bookingBlock = findBlock(blocks, "block.booking-section");
             if (bookingBlock && bookingBlock.image && bookingBlock.image.url) {
-              const img = document.querySelector('.about.vision .vision-media img');
-              if (img) {
-                img.src = mediaUrl(bookingBlock.image.url);
-                img.alt = bookingBlock.image.alternativeText || bookingBlock.image.name || 'Terrace service image';
-                img.loading = 'lazy';
-                img.decoding = 'async';
-              }
+              // Update ALL vision media images in ALL main wrappers (original and cloned)
+              document.querySelectorAll('.main-wrapper .about.vision .vision-media img').forEach(img => {
+                if (img) {
+                  img.src = mediaUrl(bookingBlock.image.url);
+                  img.alt = bookingBlock.image.alternativeText || bookingBlock.image.name || 'Terrace service image';
+                  img.loading = 'lazy';
+                  img.decoding = 'async';
+                }
+              });
             }
           } catch (_) {}
           
@@ -1401,13 +1417,15 @@ document.addEventListener("DOMContentLoaded", () => {
           const featureBlock = findBlock(blocks, "block.feature-list");
           const firstFeature = featureBlock && Array.isArray(featureBlock.features) ? featureBlock.features[0] : null;
           if (firstFeature && firstFeature.image && firstFeature.image.url) {
-            const img = document.querySelector('.vision .vision-media img');
-            if (img) {
-              img.src = mediaUrl(firstFeature.image.url);
-              img.alt = firstFeature.title || 'Feature image';
-              img.loading = 'lazy';
-              img.decoding = 'async';
-            }
+            // Update ALL vision media images in ALL main wrappers (original and cloned)
+            document.querySelectorAll('.main-wrapper .about.vision .vision-media img').forEach(img => {
+              if (img) {
+                img.src = mediaUrl(firstFeature.image.url);
+                img.alt = firstFeature.title || 'Feature image';
+                img.loading = 'lazy';
+                img.decoding = 'async';
+              }
+            });
           }
           // Do not override brand-splash from backend
         } catch (_) {}
@@ -1519,11 +1537,59 @@ document.addEventListener("DOMContentLoaded", () => {
       // Initialize enhanced bg-title effects for new clones
       setTimeout(initializeEnhancedBgTitle, 50);
       
+      // Ensure all vision-cta buttons work in new clones
+      setTimeout(ensureVisionCtaButtonsWork, 100);
+      
       console.log(`🔄 Created ${copies} clones for infinite experience`);
     } catch (e) {
       console.error('Error creating clones:', e);
     }
   }
+  
+  // Function to ensure all vision-cta buttons work in all main wrappers (original and cloned)
+  function ensureVisionCtaButtonsWork() {
+    try {
+      // Find all vision-cta buttons in ALL main wrappers (original and cloned)
+      const visionCtaButtons = document.querySelectorAll('.main-wrapper .about.vision .vision-cta');
+      console.log(`🔧 Setting up ${visionCtaButtons.length} vision-cta buttons...`);
+      
+      visionCtaButtons.forEach((button, index) => {
+        // Set the text content
+        button.textContent = 'Reserveer';
+        
+        // Set the href attribute
+        button.setAttribute('href', '#ft-open');
+        
+        // Remove any external link attributes
+        button.removeAttribute('target');
+        button.removeAttribute('rel');
+        
+        // Ensure the button is clickable and visible
+        button.style.cursor = 'pointer';
+        button.style.display = 'block';
+        button.style.opacity = '1';
+        button.style.visibility = 'visible';
+        
+        // Add a data attribute to track which wrapper it belongs to
+        const mainWrapper = button.closest('.main-wrapper');
+        if (mainWrapper) {
+          const wrapperIndex = Array.from(document.querySelectorAll('.main-wrapper')).indexOf(mainWrapper);
+          button.setAttribute('data-wrapper-index', wrapperIndex);
+        }
+        
+        console.log(`✅ Vision CTA button ${index} set up:`, {
+          href: button.getAttribute('href'),
+          text: button.textContent,
+          wrapperIndex: button.getAttribute('data-wrapper-index')
+        });
+      });
+    } catch (e) {
+      console.error('Error setting up vision-cta buttons:', e);
+    }
+  }
+  
+  // Expose the function globally for debugging
+  window.ensureVisionCtaButtonsWork = ensureVisionCtaButtonsWork;
   function onReadyCreateAndRender() {
     // Ensure brand-splash animation init runs at least once before cloning
     window.requestAnimationFrame(() => {
@@ -1532,6 +1598,8 @@ document.addEventListener("DOMContentLoaded", () => {
         window.__STRAPI_RENDER_ALL();
         prepareMarquees();
       }
+      // Ensure vision-cta buttons work after everything is set up
+      setTimeout(ensureVisionCtaButtonsWork, 200);
     });
   }
   if (window.__STRAPI_READY__) {
@@ -1539,6 +1607,11 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     window.addEventListener('strapi-ready', onReadyCreateAndRender, { once: true });
   }
+  
+  // Listen for clones-created event to ensure vision-cta buttons work
+  window.addEventListener('clones-created', () => {
+    setTimeout(ensureVisionCtaButtonsWork, 150);
+  });
   const stickySection = document.querySelector(".sticky");
   const totalStickyHeight = window.innerHeight * 6; // ensure enough height for looping
 

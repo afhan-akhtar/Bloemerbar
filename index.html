@@ -256,7 +256,7 @@
             <!-- Dynamic content from backend -->
           </h1>
          
-          <a href="#" class="vision-cta" aria-label="Open the boutique"></a>
+          <a href="#ft-open" class="vision-cta" aria-label="Open the boutique"></a>
         </div>
       </section>
 
@@ -470,6 +470,21 @@
               break;
             }
             
+            // Check for any element that contains "Reserveer" text (more flexible)
+            if (targetElement.textContent && targetElement.textContent.trim().toLowerCase().includes('reserveer')) {
+              shouldOpenWidget = true;
+              break;
+            }
+            
+            // Check for any clickable element within a vision-cta or book-popup__cta
+            if (targetElement.closest && (
+                targetElement.closest('.vision-cta') ||
+                targetElement.closest('.book-popup__cta')
+            )) {
+              shouldOpenWidget = true;
+              break;
+            }
+            
             targetElement = targetElement.parentElement;
           }
           
@@ -477,15 +492,24 @@
             e.preventDefault();
             e.stopPropagation();
             
+            console.log('🎯 Reserveer button clicked! Opening widget...', {
+              target: targetElement,
+              href: targetElement.href || targetElement.getAttribute('href'),
+              classList: targetElement.classList ? Array.from(targetElement.classList) : [],
+              textContent: targetElement.textContent
+            });
+            
             // Update URL hash to #ft-open
             // window.location.hash = '#ft-open';
             
             const widget = document.getElementById('ft-widget');
             if (widget) {
+              console.log('✅ Widget found, opening...');
               // Slide in from right
               widget.style.right = '0px';
               // Show toolbar and open widget when Reserveer is clicked
               if (window.FT) {
+                console.log('✅ FT SDK available, showing toolbar and opening widget...');
                 // Show the toolbar first
                 if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
                   window.FT.widgetService.showToolbar();
@@ -494,7 +518,11 @@
                 if (window.FT.open) {
                   window.FT.open();
                 }
+              } else {
+                console.log('⚠️ FT SDK not available yet');
               }
+            } else {
+              console.log('❌ Widget not found!');
             }
           }
           
@@ -576,11 +604,14 @@
         
         // Function to ensure all Reserveer buttons work (called when clones are created)
         function ensureAllReserveerButtonsWork() {
-          // Find all vision-cta buttons in cloned wrappers and ensure they have #ft-open href
+          // Find all vision-cta buttons in ALL main wrappers (original and cloned) and ensure they have #ft-open href
           document.querySelectorAll('.main-wrapper .vision-cta').forEach(button => {
             if (!button.getAttribute('href') || button.getAttribute('href') !== '#ft-open') {
               button.setAttribute('href', '#ft-open');
             }
+            // Ensure the button is clickable and has proper styling
+            button.style.cursor = 'pointer';
+            button.style.display = 'block';
           });
           
           // Find all book-popup__cta buttons and ensure they have #ft-open href
@@ -589,6 +620,12 @@
               button.setAttribute('href', '#ft-open');
             }
           });
+          
+          // Also ensure any other Reserveer buttons have the correct href
+          document.querySelectorAll('a[href="#ft-open"]').forEach(button => {
+            button.style.cursor = 'pointer';
+            button.style.display = 'block';
+          });
         }
         
         // Call this function when clones are created
@@ -596,6 +633,67 @@
         
         // Also call it on initial load
         document.addEventListener('DOMContentLoaded', ensureAllReserveerButtonsWork);
+        
+        // Call it periodically to ensure all buttons work (for dynamically added content)
+        setInterval(ensureAllReserveerButtonsWork, 2000);
+        
+        // Also call it when the page becomes visible (in case of tab switching)
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) {
+            ensureAllReserveerButtonsWork();
+          }
+        });
+        
+        // Expose a test function to manually test the modal
+        window.testModal = function() {
+          console.log('🧪 Testing modal functionality...');
+          const widget = document.getElementById('ft-widget');
+          if (widget) {
+            console.log('✅ Widget found, testing opening...');
+            widget.style.right = '0px';
+            if (window.FT) {
+              console.log('✅ FT SDK available, testing...');
+              if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
+                window.FT.widgetService.showToolbar();
+              }
+              if (window.FT.open) {
+                window.FT.open();
+              }
+            } else {
+              console.log('⚠️ FT SDK not available');
+            }
+          } else {
+            console.log('❌ Widget not found');
+          }
+        };
+        
+        // Expose a function to check all Reserveer buttons
+        window.checkReserveerButtons = function() {
+          console.log('🔍 Checking all Reserveer buttons...');
+          const visionCtaButtons = document.querySelectorAll('.vision-cta');
+          const bookPopupButtons = document.querySelectorAll('.book-popup__cta');
+          const ftOpenButtons = document.querySelectorAll('a[href="#ft-open"]');
+          
+          console.log(`Found ${visionCtaButtons.length} vision-cta buttons`);
+          console.log(`Found ${bookPopupButtons.length} book-popup__cta buttons`);
+          console.log(`Found ${ftOpenButtons.length} #ft-open buttons`);
+          
+          visionCtaButtons.forEach((btn, i) => {
+            console.log(`Vision CTA ${i}:`, {
+              href: btn.getAttribute('href'),
+              text: btn.textContent,
+              classes: Array.from(btn.classList)
+            });
+          });
+          
+          bookPopupButtons.forEach((btn, i) => {
+            console.log(`Book Popup CTA ${i}:`, {
+              href: btn.getAttribute('href'),
+              text: btn.textContent,
+              classes: Array.from(btn.classList)
+            });
+          });
+        };
         
       })();
     </script>

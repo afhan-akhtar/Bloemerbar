@@ -298,7 +298,7 @@
           </h1>
          
           <a 
-      class="book-popup__cta vision_btn" href="#ft-open" aria-label="Reserveer">Reserveer</a>
+      class="book-popup__cta vision_btn" href="#" onclick="event.preventDefault(); event.stopPropagation(); const currentMainWrapper = this.closest('.main-wrapper'); if (currentMainWrapper) { window.currentPopupWrapper = currentMainWrapper; } if (typeof window.openBookPopup === 'function') { window.openBookPopup(); } else { const bookPopup = document.getElementById('book-now-popup'); if (bookPopup) { bookPopup.setAttribute('aria-hidden', 'false'); bookPopup.removeAttribute('inert'); if (currentMainWrapper) { const computedStyle = getComputedStyle(currentMainWrapper); bookPopup.style.setProperty('--primary-color', computedStyle.getPropertyValue('--primary-color')); bookPopup.style.setProperty('--secondary-color', computedStyle.getPropertyValue('--secondary-color')); bookPopup.style.setProperty('--background-color', computedStyle.getPropertyValue('--background-color')); bookPopup.style.setProperty('--text-black', computedStyle.getPropertyValue('--text-black')); bookPopup.style.setProperty('--text-white', computedStyle.getPropertyValue('--text-white')); bookPopup.style.setProperty('--complementary-color', computedStyle.getPropertyValue('--complementary-color')); bookPopup.style.setProperty('--hover-color', computedStyle.getPropertyValue('--hover-color')); bookPopup.style.setProperty('--accent-color', computedStyle.getPropertyValue('--accent-color')); } } }" aria-label="Reserveer">Reserveer</a>
         </div>
       </section>
 
@@ -714,8 +714,49 @@
         
         // Function to ensure all Reserveer buttons work (called when clones are created)
         function ensureAllReserveerButtonsWork() {
-          // Find all book-popup__cta buttons and ensure they have #ft-open href
-          document.querySelectorAll('.book-popup__cta').forEach(button => {
+          // Find all book-popup__cta buttons in vision sections and ensure they open the book popup
+          document.querySelectorAll('.about.vision .book-popup__cta').forEach(button => {
+            // Remove any existing onclick handlers to prevent duplicates
+            button.removeAttribute('onclick');
+            
+            // Set up the onclick handler to open the book popup
+            button.setAttribute('href', '#');
+            button.onclick = function(event) {
+              event.preventDefault();
+              event.stopPropagation();
+              
+              const currentMainWrapper = this.closest('.main-wrapper');
+              if (currentMainWrapper) {
+                window.currentPopupWrapper = currentMainWrapper;
+              }
+              
+              if (typeof window.openBookPopup === 'function') {
+                window.openBookPopup();
+              } else {
+                // Fallback: manually open the popup
+                const bookPopup = document.getElementById('book-now-popup');
+                if (bookPopup) {
+                  bookPopup.setAttribute('aria-hidden', 'false');
+                  bookPopup.removeAttribute('inert');
+                  // Apply theme colors from current wrapper
+                  if (currentMainWrapper) {
+                    const computedStyle = getComputedStyle(currentMainWrapper);
+                    bookPopup.style.setProperty('--primary-color', computedStyle.getPropertyValue('--primary-color'));
+                    bookPopup.style.setProperty('--secondary-color', computedStyle.getPropertyValue('--secondary-color'));
+                    bookPopup.style.setProperty('--background-color', computedStyle.getPropertyValue('--background-color'));
+                    bookPopup.style.setProperty('--text-black', computedStyle.getPropertyValue('--text-black'));
+                    bookPopup.style.setProperty('--text-white', computedStyle.getPropertyValue('--text-white'));
+                    bookPopup.style.setProperty('--complementary-color', computedStyle.getPropertyValue('--complementary-color'));
+                    bookPopup.style.setProperty('--hover-color', computedStyle.getPropertyValue('--hover-color'));
+                    bookPopup.style.setProperty('--accent-color', computedStyle.getPropertyValue('--accent-color'));
+                  }
+                }
+              }
+            };
+          });
+          
+          // Find all other book-popup__cta buttons (not in vision sections) and ensure they have #ft-open href
+          document.querySelectorAll('.book-popup__cta:not(.about.vision .book-popup__cta)').forEach(button => {
             if (!button.getAttribute('href') || button.getAttribute('href') !== '#ft-open') {
               button.setAttribute('href', '#ft-open');
             }

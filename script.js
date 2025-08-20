@@ -1093,7 +1093,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const recruitmentText = (recruitmentBlock && recruitmentBlock.title) || 
                                  (global.recruitment && global.recruitment.title) || 
                                  (global.cornerLinks && global.cornerLinks.recruitment) ||
-                                 'Recruitment';
+                                 'Rekrutering';
           
           recruitmentLink.textContent = recruitmentText;
         }

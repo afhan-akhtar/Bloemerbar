@@ -182,6 +182,16 @@ body {
     min-height: 70px;
     padding-top: 15px;
   }
+  .logo-svg{
+    width: 200px !important;
+    height: 200px !important;
+   
+  }
+  .pinned.single-card .sticky-header {
+    position: absolute;
+    top: -2rem !important;
+    left: 31% !important;
+  }
 }
 
 /* Top nav links */
@@ -1983,7 +1993,7 @@ section {
 
 .pinned.single-card .sticky-header {
   position: absolute;
-  top: -5rem;
+  top: -12rem;
   left: 20%;
   transform: translateX(-50%);
   z-index: 10;

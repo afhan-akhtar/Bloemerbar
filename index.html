@@ -485,15 +485,54 @@
               break;
             }
             
-            // Check for SVG Reserveer buttons
+            // Check for SVG Reserveer buttons - these should open the book popup, not the widget
             if (targetElement.classList && (
                 targetElement.classList.contains('scroll-reserveer-svg') ||
                 targetElement.closest('.scroll-reserveer-svg') ||
                 targetElement.classList.contains('static-reserveer-svg') ||
                 targetElement.closest('.static-reserveer-svg')
             )) {
-              shouldOpenWidget = true;
-              break;
+              // Open the book popup instead of the widget
+              e.preventDefault();
+              e.stopPropagation();
+              
+              console.log('🎯 Lottie Reserveer button clicked! Opening book popup...', {
+                target: targetElement,
+                classList: targetElement.classList ? Array.from(targetElement.classList) : [],
+                textContent: targetElement.textContent
+              });
+              
+              // Store reference to the current wrapper for theme consistency
+              const currentMainWrapper = targetElement.closest('.main-wrapper');
+              if (currentMainWrapper) {
+                window.currentPopupWrapper = currentMainWrapper;
+              }
+              
+              // Open the book popup
+              if (typeof window.openBookPopup === 'function') {
+                window.openBookPopup();
+              } else {
+                // Fallback: manually open the popup
+                const bookPopup = document.getElementById('book-now-popup');
+                if (bookPopup) {
+                  bookPopup.setAttribute('aria-hidden', 'false');
+                  bookPopup.removeAttribute('inert');
+                  // Apply theme colors from current wrapper
+                  if (currentMainWrapper) {
+                    const computedStyle = getComputedStyle(currentMainWrapper);
+                    bookPopup.style.setProperty('--primary-color', computedStyle.getPropertyValue('--primary-color'));
+                    bookPopup.style.setProperty('--secondary-color', computedStyle.getPropertyValue('--secondary-color'));
+                    bookPopup.style.setProperty('--background-color', computedStyle.getPropertyValue('--background-color'));
+                    bookPopup.style.setProperty('--text-black', computedStyle.getPropertyValue('--text-black'));
+                    bookPopup.style.setProperty('--text-white', computedStyle.getPropertyValue('--text-white'));
+                    bookPopup.style.setProperty('--complementary-color', computedStyle.getPropertyValue('--complementary-color'));
+                    bookPopup.style.setProperty('--hover-color', computedStyle.getPropertyValue('--hover-color'));
+                    bookPopup.style.setProperty('--accent-color', computedStyle.getPropertyValue('--accent-color'));
+                  }
+                }
+              }
+              
+              return; // Exit early, don't proceed to widget opening
             }
             
             // Check for floating SVG Reserveer buttons
@@ -539,6 +578,28 @@
               classList: targetElement.classList ? Array.from(targetElement.classList) : [],
               textContent: targetElement.textContent
             });
+            
+            // Close the book popup if it's open
+            const bookPopup = document.getElementById('book-now-popup');
+            if (bookPopup && bookPopup.getAttribute('aria-hidden') === 'false') {
+              console.log('🔒 Closing book popup before opening widget...');
+              // Call the closeBookPopup function if it exists
+              if (typeof window.closeBookPopup === 'function') {
+                window.closeBookPopup();
+              } else {
+                // Fallback: manually close the popup
+                bookPopup.setAttribute('aria-hidden', 'true');
+                bookPopup.setAttribute('inert', '');
+                // Remove inert from background elements
+                const bodyChildren = Array.from(document.body.children);
+                bodyChildren.forEach((child) => {
+                  if (child !== bookPopup && child.hasAttribute('inert')) {
+                    child.removeAttribute('inert');
+                    child.removeAttribute('aria-hidden');
+                  }
+                });
+              }
+            }
             
             // Update URL hash to #ft-open
             // window.location.hash = '#ft-open';

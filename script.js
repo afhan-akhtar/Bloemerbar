@@ -1846,6 +1846,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Expose openBookPopup globally for onclick handlers
   window.openBookPopup = openBookPopup;
+  // Expose closeBookPopup globally for onclick handlers
+  window.closeBookPopup = closeBookPopup;
 
   try {
     if (bookPopup) {

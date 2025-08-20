@@ -298,10 +298,10 @@ document.addEventListener("DOMContentLoaded", () => {
           },
           {
             "id": 89,
-            "secondaryColor": "#F6A9CB",
+            "secondaryColor": "#8EA3D2",
             "whiteColor": "#ffffff",
             "blackColor": "#000000",
-            "primaryColor": "#131313",
+            "primaryColor": "#6A85C3",
             "backgroundColor": "#ffffff",
             "complementary": "#425F93"
           },
@@ -356,8 +356,42 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(`✅ Found ${validThemes.length} valid themes from Strapi API`);
         console.log('Theme IDs:', validThemes.map(t => t.id).join(', '));
         
-        // Use validated themes and add hardcoded teal theme
-        const finalThemeColors = [...validThemes];
+        // Count how many black themes were replaced
+        const blackThemeCount = validThemes.filter(theme => 
+          theme.primaryColor === '#131313' || 
+          (theme.primaryColor && theme.primaryColor.toLowerCase() === '#131313') ||
+          (theme.primaryColor && theme.primaryColor.match(/^#([0-9a-f]{2}){3}$/i) && 
+           parseInt(theme.primaryColor.slice(1, 3), 16) < 50 && 
+           parseInt(theme.primaryColor.slice(3, 5), 16) < 50 && 
+           parseInt(theme.primaryColor.slice(5, 7), 16) < 50)
+        ).length;
+        
+        if (blackThemeCount > 0) {
+          console.log(`🎨 Will replace ${blackThemeCount} black theme(s) from Strapi with hardcoded blue theme`);
+        }
+        
+        // Replace any black theme from Strapi with hardcoded blue theme
+        const processedThemes = validThemes.map(theme => {
+          // Check if this is a black theme (primary color is #131313 or very dark)
+          if (theme.primaryColor === '#131313' || 
+              (theme.primaryColor && theme.primaryColor.toLowerCase() === '#131313') ||
+              // Also check for very dark colors that might be considered black
+              (theme.primaryColor && theme.primaryColor.match(/^#([0-9a-f]{2}){3}$/i) && 
+               parseInt(theme.primaryColor.slice(1, 3), 16) < 50 && 
+               parseInt(theme.primaryColor.slice(3, 5), 16) < 50 && 
+               parseInt(theme.primaryColor.slice(5, 7), 16) < 50)) {
+            console.log(`🔄 Replacing black theme (ID: ${theme.id}, color: ${theme.primaryColor}) with hardcoded blue theme`);
+            return {
+              ...theme,
+              primaryColor: '#6A85C3',
+              secondaryColor: '#8EA3D2'
+            };
+          }
+          return theme;
+        });
+        
+        // Use processed themes and add hardcoded teal theme
+        const finalThemeColors = [...processedThemes];
         
         // Add hardcoded teal theme if not already present
         const tealThemeExists = finalThemeColors.some(theme => theme.id === 92);
@@ -466,10 +500,11 @@ document.addEventListener("DOMContentLoaded", () => {
               else if (rgb.r > 200 && rgb.g > 100 && rgb.g < 200 && rgb.b < 100) {
                 gradient = `linear-gradient(135deg, #FFF8F0 0%, ${primaryColor} 50%, #FFB366 100%)`;
               }
-              // Black theme detection (low values)
-              else if (rgb.r < 50 && rgb.g < 50 && rgb.b < 50) {
-                gradient = `linear-gradient(135deg, #2a2a2a 0%, ${primaryColor} 50%, #4a4a4a 100%)`;
-              }
+                        // Blue theme detection (medium red, medium green, high blue) - including #6A85C3
+          else if ((rgb.r > 100 && rgb.r < 150 && rgb.g > 120 && rgb.g < 170 && rgb.b > 180) || 
+                   (rgb.r === 106 && rgb.g === 133 && rgb.b === 195)) {
+            gradient = `linear-gradient(135deg, #E8F0FF 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
+          }
               // Purple theme detection (medium red, low green, high blue) - including #736fa1
               else if ((rgb.r > 100 && rgb.r < 200 && rgb.g < 100 && rgb.b > 100) || 
                        (rgb.r === 115 && rgb.g === 111 && rgb.b === 161)) {
@@ -513,17 +548,17 @@ document.addEventListener("DOMContentLoaded", () => {
           const mainWrappers = document.querySelectorAll('.main-wrapper');
           console.log(`🎨 Applying themes to ${mainWrappers.length} main wrapper(s) using ${finalThemeColors.length} available themes`);
           
-          // Define the specific theme sequence: Pink → Black → Orange → Purple → Teal → repeat
-          const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5]; // 0=pink, 2=black, 4=orange, 1=purple, 5=teal
+          // Define the specific theme sequence: Pink → Blue → Orange → Purple → Teal → repeat
+          const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5]; // 0=pink, 2=blue, 4=orange, 1=purple, 5=teal
           
           mainWrappers.forEach((wrapper, index) => {
             let themeIndex;
             
             // Handle backward scrolling logic
             if (index < 0) {
-              // Backward scrolling: -1=teal, -2=purple, -3=orange, -4=black, -5=pink, then repeat
+              // Backward scrolling: -1=teal, -2=purple, -3=orange, -4=blue, -5=pink, then repeat
               const backwardIndex = Math.abs(index) % 5;
-              const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, black, pink
+              const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, blue, pink
               themeIndex = backwardSequence[backwardIndex];
             } else {
               // Forward scrolling: normal sequence
@@ -600,9 +635,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log('🎨 Dynamic theme system initialized from Strapi API!');
         console.log(`Available themes: ${finalThemeColors.map(t => `ID ${t.id} (${t.primaryColor})`).join(', ')}`);
-        console.log('Theme sequence: Pink → Black → Orange → Purple → Teal → repeat');
-        console.log('🎨 Backward scrolling: -1=Teal, -2=Purple, -3=Orange, -4=Black, -5=Pink → repeat');
-        console.log('🎨 Forward scrolling: 0=Pink, 1=Black, 2=Orange, 3=Purple, 4=Teal → repeat');
+        console.log('Theme sequence: Pink → Blue → Orange → Purple → Teal → repeat');
+        console.log('🎨 Backward scrolling: -1=Teal, -2=Purple, -3=Orange, -4=Blue, -5=Pink → repeat');
+        console.log('🎨 Forward scrolling: 0=Pink, 1=Blue, 2=Orange, 3=Purple, 4=Teal → repeat');
         
         // Expose function for manual theme reapplication (for testing)
         window.reapplyThemes = () => {
@@ -629,12 +664,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Expose function to show theme pattern
         window.showThemePattern = (count = 20) => {
           console.log(`🎨 Theme pattern for ${count} wrappers (forward and backward sequences):`);
-          console.log('📈 Forward: 0=Pink, 1=Black, 2=Orange, 3=Purple, 4=Teal → repeat');
-          console.log('📉 Backward: -1=Teal, -2=Purple, -3=Orange, -4=Black, -5=Pink → repeat');
+          console.log('📈 Forward: 0=Pink, 1=Blue, 2=Orange, 3=Purple, 4=Teal → repeat');
+          console.log('📉 Backward: -1=Teal, -2=Purple, -3=Orange, -4=Blue, -5=Pink → repeat');
           
-          const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5]; // 0=pink, 2=black, 4=orange, 1=purple, 5=teal
-          const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, black, pink
-          const themeNames = ['Pink', 'Black', 'Orange', 'Purple', 'Teal'];
+          const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5]; // 0=pink, 2=blue, 4=orange, 1=purple, 5=teal
+          const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, blue, pink
+          const themeNames = ['Pink', 'Blue', 'Orange', 'Purple', 'Teal'];
           
           for (let i = 0; i < count; i++) {
             let themeIndex;
@@ -662,8 +697,8 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log('🧪 Testing current theme sequence (forward and backward)...');
           const mainWrappers = document.querySelectorAll('.main-wrapper');
           const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5];
-          const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, black, pink
-          const themeNames = ['Pink', 'Black', 'Orange', 'Purple', 'Teal'];
+          const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, blue, pink
+          const themeNames = ['Pink', 'Blue', 'Orange', 'Purple', 'Teal'];
           
           mainWrappers.forEach((wrapper, index) => {
             let themeIndex;
@@ -691,8 +726,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // Expose function to test backward scrolling specifically
         window.testBackwardScrolling = () => {
           console.log('🔄 Testing backward scrolling sequence...');
-          const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, black, pink
-          const themeNames = ['Teal', 'Purple', 'Orange', 'Black', 'Pink'];
+          const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, blue, pink
+          const themeNames = ['Teal', 'Purple', 'Orange', 'Blue', 'Pink'];
           
           for (let i = -1; i >= -8; i--) {
             const backwardIndex = Math.abs(i) % 5;
@@ -2246,9 +2281,10 @@ document.addEventListener("DOMContentLoaded", () => {
           else if (rgb.r > 200 && rgb.g > 100 && rgb.g < 200 && rgb.b < 100) {
             return `linear-gradient(135deg, #FFF8F0 0%, ${primaryColor} 50%, #FFB366 100%)`;
           }
-          // Black theme detection (low values)
-          else if (rgb.r < 50 && rgb.g < 50 && rgb.b < 50) {
-            return `linear-gradient(135deg, #2a2a2a 0%, ${primaryColor} 50%, #4a4a4a 100%)`;
+          // Blue theme detection (medium red, medium green, high blue) - including #6A85C3
+          else if ((rgb.r > 100 && rgb.r < 150 && rgb.g > 120 && rgb.g < 170 && rgb.b > 180) || 
+                   (rgb.r === 106 && rgb.g === 133 && rgb.b === 195)) {
+            return `linear-gradient(135deg, #E8F0FF 0%, ${primaryColor} 50%, ${secondaryColor} 100%)`;
           }
           // Purple theme detection (medium red, low green, high blue) - including #736fa1
           else if ((rgb.r > 100 && rgb.r < 200 && rgb.g < 100 && rgb.b > 100) || 

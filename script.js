@@ -3358,7 +3358,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
       "color:#0d47a1",
       "will-change:transform,opacity",
     ].join(";");
-    label.textContent = "Loading..."; // Set initial loading text
+    label.textContent = "Laden..."; // Set initial loading text
 
     frame.appendChild(label);
     overlay.appendChild(frame);

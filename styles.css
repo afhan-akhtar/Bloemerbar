@@ -2271,6 +2271,10 @@ body {
         font-size: clamp(7px, 2vw, 3px);
         padding: 0.3rem 0.6rem;
     }
+    .bg-title {
+     
+      left: 50% !important;
+    }
 }
 
 /* Background text with enhanced blur effects */

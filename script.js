@@ -2786,6 +2786,46 @@ lenis.on("scroll", ({ scroll, limit }) => {
       label.textContent = city.name; // Show city name when API data is available
     }
 
+    // Function to show "NO Data available" message
+    function showNoDataMessage() {
+      overlay.style.backgroundColor = "#f44336"; // Red background for error state
+      label.style.color = "#ffffff";
+      
+      // Use the same responsive font sizing as "Loading..." text
+      const screenWidth = window.innerWidth;
+      if (screenWidth <= 480) {
+        // Small mobile devices
+        label.textContent = "No Data";
+        label.style.fontSize = "clamp(20px, 7vw, 60px)";
+      } else if (screenWidth <= 600) {
+        // Mobile devices
+        label.textContent = "No Data";
+        label.style.fontSize = "clamp(24px, 8vw, 80px)";
+      } else if (screenWidth <= 768) {
+        // Large mobile devices
+        label.textContent = "No Data";
+        label.style.fontSize = "clamp(28px, 9vw, 100px)";
+      } else if (screenWidth <= 900) {
+        // Tablet devices
+        label.textContent = "No Data Available";
+        label.style.fontSize = "clamp(32px, 10vw, 120px)";
+      } else if (screenWidth <= 1200) {
+        // Small laptop devices
+        label.textContent = "NO Data available";
+        label.style.fontSize = "clamp(45px, 20vw, 180px)";
+      } else {
+        // Large desktop devices
+        label.textContent = "NO Data available";
+        label.style.fontSize = "clamp(40px, 20vw, 200px)";
+      }
+      
+      // Stop any ongoing animations
+      if (timerId) {
+        clearTimeout(timerId);
+        timerId = null;
+      }
+    }
+
     // Animate ticker once over the city list (no repeats)
     let timerId = null;
     const stepMs = 200;
@@ -2841,8 +2881,8 @@ lenis.on("scroll", ({ scroll, limit }) => {
       // Set a maximum wait time to prevent infinite loading
       const maxWaitTimer = setTimeout(() => {
         if (!citiesLoaded) {
-          console.warn("Cities loading timeout - hiding overlay");
-          if (typeof hideOverlay === "function") hideOverlay();
+          console.warn("Cities loading timeout - showing NO Data available message");
+          showNoDataMessage();
         }
       }, maxWaitTime);
       
@@ -2894,17 +2934,17 @@ lenis.on("scroll", ({ scroll, limit }) => {
           applyCity(cityData[0]);
           timerId = setTimeout(step, stepMs);
         } else {
-          // No cities loaded, hide overlay
-          if (typeof hideOverlay === "function") hideOverlay();
+          // No cities loaded, show NO Data available message
+          console.warn("No cities data available - showing NO Data available message");
+          showNoDataMessage();
         }
       } catch (error) {
         console.error("Error loading cities:", error);
         // Clear the max wait timer on error
         clearTimeout(maxWaitTimer);
-        // On error, hide overlay after a delay
-        setTimeout(() => {
-          if (typeof hideOverlay === "function") hideOverlay();
-        }, 1000);
+        // On error, show NO Data available message
+        console.warn("API error occurred - showing NO Data available message");
+        showNoDataMessage();
       }
     })();
 

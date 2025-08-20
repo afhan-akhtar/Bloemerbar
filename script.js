@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // === Strapi dynamic content integration ===
   (async function integrateStrapi() {
-    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://192.168.1.10:1337";
+    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://splendid-positivity-a98d9f1acb.strapiapp.com";
     const endpoints = {
       sett: "/api/sett",
       global: "/api/global",
@@ -2867,7 +2867,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
     }
     // Fetch cities from sett API first; start ticker only when data is ready (with a short timeout fallback)
     (async () => {
-      const base = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://192.168.1.10:1337";
+      const base = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://splendid-positivity-a98d9f1acb.strapiapp.com";
       const timeoutMs = 3000; // Increased timeout for better reliability
       const maxWaitTime = 5000; // Maximum time to wait for cities before hiding overlay
       
@@ -3944,7 +3944,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Load audio from Strapi API (example)
   async function loadAudioFromStrapi() {
     try {
-      const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "http://192.168.1.10:1337";
+      const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://splendid-positivity-a98d9f1acb.strapiapp.com";
       const response = await fetch(`${STRAPI_BASE}/api/audio?populate=*`);
       const data = await response.json();
       

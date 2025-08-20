@@ -2416,13 +2416,16 @@ document.addEventListener("DOMContentLoaded", () => {
       // Add a small delay to prevent initial jumping
       onRefresh: () => {
         // Ensure cards are in correct initial positions after refresh
+        const isMobile = window.innerWidth <= 768;
+        const animationDuration = isMobile ? 0.15 : 0.3;
+        
         cards.forEach((card, index) => {
           if (index === 0) {
             gsap.to(card, { 
               rotation: endRotations[0],
               top: "50%",
               opacity: 1,
-              duration: 0.3,
+              duration: animationDuration,
               ease: "power2.out"
             });
           } else {
@@ -2430,7 +2433,7 @@ document.addEventListener("DOMContentLoaded", () => {
               rotation: startRotations[index],
               top: "115%",
               opacity: 1,
-              duration: 0.3,
+              duration: animationDuration,
               ease: "power2.out"
             });
           }
@@ -2515,10 +2518,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const colorIndex = Math.min(cardIndex, cardCount - 1);
         
         // Update progress bar to show current card progress
+        const isMobile = window.innerWidth <= 768;
+        const animationDuration = isMobile ? 0.15 : 0.3;
+        
         gsap.to(progressBar, { 
           height: `${progressHeight}%`, 
           backgroundColor: progressColors[colorIndex], 
-          duration: 0.3, 
+          duration: animationDuration, 
           ease: "power2.out" 
         });
         
@@ -2554,7 +2560,7 @@ document.addEventListener("DOMContentLoaded", () => {
               top: `${newTop}%`, 
               rotation: newRotation,
               opacity: 1,
-              duration: 0.3,
+              duration: animationDuration,
               ease: "power2.out"
             });
           } else {
@@ -2574,7 +2580,7 @@ document.addEventListener("DOMContentLoaded", () => {
               top: "50%", 
               rotation: endRotations[index],
               opacity: 1,
-              duration: 0.3,
+              duration: animationDuration,
               ease: "power2.out"
             });
           });

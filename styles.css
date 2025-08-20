@@ -1529,7 +1529,7 @@ section {
 
 .card {
   position: absolute;
-  top: 65%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(0deg);
   width: min(92vw, 1100px);
@@ -1599,6 +1599,23 @@ section {
 .card-title h1 span {
   color: transparent;
   -webkit-text-stroke: 1.25px #fff;
+}
+
+.card-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover .card-image {
+  opacity: 1;
 }
 
 .progress-bar {
@@ -1911,6 +1928,54 @@ section {
   background-repeat: no-repeat !important;
   /* Smooth transition for theme changes */
   transition: background 0.8s ease, border-color 0.8s ease;
+}
+
+/* Single card pinned section - behaves like normal section with smooth scrolling */
+.pinned.single-card {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2rem 0;
+  /* Remove any fixed positioning that could cause scroll issues */
+  position: relative !important;
+  overflow: visible !important;
+  /* Ensure smooth scrolling */
+  transform: none !important;
+  will-change: auto !important;
+}
+
+.pinned.single-card .card {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 8rem auto 0 auto; /* Add top margin to position below sticky header */
+  max-width: 90%;
+  width: 100%;
+  max-width: 600px;
+  /* Ensure proper centering */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pinned.single-card .sticky-header {
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  /* Ensure header is visible and properly styled */
+  text-align: center;
+  width: 100%;
+  max-width: 90%;
+}
+
+.pinned.single-card .progress-bar,
+.pinned.single-card .indices {
+  display: none !important;
 }
 
 /* Additional safety class to prevent white background with dynamic theme */

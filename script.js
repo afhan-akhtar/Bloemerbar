@@ -805,6 +805,121 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         };
         
+        // Expose function to test single card pinned section logic
+        window.testSingleCardPinned = () => {
+          console.log('🎯 Testing single card pinned section logic...');
+          const pinnedSections = document.querySelectorAll('.pinned');
+          
+          pinnedSections.forEach((section, index) => {
+            const cards = section.querySelectorAll('.card');
+            const visibleCards = Array.from(cards).filter(card => card.style.visibility !== 'hidden');
+            const hasSingleCardClass = section.classList.contains('single-card');
+            
+            console.log(`Pinned section ${index}:`);
+            console.log(`  - Total cards: ${cards.length}`);
+            console.log(`  - Visible cards: ${visibleCards.length}`);
+            console.log(`  - Has single-card class: ${hasSingleCardClass}`);
+            console.log(`  - Should have single-card class: ${visibleCards.length <= 1}`);
+            
+            if (visibleCards.length <= 1 && !hasSingleCardClass) {
+              console.log(`  ❌ ERROR: Should have single-card class but doesn't!`);
+            } else if (visibleCards.length > 1 && hasSingleCardClass) {
+              console.log(`  ❌ ERROR: Should NOT have single-card class but does!`);
+            } else {
+              console.log(`  ✅ Correct class assignment`);
+            }
+          });
+        };
+        
+        // Expose function to manually trigger single card mode for testing
+        window.forceSingleCardMode = () => {
+          console.log('🎯 Forcing single card mode for testing...');
+          const pinnedSections = document.querySelectorAll('.pinned');
+          
+          pinnedSections.forEach((section) => {
+            const cards = section.querySelectorAll('.card');
+            
+            // Hide all cards except the first one
+            cards.forEach((card, index) => {
+              if (index === 0) {
+                card.style.visibility = '';
+              } else {
+                card.style.visibility = 'hidden';
+              }
+            });
+            
+            // Add single-card class
+            section.classList.add('single-card');
+            
+            // Re-initialize the pinned section
+            if (typeof initPinnedSection === 'function') {
+              // Remove from initialized set to allow re-initialization
+              if (initializedPinned && initializedPinned.has(section)) {
+                initializedPinned.delete(section);
+              }
+              initPinnedSection(section);
+            }
+          });
+          
+          console.log('✅ Single card mode forced - check pinned sections');
+        };
+        
+        // Expose function to reset to normal mode for testing
+        window.resetToNormalMode = () => {
+          console.log('🔄 Resetting to normal mode for testing...');
+          const pinnedSections = document.querySelectorAll('.pinned');
+          
+          pinnedSections.forEach((section) => {
+            const cards = section.querySelectorAll('.card');
+            
+            // Show all cards
+            cards.forEach((card) => {
+              card.style.visibility = '';
+            });
+            
+            // Remove single-card class
+            section.classList.remove('single-card');
+            
+            // Re-initialize the pinned section
+            if (typeof initPinnedSection === 'function') {
+              // Remove from initialized set to allow re-initialization
+              if (initializedPinned && initializedPinned.has(section)) {
+                initializedPinned.delete(section);
+              }
+              initPinnedSection(section);
+            }
+          });
+          
+          console.log('✅ Normal mode restored - check pinned sections');
+        };
+        
+        // Expose function to test scroll behavior
+        window.testScrollBehavior = () => {
+          console.log('🎯 Testing scroll behavior...');
+          const pinnedSections = document.querySelectorAll('.pinned');
+          
+          pinnedSections.forEach((section, index) => {
+            const hasSingleCardClass = section.classList.contains('single-card');
+            const scrollTriggers = ScrollTrigger.getAll().filter(trigger => 
+              trigger.vars.trigger === section
+            );
+            
+            console.log(`Pinned section ${index}:`);
+            console.log(`  - Has single-card class: ${hasSingleCardClass}`);
+            console.log(`  - Number of ScrollTriggers: ${scrollTriggers.length}`);
+            
+            scrollTriggers.forEach((trigger, triggerIndex) => {
+              console.log(`  - ScrollTrigger ${triggerIndex}: pin=${trigger.vars.pin}, start=${trigger.vars.start}, end=${trigger.vars.end}`);
+            });
+            
+            if (hasSingleCardClass && scrollTriggers.some(t => t.vars.pin)) {
+              console.log(`  ❌ ERROR: Single card section has pin ScrollTrigger!`);
+            } else if (hasSingleCardClass) {
+              console.log(`  ✅ Single card section has no pin ScrollTrigger`);
+            }
+          });
+        };
+        
         // Apply theme colors to bg-title elements after theme changes
         const applyThemeToBgTitle = () => {
           document.querySelectorAll('.bg-title').forEach((bgTitle) => {
@@ -1243,20 +1358,58 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           
           const cards = pinnedRoot.querySelectorAll('.card');
+          let visibleCardCount = 0;
+          
           cards.forEach((card, idx) => {
             const g = gallery[idx];
             const title = g && g.title ? g.title : '';
             const images = title ? (titleToImages[title] || []) : [];
             const titleEl = card.querySelector('.card-title h1');
             if (titleEl) titleEl.textContent = title || '';
-            const img = card.querySelector('img');
+            
+            // Handle card image - use card-image class specifically
+            const img = card.querySelector('.card-image');
             if (img && images[0]) {
               img.src = images[0];
               img.alt = title || img.alt || '';
+              img.style.display = 'block';
+            } else if (img) {
+              img.style.display = 'none';
             }
+            
             card.dataset.images = JSON.stringify(images);
-            card.style.visibility = title ? '' : 'hidden';
+            
+            if (title) {
+              card.style.visibility = '';
+              visibleCardCount++;
+            } else {
+              card.style.visibility = 'hidden';
+            }
           });
+          
+          // Hide remaining cards if there's only one visible card
+          if (visibleCardCount <= 1) {
+            cards.forEach((card, idx) => {
+              const g = gallery[idx];
+              const title = g && g.title ? g.title : '';
+              if (!title) {
+                card.style.display = 'none';
+              }
+            });
+          } else {
+            // Show all cards if there are multiple visible cards
+            cards.forEach((card) => {
+              card.style.display = '';
+            });
+          }
+          
+          // Check if there's only one visible card and add single-card class
+          if (visibleCardCount <= 1) {
+            pinnedRoot.classList.add('single-card');
+            console.log(`🎯 Pinned section rendered with ${visibleCardCount} visible card(s) - added single-card class`);
+          } else {
+            pinnedRoot.classList.remove('single-card');
+          }
         }
 
         // Render into all current pinned sections (original and any existing clones)
@@ -1623,6 +1776,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             
             const cards = section.querySelectorAll('.card');
+            let visibleCardCount = 0;
+            
             cards.forEach((card, idx) => {
               const g = gallery[idx];
               const title = g && g.title ? g.title : '';
@@ -1635,8 +1790,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 img.alt = title || img.alt || '';
               }
               card.dataset.images = JSON.stringify(images);
-              card.style.visibility = title ? '' : 'hidden';
+              
+              if (title) {
+                card.style.visibility = '';
+                visibleCardCount++;
+              } else {
+                card.style.visibility = 'hidden';
+              }
             });
+            
+            // Check if there's only one visible card and add single-card class
+            if (visibleCardCount <= 1) {
+              section.classList.add('single-card');
+              console.log(`🎯 Pinned section re-rendered with ${visibleCardCount} visible card(s) - added single-card class`);
+            } else {
+              section.classList.remove('single-card');
+            }
           });
         } catch (_) {}
       };
@@ -2056,7 +2225,7 @@ document.addEventListener("DOMContentLoaded", () => {
     start: "top top",
     end: () => `+=${totalStickyHeight}`,
     pin: true,
-    pinSpacing: true,
+    pinSpacing: false,
   });
 
   // scale img-1
@@ -2471,6 +2640,127 @@ document.addEventListener("DOMContentLoaded", () => {
     const indicesContainer = pinnedSection.querySelector(".indices");
     const indices = pinnedSection.querySelectorAll(".index");
     const cardCount = cards.length;
+    
+    // Check if there's only one card - if so, treat as normal section with smooth scrolling
+    const visibleCards = Array.from(cards).filter(card => card.style.visibility !== 'hidden' && card.style.display !== 'none');
+    const visibleCardCount = visibleCards.length;
+    
+    if (visibleCardCount <= 1) {
+      // Simple logic for single card: treat as normal section with smooth scrolling
+      console.log(`🎯 Pinned section has only ${visibleCardCount} visible card(s) - treating as normal section with smooth scrolling`);
+      
+      // Add single-card class to pinned section for CSS styling
+      pinnedSection.classList.add('single-card');
+      
+      // IMPORTANT: Remove any existing pin ScrollTrigger for single card sections
+      // This prevents the section from being pinned and causing scroll to get stuck
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.vars.trigger === pinnedSection && trigger.vars.pin) {
+          console.log('🎯 Removing pin ScrollTrigger for single card section');
+          trigger.kill();
+        }
+      });
+      
+      // Ensure the section doesn't have any GSAP transforms that could interfere with scrolling
+      gsap.set(pinnedSection, {
+        clearProps: "all"
+      });
+      
+      // Set all cards to normal positioning (no complex animations)
+      cards.forEach((card, index) => {
+        // Only show cards that have content (title)
+        const titleEl = card.querySelector('.card-title h1');
+        const hasTitle = titleEl && titleEl.textContent.trim();
+        
+        if (hasTitle) {
+          card.style.display = '';
+          gsap.set(card, { 
+            top: "auto", 
+            rotation: 0,
+            opacity: 1,
+            transform: "none"
+          });
+          
+          // Ensure image is visible for single card
+          const img = card.querySelector('.card-image');
+          if (img) {
+            img.style.display = 'block';
+            img.style.opacity = '0.8';
+          }
+        } else {
+          card.style.display = 'none';
+        }
+        
+        // Add hover effects for the single card
+        card.addEventListener("mouseenter", () => {
+          gsap.to(card, { 
+            scale: 1.05, 
+            duration: 0.3, 
+            ease: "power2.out" 
+          });
+          // Increase image opacity on hover
+          if (img) {
+            gsap.to(img, { 
+              opacity: 1, 
+              duration: 0.3, 
+              ease: "power2.out" 
+            });
+          }
+        });
+        
+        card.addEventListener("mouseleave", () => {
+          gsap.to(card, { 
+            scale: 1, 
+            duration: 0.3, 
+            ease: "power2.out" 
+          });
+          // Reset image opacity on hover out
+          if (img) {
+            gsap.to(img, { 
+              opacity: 0.8, 
+              duration: 0.3, 
+              ease: "power2.out" 
+            });
+          }
+        });
+      });
+      
+      // Hide progress bar and indices for single card
+      if (progressBarContainer) progressBarContainer.style.display = 'none';
+      if (indicesContainer) indicesContainer.style.display = 'none';
+      
+      // Add simple scroll-triggered animations for the single card (NO PINNING)
+      ScrollTrigger.create({
+        trigger: pinnedSection,
+        start: "top 80%",
+        end: "bottom 20%",
+        onEnter: () => {
+          gsap.fromTo(cards, 
+            { opacity: 0, y: 50 },
+            { opacity: 1, y: 0, duration: 0.8, ease: "power2.out", stagger: 0.1 }
+          );
+        },
+        onLeave: () => {
+          // Only show booking popup on original main wrapper (not on cloned copies)
+          const mainWrapper = pinnedSection.closest('.main-wrapper');
+          if (mainWrapper) {
+            const allMainWrappers = document.querySelectorAll('.main-wrapper');
+            const currentIndex = Array.from(allMainWrappers).indexOf(mainWrapper);
+            
+            // Show popup only on original (index 0) - not on any cloned copies
+            if (currentIndex === 0) {
+              // Store reference to the current wrapper for popup theming
+              window.currentPopupWrapper = mainWrapper;
+              openBookPopup();
+            }
+          }
+        }
+      });
+      
+      return; // Exit early - no complex pinned animation needed
+    }
+    
+    // Original complex pinned animation logic for multiple cards
     const pinnedHeight = window.innerHeight * (cardCount + 1);
     // Ensure smooth scrolling by adding a small buffer
     const scrollBuffer = 100;
@@ -2523,26 +2813,24 @@ document.addEventListener("DOMContentLoaded", () => {
         return cardImageSequences[index] || [];
       }
       let sequence = getDynamicSequence();
-      const img = document.createElement("img");
-      img.src = sequence[0] || "";
-      img.alt = `Card ${index + 1}`;
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.objectFit = "cover";
-      img.style.position = "absolute";
-      img.style.top = 0;
-      img.style.left = 0;
-      img.style.zIndex = 0;
-      // Ensure smooth image loading to prevent glitches
-      img.loading = "eager";
-      img.decoding = "async";
-      img.onload = () => {
-        // Ensure image is properly loaded before showing
-        img.style.opacity = "1";
-      };
-      img.style.opacity = "0";
-      img.style.transition = "opacity 0.3s ease";
-      card.appendChild(img);
+      
+      // Use existing .card-image element instead of creating new one
+      const img = card.querySelector('.card-image');
+      if (img) {
+        img.src = sequence[0] || "";
+        img.alt = `Card ${index + 1}`;
+        img.style.display = 'block';
+        img.style.opacity = "0.8";
+        img.style.transition = "opacity 0.3s ease";
+        
+        // Ensure smooth image loading to prevent glitches
+        img.loading = "eager";
+        img.decoding = "async";
+        img.onload = () => {
+          // Ensure image is properly loaded before showing
+          img.style.opacity = "0.8";
+        };
+      }
 
       let frameIndex = 0;
       let intervalId = null;
@@ -2593,7 +2881,7 @@ document.addEventListener("DOMContentLoaded", () => {
       start: "top top",
       end: `+=${pinnedHeight + scrollBuffer}`,
       pin: true,
-      pinSpacing: true,
+      pinSpacing: false,
       anticipatePin: 1,
       // Add a small delay to prevent initial jumping
       onRefresh: () => {

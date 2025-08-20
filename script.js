@@ -975,7 +975,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const eventsBlock = findBlock(blocks, "block.event-list");
         const services = (servicesBlock && servicesBlock.Services) || [];
         const events = (eventsBlock && eventsBlock.bingoEvents) || [];
-        const items = [services[0], services[1], services[2], events[0]];
+        
+        // Find specific services by title
+        const birthdayService = services.find(service => service.title === "BIRTHDAY");
+        const companyDrinksService = services.find(service => service.title === "COMPANY DRINKS");
+        const rentLocationService = services.find(service => service.title === "RENT A LOCATION");
+        const liveMusicService = services.find(service => service.title === "LIVE MUSIC");
+        
+        // Create items array with specific services in order
+        const items = [
+          birthdayService,
+          companyDrinksService,
+          rentLocationService,
+          liveMusicService
+        ];
         document.querySelectorAll('.quad-cta').forEach((section) => {
           const barLinks = section.querySelectorAll('.quad-cta__bar .quad-cta__link');
           const gridImgs = section.querySelectorAll('.quad-cta__grid .quad-cta__item img');
@@ -1391,7 +1404,20 @@ document.addEventListener("DOMContentLoaded", () => {
           const eventsBlock = findBlock(blocks, "block.event-list");
           const services = (servicesBlock && servicesBlock.Services) || [];
           const events = (eventsBlock && eventsBlock.bingoEvents) || [];
-          const items = [services[0], services[1], services[2], events[0]];
+          
+          // Find specific services by title
+          const birthdayService = services.find(service => service.title === "BIRTHDAY");
+          const companyDrinksService = services.find(service => service.title === "COMPANY DRINKS");
+          const rentLocationService = services.find(service => service.title === "RENT A LOCATION");
+          const liveMusicService = services.find(service => service.title === "LIVE MUSIC");
+          
+          // Create items array with specific services in order
+          const items = [
+            birthdayService,
+            companyDrinksService,
+            rentLocationService,
+            liveMusicService
+          ];
           document.querySelectorAll('.quad-cta').forEach((section) => {
             const barLinks = section.querySelectorAll('.quad-cta__bar .quad-cta__link');
             const gridImgs = section.querySelectorAll('.quad-cta__grid .quad-cta__item img');

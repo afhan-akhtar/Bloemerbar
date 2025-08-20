@@ -2531,6 +2531,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
       "color:#0d47a1",
       "will-change:transform,opacity",
     ].join(";");
+    label.textContent = "Loading..."; // Set initial loading text
 
     frame.appendChild(label);
     overlay.appendChild(frame);
@@ -2550,7 +2551,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
     function applyCity(city) {
       overlay.style.backgroundColor = city.bg;
       label.style.color = city.fg;
-      label.textContent = city.name;
+      label.textContent = city.name; // Show city name when API data is available
     }
 
     // Animate ticker once over the city list (no repeats)
@@ -2645,8 +2646,11 @@ lenis.on("scroll", ({ scroll, limit }) => {
         return;
       }
 
-      applyCity(cityData[0]);
-      timerId = setTimeout(step, stepMs);
+      // Show first city after a brief delay to make "Loading..." visible
+      setTimeout(() => {
+        applyCity(cityData[0]);
+        timerId = setTimeout(step, stepMs);
+      }, 800);
     })();
 
     // Hide overlay when ticker finishes

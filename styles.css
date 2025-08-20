@@ -320,8 +320,8 @@ body {
 }
 
 .bb-top .small-link .link-arrow {
-  width: 14px;
-  height: 22px;
+  width: 8px;
+  height: 20px;
   color: currentColor;
 }
 
@@ -380,8 +380,8 @@ body {
   }
   
   .bb-top .nav-hero .small-link .link-arrow {
-    width: 16px;
-    height: 24px;
+    width: 8px;
+    height: 20px;
   }
 }
 
@@ -394,7 +394,7 @@ body {
   }
   
   .bb-top .small-link .link-arrow {
-    width: 14px;
+    width: 8px;
     height: 20px;
   }
 }
@@ -405,6 +405,10 @@ body {
     font-size: 14px;
     min-height: 36px;
     max-width: 260px;
+  }
+  .arrow-icon{
+    width: 12px !important;
+    height: 12px !important;
   }
 }
 

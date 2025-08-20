@@ -1707,7 +1707,23 @@ section {
 
 .book-popup__content { padding: 28px 22px 8px 22px; }
 .book-popup__title { font-size: 24px; color: var(--primary-color); text-transform: uppercase; }
-.book-popup__desc { color: var(--primary-color); text-transform: none; margin-top: 8px; }
+.book-popup__desc { 
+  color: var(--primary-color); 
+  text-transform: none; 
+  margin-top: 8px; 
+  font-weight: 500;
+  transition: color 0.6s ease, text-shadow 0.6s ease, font-weight 0.6s ease;
+  position: relative;
+  /* Enhanced styling for dynamic theming */
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+}
+
+/* Enhanced hover effect for book-popup__desc */
+.book-popup__desc:hover {
+  transform: scale(1.02);
+  transition: transform 0.3s ease;
+}
 
 .book-popup__cta {
   display: block;

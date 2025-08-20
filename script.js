@@ -465,6 +465,47 @@ document.addEventListener("DOMContentLoaded", () => {
           if (mainWrapper._updateLottieColors) {
             mainWrapper._updateLottieColors();
           }
+          
+          // Update book popup colors if it's open and matches this wrapper's theme
+          const bookPopup = document.getElementById('book-now-popup');
+          if (bookPopup && bookPopup.getAttribute('aria-hidden') === 'false') {
+            const currentPopupWrapper = window.currentPopupWrapper;
+            if (currentPopupWrapper === mainWrapper) {
+              // Update the popup colors to match the new theme
+              const descElement = bookPopup.querySelector('.book-popup__desc');
+              if (descElement) {
+                // Determine if this is a pink or blue theme based on the primary color
+                const isPinkTheme = theme.primaryColor.includes('F05') || theme.primaryColor.includes('F15') || 
+                                   theme.primaryColor.includes('F7A') || theme.primaryColor.includes('F6A') ||
+                                   theme.primaryColor.includes('F05A70') || theme.primaryColor.includes('F05970') ||
+                                   theme.primaryColor.includes('F15E36') || theme.primaryColor.includes('F7AACC') ||
+                                   theme.primaryColor.includes('F6A9CB');
+                
+                const isBlueTheme = theme.primaryColor.includes('6A8') || theme.primaryColor.includes('8EA') ||
+                                   theme.primaryColor.includes('425') || theme.primaryColor.includes('736') ||
+                                   theme.primaryColor.includes('6A85C3') || theme.primaryColor.includes('8EA3D2') ||
+                                   theme.primaryColor.includes('425F93') || theme.primaryColor.includes('736fa1');
+                
+                // Apply dynamic color based on theme type
+                if (isPinkTheme) {
+                  // Pink theme - use a vibrant pink color
+                  descElement.style.color = '#F05A70'; // Bright pink
+                  descElement.style.fontWeight = '600';
+                  descElement.style.textShadow = '0 1px 2px rgba(240, 90, 112, 0.3)';
+                } else if (isBlueTheme) {
+                  // Blue theme - use a vibrant blue color
+                  descElement.style.color = '#6A85C3'; // Bright blue
+                  descElement.style.fontWeight = '600';
+                  descElement.style.textShadow = '0 1px 2px rgba(106, 133, 195, 0.3)';
+                } else {
+                  // Other themes (teal, etc.) - use the primary color with enhanced styling
+                  descElement.style.color = theme.primaryColor;
+                  descElement.style.fontWeight = '600';
+                  descElement.style.textShadow = `0 1px 2px ${theme.primaryColor}30`;
+                }
+              }
+            }
+          }
         };
 
         // Function to update pinned section backgrounds with theme-specific gradients
@@ -577,6 +618,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Apply themes initially
         applyThemesToAllMainWrappers();
+        
+        // Update book popup colors if it's open
+        if (typeof window.updateBookPopupColors === 'function') {
+          setTimeout(() => {
+            window.updateBookPopupColors();
+          }, 100);
+        }
 
         // Set up observer to apply themes to new clones when they're created
         const themeObserver = new MutationObserver((mutations) => {
@@ -596,6 +644,12 @@ document.addEventListener("DOMContentLoaded", () => {
           if (needsThemeUpdate) {
             // Small delay to ensure DOM is fully updated
             setTimeout(applyThemesToAllMainWrappers, 50);
+            // Update book popup colors after theme changes
+            setTimeout(() => {
+              if (typeof window.updateBookPopupColors === 'function') {
+                window.updateBookPopupColors();
+              }
+            }, 150);
           }
         });
         themeObserver.observe(document.body, { childList: true, subtree: true });
@@ -605,6 +659,12 @@ document.addEventListener("DOMContentLoaded", () => {
           setTimeout(applyThemesToAllMainWrappers, 100);
           // Also update pinned sections for new clones
           setTimeout(updatePinnedSectionBackgrounds, 150);
+          // Update book popup colors after new clones are created
+          setTimeout(() => {
+            if (typeof window.updateBookPopupColors === 'function') {
+              window.updateBookPopupColors();
+            }
+          }, 200);
         });
 
         // Set default theme for the entire document (fallback)
@@ -644,6 +704,12 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log('🔄 Manually reapplying themes...');
           applyThemesToAllMainWrappers();
           updatePinnedSectionBackgrounds();
+          // Update book popup colors after manual theme reapplication
+          setTimeout(() => {
+            if (typeof window.updateBookPopupColors === 'function') {
+              window.updateBookPopupColors();
+            }
+          }, 100);
         };
         
         // Expose function to get current theme info
@@ -1827,6 +1893,45 @@ document.addEventListener("DOMContentLoaded", () => {
       bookPopup.style.setProperty('--complementary-color', computedStyle.getPropertyValue('--complementary-color'));
       bookPopup.style.setProperty('--hover-color', computedStyle.getPropertyValue('--hover-color'));
       bookPopup.style.setProperty('--accent-color', computedStyle.getPropertyValue('--accent-color'));
+      
+      // Enhanced dynamic color theming for book-popup__desc
+      const primaryColor = computedStyle.getPropertyValue('--primary-color').trim();
+      const descElement = bookPopup.querySelector('.book-popup__desc');
+      
+      if (descElement) {
+        // Determine if this is a pink or blue theme based on the primary color
+        const isPinkTheme = primaryColor.includes('F05') || primaryColor.includes('F15') || 
+                           primaryColor.includes('F7A') || primaryColor.includes('F6A') ||
+                           primaryColor.includes('F05A70') || primaryColor.includes('F05970') ||
+                           primaryColor.includes('F15E36') || primaryColor.includes('F7AACC') ||
+                           primaryColor.includes('F6A9CB');
+        
+        const isBlueTheme = primaryColor.includes('6A8') || primaryColor.includes('8EA') ||
+                           primaryColor.includes('425') || primaryColor.includes('736') ||
+                           primaryColor.includes('6A85C3') || primaryColor.includes('8EA3D2') ||
+                           primaryColor.includes('425F93') || primaryColor.includes('736fa1');
+        
+        // Apply dynamic color based on theme type
+        if (isPinkTheme) {
+          // Pink theme - use a vibrant pink color
+          descElement.style.color = '#F05A70'; // Bright pink
+          descElement.style.fontWeight = '600';
+          descElement.style.textShadow = '0 1px 2px rgba(240, 90, 112, 0.3)';
+        } else if (isBlueTheme) {
+          // Blue theme - use a vibrant blue color
+          descElement.style.color = '#6A85C3'; // Bright blue
+          descElement.style.fontWeight = '600';
+          descElement.style.textShadow = '0 1px 2px rgba(106, 133, 195, 0.3)';
+        } else {
+          // Other themes (teal, etc.) - use the primary color with enhanced styling
+          descElement.style.color = primaryColor;
+          descElement.style.fontWeight = '600';
+          descElement.style.textShadow = `0 1px 2px ${primaryColor}30`;
+        }
+        
+        // Add smooth transition for color changes
+        descElement.style.transition = 'color 0.6s ease, text-shadow 0.6s ease, font-weight 0.6s ease';
+      }
     }
     
     previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -1874,6 +1979,83 @@ document.addEventListener("DOMContentLoaded", () => {
   window.openBookPopup = openBookPopup;
   // Expose closeBookPopup globally for onclick handlers
   window.closeBookPopup = closeBookPopup;
+  
+  // Function to update book popup colors based on current theme
+  function updateBookPopupColors() {
+    const bookPopup = document.getElementById('book-now-popup');
+    if (!bookPopup || bookPopup.getAttribute('aria-hidden') === 'true') return;
+    
+    const currentMainWrapper = window.currentPopupWrapper || document.querySelector('.main-wrapper:has(.pinned)');
+    if (!currentMainWrapper) return;
+    
+    const computedStyle = getComputedStyle(currentMainWrapper);
+    const primaryColor = computedStyle.getPropertyValue('--primary-color').trim();
+    const descElement = bookPopup.querySelector('.book-popup__desc');
+    
+    if (descElement) {
+      // Determine if this is a pink or blue theme based on the primary color
+      const isPinkTheme = primaryColor.includes('F05') || primaryColor.includes('F15') || 
+                         primaryColor.includes('F7A') || primaryColor.includes('F6A') ||
+                         primaryColor.includes('F05A70') || primaryColor.includes('F05970') ||
+                         primaryColor.includes('F15E36') || primaryColor.includes('F7AACC') ||
+                         primaryColor.includes('F6A9CB');
+      
+      const isBlueTheme = primaryColor.includes('6A8') || primaryColor.includes('8EA') ||
+                         primaryColor.includes('425') || primaryColor.includes('736') ||
+                         primaryColor.includes('6A85C3') || primaryColor.includes('8EA3D2') ||
+                         primaryColor.includes('425F93') || primaryColor.includes('736fa1');
+      
+      // Apply dynamic color based on theme type
+      if (isPinkTheme) {
+        // Pink theme - use a vibrant pink color
+        descElement.style.color = '#F05A70'; // Bright pink
+        descElement.style.fontWeight = '600';
+        descElement.style.textShadow = '0 1px 2px rgba(240, 90, 112, 0.3)';
+      } else if (isBlueTheme) {
+        // Blue theme - use a vibrant blue color
+        descElement.style.color = '#6A85C3'; // Bright blue
+        descElement.style.fontWeight = '600';
+        descElement.style.textShadow = '0 1px 2px rgba(106, 133, 195, 0.3)';
+      } else {
+        // Other themes (teal, etc.) - use the primary color with enhanced styling
+        descElement.style.color = primaryColor;
+        descElement.style.fontWeight = '600';
+        descElement.style.textShadow = `0 1px 2px ${primaryColor}30`;
+      }
+    }
+  }
+  
+  // Expose updateBookPopupColors globally
+  window.updateBookPopupColors = updateBookPopupColors;
+  
+  // Test function to verify dynamic color theming
+  window.testBookPopupColors = function() {
+    console.log('🧪 Testing book popup dynamic color theming...');
+    
+    // Test opening the popup
+    if (typeof window.openBookPopup === 'function') {
+      window.openBookPopup();
+      console.log('✅ Book popup opened');
+      
+      // Test color update after a short delay
+      setTimeout(() => {
+        const descElement = document.querySelector('.book-popup__desc');
+        if (descElement) {
+          console.log('🎨 Current book-popup__desc color:', descElement.style.color);
+          console.log('🎨 Current book-popup__desc font-weight:', descElement.style.fontWeight);
+          console.log('🎨 Current book-popup__desc text-shadow:', descElement.style.textShadow);
+        }
+        
+        // Test manual color update
+        if (typeof window.updateBookPopupColors === 'function') {
+          window.updateBookPopupColors();
+          console.log('✅ Manual color update applied');
+        }
+      }, 500);
+    } else {
+      console.log('❌ openBookPopup function not found');
+    }
+  };
 
   try {
     if (bookPopup) {

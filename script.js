@@ -1883,7 +1883,27 @@ document.addEventListener("DOMContentLoaded", () => {
       // Initialize enhanced bg-title effects for new clones
       setTimeout(initializeEnhancedBgTitle, 50);
       
-
+      // Initialize pinned sections for new clones with image hover functionality
+      setTimeout(() => {
+        // Find all pinned sections in the newly created clones
+        const allMainWrappers = document.querySelectorAll('.main-wrapper');
+        console.log(`🎯 Found ${allMainWrappers.length} main wrappers (including original)`);
+        
+        allMainWrappers.forEach((wrapper, wrapperIndex) => {
+          // Skip the original wrapper (index 0) as it's already initialized
+          if (wrapperIndex > 0) {
+            const pinnedSections = wrapper.querySelectorAll('.pinned');
+            console.log(`🎯 Initializing ${pinnedSections.length} pinned sections in clone ${wrapperIndex}`);
+            
+            pinnedSections.forEach((pinnedSection, sectionIndex) => {
+              // Initialize each pinned section in the cloned wrappers
+              initPinnedSection(pinnedSection);
+              console.log(`🎯 Initialized pinned section ${sectionIndex + 1} in clone ${wrapperIndex}`);
+            });
+          }
+        });
+        console.log('🎯 Completed initialization of pinned sections with image hover functionality for all cloned copies');
+      }, 100);
       
       console.log(`🔄 Created ${copies} clones for infinite experience`);
     } catch (e) {
@@ -2562,12 +2582,16 @@ document.addEventListener("DOMContentLoaded", () => {
   } catch (e) {}
 
   // ===== Gallery (Pinned Cards) ===== ensure clones get identical animations
-  try {
-    const initializedPinned = new WeakSet();
+  const initializedPinned = new WeakSet();
 
-    function initPinnedSection(pinnedSection) {
+      function initPinnedSection(pinnedSection) {
       if (!pinnedSection || initializedPinned.has(pinnedSection)) return;
       initializedPinned.add(pinnedSection);
+      
+      // Debug logging to track initialization
+      const mainWrapper = pinnedSection.closest('.main-wrapper');
+      const wrapperIndex = mainWrapper ? Array.from(document.querySelectorAll('.main-wrapper')).indexOf(mainWrapper) : 'unknown';
+      console.log(`🎯 Initializing pinned section in wrapper ${wrapperIndex}`);
       
       // Helper function to get theme-specific gradient
       function getThemeGradient() {
@@ -2666,7 +2690,29 @@ document.addEventListener("DOMContentLoaded", () => {
         clearProps: "all"
       });
       
-      // Set all cards to normal positioning (no complex animations)
+      // Define rotation values for single card (same as multi-card)
+      const endRotations = [-10, -5, 10, 5];
+      
+      // Define image sequences for single card (same as multi-card)
+      const cardImageSequences = [
+        // Fallback image sequences for when data-images is not available
+        ["https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop"],
+        ["https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop"],
+        ["https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop"],
+        ["https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop"],
+      ];
+
+      // Preload images for smooth hover animation
+      try {
+        cardImageSequences.flat().forEach((src) => {
+          const im = new Image();
+          im.decoding = "async";
+          im.loading = "eager";
+          im.src = src;
+        });
+      } catch (e) {}
+
+      // Set all cards to proper GSAP positioning with tilts (like original)
       cards.forEach((card, index) => {
         // Only show cards that have content (title)
         const titleEl = card.querySelector('.card-title h1');
@@ -2674,11 +2720,15 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (hasTitle) {
           card.style.display = '';
+          // Use proper GSAP transforms like original implementation
           gsap.set(card, { 
-            top: "auto", 
-            rotation: 0,
+            top: "50%",
+            left: "50%",
+            xPercent: -50,
+            yPercent: -50,
+            rotation: endRotations[index] || -10, // Use the same rotation as original
             opacity: 1,
-            transform: "none"
+            scale: 1
           });
           
           // Ensure image is visible for single card
@@ -2691,37 +2741,117 @@ document.addEventListener("DOMContentLoaded", () => {
           card.style.display = 'none';
         }
         
-        // Add hover effects for the single card
+        // Add hover effects for the single card with image sequence animation
+        function getDynamicSequence() {
+          try {
+            if (card.dataset && card.dataset.images) {
+              const arr = JSON.parse(card.dataset.images);
+              if (Array.isArray(arr) && arr.length) {
+                console.log(`🎯 Using data-images for card ${index + 1} in wrapper ${wrapperIndex}:`, arr);
+                return arr;
+              }
+            }
+          } catch (_) {}
+          // Use fallback images if no data-images attribute is available
+          const fallbackSequence = cardImageSequences[index] || ["https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop"];
+          console.log(`🎯 Using fallback images for card ${index + 1} in wrapper ${wrapperIndex}:`, fallbackSequence);
+          return fallbackSequence;
+        }
+        let sequence = getDynamicSequence();
+        
+        // Use existing .card-image element instead of creating new one
+        const cardImg = card.querySelector('.card-image');
+        if (cardImg) {
+          cardImg.src = sequence[0] || "";
+          cardImg.alt = `Card ${index + 1}`;
+          cardImg.style.display = 'block';
+          cardImg.style.opacity = "0.8";
+          cardImg.style.transition = "opacity 0.3s ease";
+          
+          // Ensure smooth image loading to prevent glitches
+          cardImg.loading = "eager";
+          cardImg.decoding = "async";
+          cardImg.onload = () => {
+            // Ensure image is properly loaded before showing
+            cardImg.style.opacity = "0.8";
+          };
+        }
+
+        let frameIndex = 0;
+        let intervalId = null;
+        const frameMs = 300;
+        function startHoverAnimation() {
+          const currentImg = card.querySelector('.card-image');
+          if (!currentImg) {
+            console.log(`❌ No image element found for card ${index + 1} in wrapper ${wrapperIndex}`);
+            return;
+          }
+          
+          sequence = getDynamicSequence();
+          if (!sequence || sequence.length <= 1) {
+            console.log(`❌ No valid sequence for card ${index + 1} in wrapper ${wrapperIndex}, sequence:`, sequence);
+            return;
+          }
+          
+          if (intervalId) {
+            console.log(`⚠️ Animation already running for card ${index + 1} in wrapper ${wrapperIndex}`);
+            return;
+          }
+          
+          console.log(`🎯 Starting image sequence for card ${index + 1} in wrapper ${wrapperIndex}, sequence length: ${sequence.length}`);
+          
+          intervalId = setInterval(() => {
+            frameIndex = (frameIndex + 1) % sequence.length;
+            currentImg.src = sequence[frameIndex];
+            console.log(`🎯 Image ${frameIndex + 1}/${sequence.length} loaded for card ${index + 1} in wrapper ${wrapperIndex}: ${sequence[frameIndex]}`);
+          }, frameMs);
+        }
+        function stopHoverAnimation() {
+          const currentImg = card.querySelector('.card-image');
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
+          frameIndex = 0;
+          if (sequence[0] && currentImg) {
+            currentImg.src = sequence[0];
+            console.log(`🎯 Stopped image sequence for card ${index + 1} in wrapper ${wrapperIndex}`);
+          }
+        }
+        
         card.addEventListener("mouseenter", () => {
+          console.log(`🎯 Card hover started in wrapper ${wrapperIndex}, card ${index + 1}`);
           gsap.to(card, { 
-            scale: 1.05, 
+            scale: 1.05,
+            rotation: (endRotations[index] || -10) + 2, // Slight additional tilt on hover
             duration: 0.3, 
             ease: "power2.out" 
           });
-          // Increase image opacity on hover
-          if (img) {
-            gsap.to(img, { 
-              opacity: 1, 
-              duration: 0.3, 
-              ease: "power2.out" 
-            });
-          }
+          // Start image sequence animation
+          startHoverAnimation();
         });
         
         card.addEventListener("mouseleave", () => {
           gsap.to(card, { 
-            scale: 1, 
+            scale: 1,
+            rotation: endRotations[index] || -10, // Return to original tilt
             duration: 0.3, 
             ease: "power2.out" 
           });
-          // Reset image opacity on hover out
-          if (img) {
-            gsap.to(img, { 
-              opacity: 0.8, 
-              duration: 0.3, 
-              ease: "power2.out" 
-            });
-          }
+          // Stop image sequence animation
+          stopHoverAnimation();
+        });
+        
+        // Add touch support for mobile devices
+        card.addEventListener("touchstart", startHoverAnimation, { passive: true });
+        card.addEventListener("touchend", stopHoverAnimation);
+        
+        // Log the setup for debugging
+        console.log(`🎯 Card ${index + 1} in wrapper ${wrapperIndex} initialized with:`, {
+          hasImage: !!cardImg,
+          imageSrc: cardImg ? cardImg.src : 'No image',
+          sequenceLength: sequence.length,
+          sequence: sequence
         });
       });
       
@@ -2769,10 +2899,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const endRotations = [-10, -5, 10, 5];
     const progressColors = ["#FFD1DC", "#AEC6CF", "#77DD77", "#C5BBDE"];
     const cardImageSequences = [
-        // ["./assets/pub_1.jpg", "./assets/pub_2.jpg", "./assets/pub_3.jpg", "./assets/pub_4.jpg"],
-        // ["./assets/club_1.jpg", "./assets/club_2.jpg", "./assets/club_3.jpg", "./assets/club_4.jpg"],
-        // ["./assets/terrace_1.jpg", "./assets/terrace_2.jpg", "./assets/terrace_3.jpg", "./assets/terrace_4.jpg"],
-        // ["./assets/interior_1.jpg", "./assets/interrior_2.jpg", "./assets/interior_1.jpg", "./assets/interrior_2.jpg"],
+        // Fallback image sequences for when data-images is not available
+        ["https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop"],
+        ["https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop"],
+        ["https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop"],
+        ["https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop", "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop"],
       ];
 
     try {
@@ -3059,7 +3190,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     }
 
+    // Initialize all pinned sections (including any in clones)
     document.querySelectorAll(".pinned").forEach((el) => initPinnedSection(el));
+    
+    // Make the initialization function globally available for manual reinitialization
+    window.reinitializeAllPinnedSections = initializeAllPinnedSections;
+    
+    // Test function to verify image hover functionality
+    window.testImageHover = function() {
+      console.log('🧪 Testing image hover functionality...');
+      document.querySelectorAll('.card').forEach((card, index) => {
+        const img = card.querySelector('.card-image');
+        const wrapper = card.closest('.main-wrapper');
+        const wrapperIndex = wrapper ? Array.from(document.querySelectorAll('.main-wrapper')).indexOf(wrapper) : 'unknown';
+        
+        console.log(`🧪 Card ${index + 1} in wrapper ${wrapperIndex}:`);
+        console.log(`  - Image element:`, img);
+        console.log(`  - Image src:`, img ? img.src : 'No image');
+        console.log(`  - Image display:`, img ? img.style.display : 'No image');
+        console.log(`  - Image opacity:`, img ? img.style.opacity : 'No image');
+        console.log(`  - Data images:`, card.dataset.images);
+      });
+    };
     
     // Ensure all pinned sections have proper background on page load
     document.querySelectorAll(".pinned").forEach((section) => {
@@ -3077,7 +3229,67 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
     pinnedAnimObserver.observe(document.body, { childList: true, subtree: true });
-  } catch (e) {}
+
+    // Function to initialize all pinned sections (including clones)
+    function initializeAllPinnedSections() {
+      document.querySelectorAll('.pinned').forEach((pinnedSection) => {
+        initPinnedSection(pinnedSection);
+      });
+      console.log('🎯 Initialized all pinned sections with image hover functionality');
+    }
+
+    // Listen for clone creation events to initialize pinned sections in new clones
+    window.addEventListener('clones-created', () => {
+      setTimeout(() => {
+        console.log('🎯 Clone creation detected, initializing pinned sections...');
+        // Initialize pinned sections in newly created clones
+        document.querySelectorAll('.main-wrapper').forEach((wrapper, wrapperIndex) => {
+          // Skip the original wrapper (index 0) as it's already initialized
+          if (wrapperIndex > 0) {
+            const pinnedSections = wrapper.querySelectorAll('.pinned');
+            console.log(`🎯 Found ${pinnedSections.length} pinned sections in clone ${wrapperIndex}`);
+            pinnedSections.forEach((pinnedSection, sectionIndex) => {
+              console.log(`🎯 Initializing pinned section ${sectionIndex + 1} in clone ${wrapperIndex}`);
+              initPinnedSection(pinnedSection);
+            });
+          }
+        });
+        console.log('🎯 Completed initialization of pinned sections with image hover functionality for all cloned copies');
+        
+        // Test the functionality after initialization
+        setTimeout(() => {
+          console.log('🧪 Testing image hover functionality after clone initialization...');
+          window.testImageHover();
+        }, 500);
+      }, 100);
+    });
+
+    // Also listen for any DOM changes that might add new pinned sections
+    const pinnedObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            // Check if the added node is a pinned section
+            if (node.classList && node.classList.contains('pinned')) {
+              initPinnedSection(node);
+            }
+            // Check if the added node contains pinned sections
+            const pinnedSections = node.querySelectorAll && node.querySelectorAll('.pinned');
+            if (pinnedSections) {
+              pinnedSections.forEach((pinnedSection) => {
+                initPinnedSection(pinnedSection);
+              });
+            }
+          }
+        });
+      });
+    });
+
+    // Observe the entire document for new pinned sections
+    pinnedObserver.observe(document.body, { 
+      childList: true, 
+      subtree: true 
+    });
 
   // --- Fixed Infinite Loop ---
 // --- Fixed Infinite Loop with Lenis-native detection ---

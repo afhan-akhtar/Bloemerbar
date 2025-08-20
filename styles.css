@@ -1549,6 +1549,9 @@ section {
               rotation 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   /* Ensure proper stacking order */
   z-index: 1;
+  /* Theme-aware styling */
+  border-color: var(--secondary-color, #222);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
 }
 
 #card-1,
@@ -1573,10 +1576,10 @@ section {
   font-size: clamp(14px, 2.4vw, 24px);
 }
 
-#card-1 .card-phase { background-color: #ffd1dc; }
-#card-2 .card-phase { background-color: #aec6cf; }
-#card-3 .card-phase { background-color: var(--secondary-color); }
-#card-4 .card-phase { background-color: #c5bbde; }
+#card-1 .card-phase { background-color: var(--secondary-color, #ffd1dc); }
+#card-2 .card-phase { background-color: var(--complementary-color, #aec6cf); }
+#card-3 .card-phase { background-color: var(--primary-color, #77dd77); }
+#card-4 .card-phase { background-color: var(--secondary-color, #c5bbde); }
 
 .card-title {
   text-align: center;
@@ -1591,10 +1594,10 @@ section {
   line-height: 90%;
 }
 
-#card-1 .card-title { color: #ffd1dc; }
-#card-2 .card-title { color: #aec6cf; }
-#card-3 .card-title { color: #77dd77; }
-#card-4 .card-title { color: #c5bbde; }
+#card-1 .card-title { color: var(--secondary-color, #ffd1dc); }
+#card-2 .card-title { color: var(--complementary-color, #aec6cf); }
+#card-3 .card-title { color: var(--primary-color, #77dd77); }
+#card-4 .card-title { color: var(--secondary-color, #c5bbde); }
 
 .card-title h1 span {
   color: transparent;
@@ -1612,10 +1615,28 @@ section {
   z-index: 0;
   opacity: 0.8;
   transition: opacity 0.3s ease;
+  display: block !important;
+  visibility: visible !important;
 }
 
 .card:hover .card-image {
   opacity: 1;
+  transform: scale(1.02);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Enhanced hover effects for all themes */
+.card:hover {
+  border-color: var(--hover-color, var(--primary-color));
+  box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+  transform: translateY(-5px) scale(1.02);
+}
+
+/* Single card specific hover effects */
+.pinned.single-card .card:hover {
+  border-color: var(--hover-color, var(--primary-color));
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  transform: translateY(-8px) scale(1.05);
 }
 
 .progress-bar {
@@ -1947,14 +1968,13 @@ section {
 }
 
 .pinned.single-card .card {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  transform: none !important;
-  margin: 8rem auto 0 auto; /* Add top margin to position below sticky header */
-  max-width: 90%;
+  position: absolute !important;
+  /* Let GSAP handle positioning and transforms */
+  /* GSAP will set: top: 50%, left: 50%, xPercent: -50, yPercent: -50 */
+  margin: 0;
+  max-width: 95%;
   width: 100%;
-  max-width: 600px;
+  max-width: 900px;
   /* Ensure proper centering */
   display: flex;
   justify-content: center;
@@ -1971,6 +1991,13 @@ section {
   text-align: center;
   width: 100%;
   max-width: 90%;
+}
+
+/* Ensure single card section has proper height for GSAP transforms */
+.pinned.single-card {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .pinned.single-card .progress-bar,

@@ -2751,6 +2751,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
 
     // Cities populated from Strapi (no hardcoded list)
     const cityData = [];
+    let citiesLoaded = false; // Track if cities have been loaded from API
 
     let index = 0;
     function applyCity(city) {
@@ -2801,13 +2802,24 @@ lenis.on("scroll", ({ scroll, limit }) => {
     // Fetch cities from sett API first; start ticker only when data is ready (with a short timeout fallback)
     (async () => {
       const base = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://splendid-positivity-a98d9f1acb.strapiapp.com";
-      const timeoutMs = 1500;
+      const timeoutMs = 3000; // Increased timeout for better reliability
+      const maxWaitTime = 5000; // Maximum time to wait for cities before hiding overlay
+      
       function timeout(promise) {
         return Promise.race([
           promise,
           new Promise((resolve) => setTimeout(() => resolve(null), timeoutMs)),
         ]);
       }
+      
+      // Set a maximum wait time to prevent infinite loading
+      const maxWaitTimer = setTimeout(() => {
+        if (!citiesLoaded) {
+          console.warn("Cities loading timeout - hiding overlay");
+          if (typeof hideOverlay === "function") hideOverlay();
+        }
+      }, maxWaitTime);
+      
       try {
         const result = await timeout((async () => {
           // Fetch cities from sett API instead of global API
@@ -2843,19 +2855,31 @@ lenis.on("scroll", ({ scroll, limit }) => {
           const fg = (c && c.color) || (theme && theme.whiteColor) || "#ffffff";
           cityData.push({ name, bg, fg });
         }
-      } catch (_) {}
-
-      if (!cityData.length) {
-        // No dynamic cities available; skip the ticker
-        if (typeof hideOverlay === "function") hideOverlay();
-        return;
+        
+        // Clear the max wait timer since we got a response
+        clearTimeout(maxWaitTimer);
+        
+        // Mark cities as loaded
+        citiesLoaded = true;
+        
+        // Only proceed if we have city data
+        if (cityData.length > 0) {
+          // Show first city immediately after loading
+          applyCity(cityData[0]);
+          timerId = setTimeout(step, stepMs);
+        } else {
+          // No cities loaded, hide overlay
+          if (typeof hideOverlay === "function") hideOverlay();
+        }
+      } catch (error) {
+        console.error("Error loading cities:", error);
+        // Clear the max wait timer on error
+        clearTimeout(maxWaitTimer);
+        // On error, hide overlay after a delay
+        setTimeout(() => {
+          if (typeof hideOverlay === "function") hideOverlay();
+        }, 1000);
       }
-
-      // Show first city after a brief delay to make "Loading..." visible
-      setTimeout(() => {
-        applyCity(cityData[0]);
-        timerId = setTimeout(step, stepMs);
-      }, 800);
     })();
 
     // Hide overlay when ticker finishes

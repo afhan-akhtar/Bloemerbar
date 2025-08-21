@@ -1796,7 +1796,7 @@ section {
   object-fit: cover;
   object-position: center;
   z-index: 0;
-  opacity: 0.8;
+  opacity: 1;
   transition: opacity 0.3s ease;
   display: block !important;
   visibility: visible !important;

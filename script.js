@@ -821,6 +821,59 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         };
         
+        // Expose function to check Zenchef restaurant ID
+        window.checkZenchefRestaurantId = () => {
+          console.log('🍽️ Checking Zenchef restaurant ID...');
+          const ftWidget = document.getElementById('ft-widget');
+          if (ftWidget) {
+            const currentId = ftWidget.getAttribute('data-restaurant');
+            const apiId = sett.zenchefResturantId;
+            console.log(`  - Current widget ID: ${currentId}`);
+            console.log(`  - API ID: ${apiId}`);
+            console.log(`  - Match: ${currentId === apiId ? '✅' : '❌'}`);
+            console.log(`  - Fallback ID: 67e30298`);
+            console.log(`  - Using fallback: ${!apiId ? 'Yes' : 'No'}`);
+          } else {
+            console.log('  - Widget not found');
+          }
+        };
+        
+        // Expose function to test Zenchef integration
+        window.testZenchefIntegration = () => {
+          console.log('🧪 Testing Zenchef integration...');
+          
+          // Check if widget exists
+          const ftWidget = document.getElementById('ft-widget');
+          if (!ftWidget) {
+            console.log('❌ Zenchef widget not found');
+            return;
+          }
+          
+          // Check current restaurant ID
+          const currentId = ftWidget.getAttribute('data-restaurant');
+          console.log(`✅ Widget found with restaurant ID: ${currentId}`);
+          
+          // Check API data
+          const apiId = sett.zenchefResturantId;
+          console.log(`📡 API restaurant ID: ${apiId || 'Not set'}`);
+          
+          // Test setting a new ID
+          const testId = 'test-restaurant-id';
+          ftWidget.setAttribute('data-restaurant', testId);
+          console.log(`🧪 Set test ID: ${testId}`);
+          
+          // Verify it was set
+          const newId = ftWidget.getAttribute('data-restaurant');
+          console.log(`✅ New ID verified: ${newId}`);
+          
+          // Restore original ID
+          const originalId = apiId || '67e30298';
+          ftWidget.setAttribute('data-restaurant', originalId);
+          console.log(`🔄 Restored original ID: ${originalId}`);
+          
+          console.log('✅ Zenchef integration test completed successfully');
+        };
+        
         // Apply theme colors to bg-title elements after theme changes
         const applyThemeToBgTitle = () => {
           document.querySelectorAll('.bg-title').forEach((bgTitle) => {
@@ -848,6 +901,8 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log('💡 Use window.showThemePattern(20) to see theme pattern for 20 wrappers');
         console.log('💡 Use window.testThemeSequence() to test if current sequence is correct');
         console.log('💡 Use window.testBackwardScrolling() to test backward scrolling sequence');
+        console.log('💡 Use window.checkZenchefRestaurantId() to check Zenchef restaurant ID status');
+        console.log('💡 Use window.testZenchefIntegration() to test Zenchef integration');
       } catch (e) {
         console.error('Error initializing theme system:', e);
       }
@@ -1224,7 +1279,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (_) {}
 
-      // 12) Pinned section title and cards: titles and images from Gallery (API order)
+      // 12) Zenchef restaurant ID from sett API
+      try {
+        const zenchefRestaurantId = sett.zenchefResturantId || "67e30298"; // Fallback to original ID
+        const ftWidget = document.getElementById('ft-widget');
+        if (ftWidget && zenchefRestaurantId) {
+          ftWidget.setAttribute('data-restaurant', zenchefRestaurantId);
+          console.log(`🍽️ Zenchef restaurant ID set from Strapi API: ${zenchefRestaurantId}`);
+        } else if (!ftWidget) {
+          console.warn('⚠️ Zenchef widget not found in DOM');
+        } else if (!zenchefRestaurantId) {
+          console.warn('⚠️ No Zenchef restaurant ID found in Strapi API, using fallback');
+        }
+      } catch (error) {
+        console.error('❌ Error setting Zenchef restaurant ID:', error);
+      }
+
+      // 13) Pinned section title and cards: titles and images from Gallery (API order)
       try {
         const galleryBlock = findBlock(blocks, "block.gallery-section");
         const gallery = (galleryBlock && galleryBlock.Gallery) || [];
@@ -1630,6 +1701,22 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           // Do not override brand-splash from backend
         } catch (_) {}
+
+        try {
+          // Zenchef restaurant ID from sett API (idempotent render)
+          const zenchefRestaurantId = sett.zenchefResturantId || "67e30298"; // Fallback to original ID
+          const ftWidget = document.getElementById('ft-widget');
+          if (ftWidget && zenchefRestaurantId) {
+            ftWidget.setAttribute('data-restaurant', zenchefRestaurantId);
+            console.log(`🍽️ Zenchef restaurant ID re-rendered from Strapi API: ${zenchefRestaurantId}`);
+          } else if (!ftWidget) {
+            console.warn('⚠️ Zenchef widget not found in DOM during re-render');
+          } else if (!zenchefRestaurantId) {
+            console.warn('⚠️ No Zenchef restaurant ID found in Strapi API during re-render, using fallback');
+          }
+        } catch (error) {
+          console.error('❌ Error re-rendering Zenchef restaurant ID:', error);
+        }
 
         try {
           // Pinned section title and cards (idempotent render)

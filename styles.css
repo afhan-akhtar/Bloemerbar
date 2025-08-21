@@ -363,12 +363,7 @@ body {
     
    
   }
-  .pinned.single-card .sticky-header {
-    /* position: absolute; */
-    /* top: -2rem !important; */
-    /* left: 31% !important; */
-    padding: 0px 20px !important;
-  }
+
 }
 
 /* Top nav links */
@@ -1820,12 +1815,7 @@ section {
   transform: translateY(-5px) scale(1.02);
 }
 
-/* Single card specific hover effects */
-.pinned.single-card .card:hover {
-  border-color: var(--hover-color, var(--primary-color));
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-  transform: translateY(-8px) scale(1.05);
-}
+
 
 .progress-bar {
   position: absolute;
@@ -2139,58 +2129,7 @@ section {
   transition: background 0.8s ease, border-color 0.8s ease;
 }
 
-/* Single card pinned section - behaves like normal section with smooth scrolling */
-.pinned.single-card {
-  min-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 2rem 0;
-  /* Remove any fixed positioning that could cause scroll issues */
-  position: relative !important;
-  overflow: visible !important;
-  /* Ensure smooth scrolling */
-  transform: none !important;
-  will-change: auto !important;
-}
 
-.pinned.single-card .card {
-  position: absolute !important;
-  /* Let GSAP handle positioning and transforms */
-  /* GSAP will set: top: 50%, left: 50%, xPercent: -50, yPercent: -50 */
-  margin: 0;
-  max-width: 95%;
-  width: 100%;
-  max-width: 900px;
-  /* Ensure proper centering */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.pinned.single-card .sticky-header {
-  /* position: absolute; */
-  /* top: -12rem; */
-  /* left: 20%; */
-  /* transform: translateX(-50%); */
-  /* z-index: 10; */
-  /* text-align: center; */
-  width: 100%;
-  /* max-width: 90%; */
-}
-
-/* Ensure single card section has proper height for GSAP transforms */
-.pinned.single-card {
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.pinned.single-card .progress-bar,
-.pinned.single-card .indices {
-  display: none !important;
-}
 
 /* Additional safety class to prevent white background with dynamic theme */
 .pinned::before {

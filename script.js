@@ -827,7 +827,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const ftWidget = document.getElementById('ft-widget');
           if (ftWidget) {
             const currentId = ftWidget.getAttribute('data-restaurant');
-            const apiId = sett.zenchefResturantId;
+            const apiId = sett.zenchefRestaurantId;
             console.log(`  - Current widget ID: ${currentId}`);
             console.log(`  - API ID: ${apiId}`);
             console.log(`  - Match: ${currentId === apiId ? '✅' : '❌'}`);
@@ -854,7 +854,7 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log(`✅ Widget found with restaurant ID: ${currentId}`);
           
           // Check API data
-          const apiId = sett.zenchefResturantId;
+          const apiId = sett.zenchefRestaurantId;
           console.log(`📡 API restaurant ID: ${apiId || 'Not set'}`);
           
           // Test setting a new ID
@@ -872,6 +872,31 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log(`🔄 Restored original ID: ${originalId}`);
           
           console.log('✅ Zenchef integration test completed successfully');
+        };
+        
+        // Expose function to manually set restaurant ID for testing
+        window.setRestaurantId = (newId) => {
+          console.log(`🔧 Manually setting restaurant ID to: ${newId}`);
+          const ftWidget = document.getElementById('ft-widget');
+          if (ftWidget) {
+            ftWidget.setAttribute('data-restaurant', newId);
+            console.log(`✅ Restaurant ID set to: ${ftWidget.getAttribute('data-restaurant')}`);
+          } else {
+            console.log('❌ Widget not found');
+          }
+        };
+        
+        // Expose function to get current restaurant ID
+        window.getRestaurantId = () => {
+          const ftWidget = document.getElementById('ft-widget');
+          if (ftWidget) {
+            const currentId = ftWidget.getAttribute('data-restaurant');
+            console.log(`📋 Current restaurant ID: ${currentId}`);
+            return currentId;
+          } else {
+            console.log('❌ Widget not found');
+            return null;
+          }
         };
         
         // Apply theme colors to bg-title elements after theme changes
@@ -1281,7 +1306,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 12) Zenchef restaurant ID from sett API
       try {
-        const zenchefRestaurantId = sett.zenchefResturantId || "67e30298"; // Fallback to original ID
+        const zenchefRestaurantId = sett.zenchefRestaurantId || "67e30298"; // Fallback to original ID
         const ftWidget = document.getElementById('ft-widget');
         if (ftWidget && zenchefRestaurantId) {
           ftWidget.setAttribute('data-restaurant', zenchefRestaurantId);
@@ -1704,7 +1729,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
           // Zenchef restaurant ID from sett API (idempotent render)
-          const zenchefRestaurantId = sett.zenchefResturantId || "67e30298"; // Fallback to original ID
+          const zenchefRestaurantId = sett.zenchefRestaurantId || "67e30298"; // Fallback to original ID
           const ftWidget = document.getElementById('ft-widget');
           if (ftWidget && zenchefRestaurantId) {
             ftWidget.setAttribute('data-restaurant', zenchefRestaurantId);

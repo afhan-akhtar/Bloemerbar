@@ -2931,6 +2931,11 @@ body {
   .preloader-frame {
     padding: clamp(1px, 0.2vw, 1px) clamp(2px, 0.8vw, 4px);
   }
+  .brand-link {
+  
+    gap: 2px !important;
+   
+}
 }
 
 /* Landscape orientation adjustments for mobile */

@@ -492,8 +492,54 @@
             
             // Check for book-popup__cta buttons
             if (targetElement.classList && targetElement.classList.contains('book-popup__cta')) {
-              shouldOpenWidget = true;
-              break;
+              // Check if this is in a vision section - if so, open book popup instead of widget
+              if (targetElement.closest('.about.vision')) {
+                // Open the book popup instead of the widget
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('🎯 Vision section Reserveer button clicked! Opening book popup...', {
+                  target: targetElement,
+                  classList: targetElement.classList ? Array.from(targetElement.classList) : [],
+                  textContent: targetElement.textContent
+                });
+                
+                // Store reference to the current wrapper for theme consistency
+                const currentMainWrapper = targetElement.closest('.main-wrapper');
+                if (currentMainWrapper) {
+                  window.currentPopupWrapper = currentMainWrapper;
+                }
+                
+                // Open the book popup
+                if (typeof window.openBookPopup === 'function') {
+                  window.openBookPopup();
+                } else {
+                  // Fallback: manually open the popup
+                  const bookPopup = document.getElementById('book-now-popup');
+                  if (bookPopup) {
+                    bookPopup.setAttribute('aria-hidden', 'false');
+                    bookPopup.removeAttribute('inert');
+                    // Apply theme colors from current wrapper
+                    if (currentMainWrapper) {
+                      const computedStyle = getComputedStyle(currentMainWrapper);
+                      bookPopup.style.setProperty('--primary-color', computedStyle.getPropertyValue('--primary-color'));
+                      bookPopup.style.setProperty('--secondary-color', computedStyle.getPropertyValue('--secondary-color'));
+                      bookPopup.style.setProperty('--background-color', computedStyle.getPropertyValue('--background-color'));
+                      bookPopup.style.setProperty('--text-black', computedStyle.getPropertyValue('--text-black'));
+                      bookPopup.style.setProperty('--text-white', computedStyle.getPropertyValue('--text-white'));
+                      bookPopup.style.setProperty('--complementary-color', computedStyle.getPropertyValue('--complementary-color'));
+                      bookPopup.style.setProperty('--hover-color', computedStyle.getPropertyValue('--hover-color'));
+                      bookPopup.style.setProperty('--accent-color', computedStyle.getPropertyValue('--accent-color'));
+                    }
+                  }
+                }
+                
+                return; // Exit early, don't proceed to widget opening
+              } else {
+                // Not in vision section, open widget as usual
+                shouldOpenWidget = true;
+                break;
+              }
             }
             
             // Check for SVG Reserveer buttons - these should open the book popup, not the widget
@@ -569,8 +615,56 @@
             
             // Check for any clickable element within a book-popup__cta
             if (targetElement.closest && targetElement.closest('.book-popup__cta')) {
-              shouldOpenWidget = true;
-              break;
+              const bookPopupCta = targetElement.closest('.book-popup__cta');
+              // Check if this is in a vision section - if so, open book popup instead of widget
+              if (bookPopupCta.closest('.about.vision')) {
+                // Open the book popup instead of the widget
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('🎯 Vision section Reserveer button (inner element) clicked! Opening book popup...', {
+                  target: targetElement,
+                  closestButton: bookPopupCta,
+                  classList: bookPopupCta.classList ? Array.from(bookPopupCta.classList) : [],
+                  textContent: bookPopupCta.textContent
+                });
+                
+                // Store reference to the current wrapper for theme consistency
+                const currentMainWrapper = bookPopupCta.closest('.main-wrapper');
+                if (currentMainWrapper) {
+                  window.currentPopupWrapper = currentMainWrapper;
+                }
+                
+                // Open the book popup
+                if (typeof window.openBookPopup === 'function') {
+                  window.openBookPopup();
+                } else {
+                  // Fallback: manually open the popup
+                  const bookPopup = document.getElementById('book-now-popup');
+                  if (bookPopup) {
+                    bookPopup.setAttribute('aria-hidden', 'false');
+                    bookPopup.removeAttribute('inert');
+                    // Apply theme colors from current wrapper
+                    if (currentMainWrapper) {
+                      const computedStyle = getComputedStyle(currentMainWrapper);
+                      bookPopup.style.setProperty('--primary-color', computedStyle.getPropertyValue('--primary-color'));
+                      bookPopup.style.setProperty('--secondary-color', computedStyle.getPropertyValue('--secondary-color'));
+                      bookPopup.style.setProperty('--background-color', computedStyle.getPropertyValue('--background-color'));
+                      bookPopup.style.setProperty('--text-black', computedStyle.getPropertyValue('--text-black'));
+                      bookPopup.style.setProperty('--text-white', computedStyle.getPropertyValue('--text-white'));
+                      bookPopup.style.setProperty('--complementary-color', computedStyle.getPropertyValue('--complementary-color'));
+                      bookPopup.style.setProperty('--hover-color', computedStyle.getPropertyValue('--hover-color'));
+                      bookPopup.style.setProperty('--accent-color', computedStyle.getPropertyValue('--accent-color'));
+                    }
+                  }
+                }
+                
+                return; // Exit early, don't proceed to widget opening
+              } else {
+                // Not in vision section, open widget as usual
+                shouldOpenWidget = true;
+                break;
+              }
             }
             
             targetElement = targetElement.parentElement;
@@ -756,7 +850,11 @@
           });
           
           // Find all other book-popup__cta buttons (not in vision sections) and ensure they have #ft-open href
-          document.querySelectorAll('.book-popup__cta:not(.about.vision .book-popup__cta)').forEach(button => {
+          document.querySelectorAll('.book-popup__cta').forEach(button => {
+            // Skip buttons that are in vision sections (already handled above)
+            if (button.closest('.about.vision')) {
+              return;
+            }
             if (!button.getAttribute('href') || button.getAttribute('href') !== '#ft-open') {
               button.setAttribute('href', '#ft-open');
             }

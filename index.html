@@ -548,6 +548,11 @@
           let targetElement = e.target;
           let shouldOpenWidget = false;
           
+          // Skip social links - don't interfere with them
+          if (targetElement.closest && targetElement.closest('.social-link')) {
+            return; // Allow social links to work normally
+          }
+          
           // Check for various Reserveer button types
           for (let i = 0; i < 5; i++) {
             if (!targetElement) break;

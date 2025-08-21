@@ -121,6 +121,28 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize enhanced bg-title effects
   initializeEnhancedBgTitle();
   
+  // Function to ensure social links are properly initialized
+  function initializeSocialLinks() {
+    document.querySelectorAll('.corner-right.social-icons').forEach((wrap) => {
+      const anchors = Array.from(wrap.querySelectorAll('a.social-link'));
+      anchors.forEach((a) => {
+        // Remove any existing click handlers that might interfere
+        a.onclick = null;
+        a.removeEventListener('click', a._socialClickHandler);
+        
+        // Add a simple click handler to ensure the link works
+        a._socialClickHandler = function(e) {
+          // Allow the default behavior (navigation)
+          return true;
+        };
+        a.addEventListener('click', a._socialClickHandler);
+      });
+    });
+  }
+  
+  // Initialize social links
+  initializeSocialLinks();
+  
   // Close mobile menus on scroll
   let scrollTimeout;
   window.addEventListener('scroll', () => {
@@ -144,6 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const observer = new MutationObserver((mutations) => {
     let shouldReinitialize = false;
     let shouldReinitializeBgTitle = false;
+    let shouldReinitializeSocialLinks = false;
     
     mutations.forEach((mutation) => {
       if (mutation.type === 'childList') {
@@ -155,15 +178,22 @@ document.addEventListener("DOMContentLoaded", () => {
             if (node.matches && node.matches('.bg-title') || node.querySelector && node.querySelector('.bg-title')) {
               shouldReinitializeBgTitle = true;
             }
+            if (node.matches && node.matches('.social-icons') || node.querySelector && node.querySelector('.social-icons')) {
+              shouldReinitializeSocialLinks = true;
+            }
             if (node.querySelectorAll) {
               const toggles = node.querySelectorAll('.mobile-menu-toggle');
               const navs = node.querySelectorAll('.nav-hero');
               const bgTitles = node.querySelectorAll('.bg-title');
+              const socialIcons = node.querySelectorAll('.social-icons');
               if (toggles.length > 0 || navs.length > 0) {
                 shouldReinitialize = true;
               }
               if (bgTitles.length > 0) {
                 shouldReinitializeBgTitle = true;
+              }
+              if (socialIcons.length > 0) {
+                shouldReinitializeSocialLinks = true;
               }
             }
           }
@@ -179,6 +209,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (shouldReinitializeBgTitle) {
       // Small delay to ensure DOM is fully updated
       setTimeout(initializeEnhancedBgTitle, 10);
+    }
+    
+    if (shouldReinitializeSocialLinks) {
+      // Small delay to ensure DOM is fully updated
+      setTimeout(initializeSocialLinks, 10);
     }
   });
   
@@ -1124,6 +1159,17 @@ document.addEventListener("DOMContentLoaded", () => {
               a.setAttribute('href', entry.href);
               if (entry.isExternal) a.setAttribute('target', '_blank');
               a.style.display = ''; // Show the icon
+              
+              // Ensure the link is clickable by removing any event listeners that might interfere
+              a.onclick = null;
+              a.removeEventListener('click', a._socialClickHandler);
+              
+              // Add a simple click handler to ensure the link works
+              a._socialClickHandler = function(e) {
+                // Allow the default behavior (navigation)
+                return true;
+              };
+              a.addEventListener('click', a._socialClickHandler);
             } else {
               a.style.display = 'none'; // Hide the icon
             }
@@ -1570,6 +1616,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 a.setAttribute('href', entry.href);
                 if (entry.isExternal) a.setAttribute('target', '_blank');
                 a.style.display = ''; // Show the icon
+                
+                // Ensure the link is clickable by removing any event listeners that might interfere
+                a.onclick = null;
+                a.removeEventListener('click', a._socialClickHandler);
+                
+                // Add a simple click handler to ensure the link works
+                a._socialClickHandler = function(e) {
+                  // Allow the default behavior (navigation)
+                  return true;
+                };
+                a.addEventListener('click', a._socialClickHandler);
               } else {
                 a.style.display = 'none'; // Hide the icon
               }
@@ -1881,6 +1938,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Initialize enhanced bg-title effects for new clones
       setTimeout(initializeEnhancedBgTitle, 50);
       
+      // Initialize social links for new clones
+      setTimeout(initializeSocialLinks, 50);
+      
       // Initialize pinned sections for new clones with image hover functionality
       setTimeout(() => {
         // Find all pinned sections in the newly created clones
@@ -2146,6 +2206,27 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Expose updateBookPopupColors globally
   window.updateBookPopupColors = updateBookPopupColors;
+  
+  // Expose social links test function
+  window.testSocialLinks = function() {
+    console.log('🧪 Testing social links...');
+    const socialLinks = document.querySelectorAll('.social-link');
+    console.log(`Found ${socialLinks.length} social links`);
+    
+    socialLinks.forEach((link, index) => {
+      const href = link.getAttribute('href');
+      const label = link.getAttribute('aria-label');
+      const display = link.style.display;
+      console.log(`Social link ${index + 1}: ${label} - href: "${href}" - display: "${display}"`);
+      
+      // Test if the link is clickable
+      if (href && href !== '#' && display !== 'none') {
+        console.log(`✅ ${label} link should be clickable`);
+      } else {
+        console.log(`❌ ${label} link is not properly configured`);
+      }
+    });
+  };
   
   // Test function to verify dynamic color theming
   window.testBookPopupColors = function() {

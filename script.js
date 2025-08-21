@@ -1279,27 +1279,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 11) Booking popup content
       try {
-        const booking = findBlock(blocks, "block.booking-section");
-        if (booking) {
-          const title = booking.title || "";
-          const desc = safeTextFromRich(booking.description) || "";
-          const cta = booking.book || {};
-          const pop = document.getElementById('book-now-popup');
-          if (pop) {
-            const t = pop.querySelector('.book-popup__title');
-            const d = pop.querySelector('.book-popup__desc');
-            const a = pop.querySelector('.book-popup__cta');
-            if (t && title) t.textContent = title;
-            if (d && desc) d.textContent = desc;
-            if (a) {
-              // Use hardcoded href instead of fetching from Strapi
-              a.setAttribute('href', '#ft-open');
-              // Remove external link attributes since we're using a local anchor
-              a.removeAttribute('target');
-              a.removeAttribute('rel');
-              // Use hardcoded "Reserveer" instead of fetching from Strapi
-              a.textContent = 'Reserveer';
-            }
+        // Use reserveerTitle and reserveerDescription from sett API
+        const title = sett.reserveerTitle || "";
+        const desc = sett.reserveerDescription || "";
+        const pop = document.getElementById('book-now-popup');
+        if (pop) {
+          const t = pop.querySelector('.book-popup__title');
+          const d = pop.querySelector('.book-popup__desc');
+          const a = pop.querySelector('.book-popup__cta');
+          if (t && title) t.textContent = title;
+          if (d && desc) d.textContent = desc;
+          if (a) {
+            // Use hardcoded href instead of fetching from Strapi
+            a.setAttribute('href', '#ft-open');
+            // Remove external link attributes since we're using a local anchor
+            a.removeAttribute('target');
+            a.removeAttribute('rel');
+            // Use hardcoded "Reserveer" instead of fetching from Strapi
+            a.textContent = 'Reserveer';
           }
         }
       } catch (_) {}

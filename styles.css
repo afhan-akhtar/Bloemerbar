@@ -4,6 +4,136 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Allow text selection for specific elements */
+p, h1, h2, h3, h4, h5, h6, span, div, a, button {
+  -webkit-user-select: text !important;
+  -khtml-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Specific removal for Lottie and SVG elements */
+.scroll-reserveer-svg,
+.static-reserveer-svg,
+.floating-lottie-container,
+.floating-lottie-container svg,
+.brand-illustration,
+.brand-illustration svg,
+.svg-piece,
+.card,
+.card *,
+.quad-cta__link,
+.quad-cta__item,
+.quad-cta__link-mobile,
+.quad-cta__item-mobile,
+.mobile-menu-toggle,
+.small-link,
+.vision-cta,
+.book-popup__cta,
+.play-button,
+.social-link,
+.brand-link {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  outline: none !important;
+}
+
+/* Remove focus outline for better mobile experience */
+.scroll-reserveer-svg:focus,
+.static-reserveer-svg:focus,
+.floating-lottie-container:focus,
+.floating-lottie-container svg:focus,
+.brand-illustration:focus,
+.brand-illustration svg:focus,
+.svg-piece:focus,
+.card:focus,
+.quad-cta__link:focus,
+.quad-cta__item:focus,
+.quad-cta__link-mobile:focus,
+.quad-cta__item-mobile:focus,
+.mobile-menu-toggle:focus,
+.small-link:focus,
+.vision-cta:focus,
+.book-popup__cta:focus,
+.play-button:focus,
+.social-link:focus,
+.brand-link:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove active state visual effects on mobile */
+.scroll-reserveer-svg:active,
+.static-reserveer-svg:active,
+.floating-lottie-container:active,
+.floating-lottie-container svg:active,
+.brand-illustration:active,
+.brand-illustration svg:active,
+.svg-piece:active,
+.card:active,
+.quad-cta__link:active,
+.quad-cta__item:active,
+.quad-cta__link-mobile:active,
+.quad-cta__item-mobile:active,
+.mobile-menu-toggle:active,
+.small-link:active,
+.vision-cta:active,
+.book-popup__cta:active,
+.play-button:active,
+.social-link:active,
+.brand-link:active {
+  -webkit-tap-highlight-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Enhanced mobile touch handling */
+@media (max-width: 900px) {
+  .scroll-reserveer-svg,
+  .static-reserveer-svg,
+  .floating-lottie-container,
+  .floating-lottie-container svg,
+  .brand-illustration,
+  .brand-illustration svg,
+  .svg-piece,
+  .card,
+  .quad-cta__link,
+  .quad-cta__item,
+  .quad-cta__link-mobile,
+  .quad-cta__item-mobile,
+  .mobile-menu-toggle,
+  .small-link,
+  .vision-cta,
+  .book-popup__cta,
+  .play-button,
+  .social-link,
+  .brand-link {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -khtml-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    outline: none !important;
+    /* Prevent any default mobile touch behaviors */
+    touch-action: manipulation !important;
+  }
 }
 
 html,

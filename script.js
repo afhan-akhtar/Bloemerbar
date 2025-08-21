@@ -1150,12 +1150,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } catch (_) {}
 
-      // 9) Quad-CTA bar and grid (Services first 3, then first Bingo Event)
+      // 9) Quad-CTA bar and grid (Services only - 4 services)
       try {
         const servicesBlock = findBlock(blocks, "block.service-list");
-        const eventsBlock = findBlock(blocks, "block.event-list");
         const services = (servicesBlock && servicesBlock.Services) || [];
-        const events = (eventsBlock && eventsBlock.bingoEvents) || [];
         
         // Find specific services by title
         const birthdayService = services.find(service => service.title === "BIRTHDAY");

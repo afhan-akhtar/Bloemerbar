@@ -24,7 +24,7 @@
     <link
       rel="stylesheet"
       href="https://unpkg.com/lenis@1.1.13/dist/lenis.css"
-      onerror="console.warn('Failed to load Lenis CSS from unpkg, trying alternative CDN'); this.href='https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.css';"
+      <!-- onerror="console.warn('Failed to load Lenis CSS from unpkg, trying alternative CDN'); this.href='https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.css';" -->
     />
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
@@ -504,7 +504,7 @@
           // Add global error handler for Formitable SDK
           window.addEventListener('error', function(event) {
             if (event.error && event.error.message && event.error.message.includes('t.split')) {
-              console.warn('Formitable SDK error detected, attempting recovery...');
+              // console.warn('Formitable SDK error detected, attempting recovery...');
               event.preventDefault();
               return false;
             }
@@ -518,7 +518,7 @@
           if (window.FT) {
             try {
               window.FT.load({});
-              console.log("Formitable SDK loaded successfully");
+              // console.log("Formitable SDK loaded successfully");
             } catch (error) {
               console.error("Error loading Formitable SDK:", error);
             }
@@ -531,7 +531,7 @@
         // Add timeout for Formitable SDK loading
         setTimeout(function() {
           if (!window.FT) {
-            console.warn("Formitable SDK loading timeout, continuing without it");
+            // console.warn("Formitable SDK loading timeout, continuing without it");
           }
         }, 5000);
         
@@ -539,7 +539,7 @@
 
         // Listen for successful reservation
         window.addEventListener("ft-widget-ordered", function(event) {
-          console.log("Reservation completed:", event.detail);
+          // console.log("Reservation completed:", event.detail);
           // You can add a success message or redirect here
         });
 
@@ -568,11 +568,11 @@
                 e.preventDefault();
                 e.stopPropagation();
                 
-                console.log('🎯 Vision section Reserveer button clicked! Opening book popup...', {
-                  target: targetElement,
-                  classList: targetElement.classList ? Array.from(targetElement.classList) : [],
-                  textContent: targetElement.textContent
-                });
+                // console.log('🎯 Vision section Reserveer button clicked! Opening book popup...', {
+                //   target: targetElement,
+                //   classList: targetElement.classList ? Array.from(targetElement.classList) : [],
+                //   textContent: targetElement.textContent
+                // });
                 
                 // Store reference to the current wrapper for theme consistency
                 const currentMainWrapper = targetElement.closest('.main-wrapper');
@@ -623,11 +623,11 @@
               e.preventDefault();
               e.stopPropagation();
               
-              console.log('🎯 Lottie Reserveer button clicked! Opening book popup...', {
-                target: targetElement,
-                classList: targetElement.classList ? Array.from(targetElement.classList) : [],
-                textContent: targetElement.textContent
-              });
+              // console.log('🎯 Lottie Reserveer button clicked! Opening book popup...', {
+              //   target: targetElement,
+              //   classList: targetElement.classList ? Array.from(targetElement.classList) : [],
+              //   textContent: targetElement.textContent
+              // });
               
               // Store reference to the current wrapper for theme consistency
               const currentMainWrapper = targetElement.closest('.main-wrapper');
@@ -692,12 +692,12 @@
                 e.preventDefault();
                 e.stopPropagation();
                 
-                console.log('🎯 Vision section Reserveer button (inner element) clicked! Opening book popup...', {
-                  target: targetElement,
-                  closestButton: bookPopupCta,
-                  classList: bookPopupCta.classList ? Array.from(bookPopupCta.classList) : [],
-                  textContent: bookPopupCta.textContent
-                });
+                // console.log('🎯 Vision section Reserveer button (inner element) clicked! Opening book popup...', {
+                //   target: targetElement,
+                //   closestButton: bookPopupCta,
+                //   classList: bookPopupCta.classList ? Array.from(bookPopupCta.classList) : [],
+                //   textContent: bookPopupCta.textContent
+                // });
                 
                 // Store reference to the current wrapper for theme consistency
                 const currentMainWrapper = bookPopupCta.closest('.main-wrapper');
@@ -744,17 +744,17 @@
             e.preventDefault();
             e.stopPropagation();
             
-            console.log('🎯 Reserveer button clicked! Opening widget...', {
-              target: targetElement,
-              href: targetElement.href || targetElement.getAttribute('href'),
-              classList: targetElement.classList ? Array.from(targetElement.classList) : [],
-              textContent: targetElement.textContent
-            });
+            // console.log('🎯 Reserveer button clicked! Opening widget...', {
+            //   target: targetElement,
+            //   href: targetElement.href || targetElement.getAttribute('href'),
+            //   classList: targetElement.classList ? Array.from(targetElement.classList) : [],
+            //   textContent: targetElement.textContent
+            // });
             
             // Close the book popup if it's open
             const bookPopup = document.getElementById('book-now-popup');
             if (bookPopup && bookPopup.getAttribute('aria-hidden') === 'false') {
-              console.log('🔒 Closing book popup before opening widget...');
+              // console.log('🔒 Closing book popup before opening widget...');
               // Call the closeBookPopup function if it exists
               if (typeof window.closeBookPopup === 'function') {
                 window.closeBookPopup();
@@ -778,12 +778,12 @@
             
             const widget = document.getElementById('ft-widget');
             if (widget) {
-              console.log('✅ Widget found, opening...');
+              // console.log('✅ Widget found, opening...');
               // Slide in from right
               widget.style.right = '0px';
               // Show toolbar and open widget when Reserveer is clicked
               if (window.FT) {
-                console.log('✅ FT SDK available, showing toolbar and opening widget...');
+                // console.log('✅ FT SDK available, showing toolbar and opening widget...');
                 // Show the toolbar first
                 if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
                   window.FT.widgetService.showToolbar();
@@ -793,10 +793,10 @@
                   window.FT.open();
                 }
               } else {
-                console.log('⚠️ FT SDK not available yet');
+                // console.log('⚠️ FT SDK not available yet');
               }
             } else {
-              console.log('❌ Widget not found!');
+              // console.log('❌ Widget not found!');
             }
           }
           
@@ -955,13 +955,13 @@
         
         // Expose a test function to manually test the modal
         window.testModal = function() {
-          console.log('🧪 Testing modal functionality...');
+          // console.log('🧪 Testing modal functionality...');
           const widget = document.getElementById('ft-widget');
           if (widget) {
-            console.log('✅ Widget found, testing opening...');
+            // console.log('✅ Widget found, testing opening...');
             widget.style.right = '0px';
             if (window.FT) {
-              console.log('✅ FT SDK available, testing...');
+              // console.log('✅ FT SDK available, testing...');
               if (window.FT.widgetService && window.FT.widgetService.showToolbar) {
                 window.FT.widgetService.showToolbar();
               }
@@ -969,16 +969,16 @@
                 window.FT.open();
               }
             } else {
-              console.log('⚠️ FT SDK not available');
+              // console.log('⚠️ FT SDK not available');
             }
           } else {
-            console.log('❌ Widget not found');
+            // console.log('❌ Widget not found');
           }
         };
         
         // Expose a function to check all Reserveer buttons
         window.checkReserveerButtons = function() {
-          console.log('🔍 Checking all Reserveer buttons...');
+          // console.log('🔍 Checking all Reserveer buttons...');
           const bookPopupButtons = document.querySelectorAll('.book-popup__cta');
           const ftOpenButtons = document.querySelectorAll('a[href="#ft-open"]');
           
@@ -986,11 +986,11 @@
           console.log(`Found ${ftOpenButtons.length} #ft-open buttons`);
           
           bookPopupButtons.forEach((btn, i) => {
-            console.log(`Book Popup CTA ${i}:`, {
-              href: btn.getAttribute('href'),
-              text: btn.textContent,
-              classes: Array.from(btn.classList)
-            });
+            // console.log(`Book Popup CTA ${i}:`, {
+            //   href: btn.getAttribute('href'),
+            //   text: btn.textContent,
+            //   classes: Array.from(btn.classList)
+            // });
           });
         };
         

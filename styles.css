@@ -2907,6 +2907,10 @@ body {
   .preloader-frame {
     padding: clamp(1px, 0.3vw, 2px) clamp(3px, 1vw, 6px);
   }
+  .book-popup__title {
+    font-size: 17px !important;
+   
+}
 }
 
 @media (max-width: 360px) {

@@ -2787,7 +2787,7 @@ body {
   
   #preloader span,
   .preloader-label {
-    font-size: clamp(14px, 5.5vw, 40px);
+    font-size: clamp(47px, 17vw, 180px);
     line-height: 1.35;
   }
   

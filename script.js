@@ -1933,23 +1933,41 @@ document.addEventListener("DOMContentLoaded", () => {
   const stickySection = document.querySelector(".sticky");
   const totalStickyHeight = window.innerHeight * 6; // ensure enough height for looping
 
-  // lenis smooth scroll
-  const lenis = new Lenis({
-    duration: 1.2,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    orientation: 'vertical',
-    gestureOrientation: 'vertical',
-    smoothWheel: true,
-    wheelMultiplier: 1,
-    smoothTouch: false,
-    touchMultiplier: 2,
-    infinite: false,
-  });
-  lenis.on("scroll", ScrollTrigger.update);
-  gsap.ticker.add((time) => {
-    lenis.raf(time * 1000);
-  });
-  gsap.ticker.lagSmoothing(0);
+  // lenis smooth scroll with fallback
+  let lenis = null;
+  try {
+    if (typeof Lenis !== 'undefined') {
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        smoothTouch: false,
+        touchMultiplier: 2,
+        infinite: false,
+      });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+      console.log("Lenis smooth scrolling initialized successfully");
+    } else {
+      console.warn("Lenis library not available, using default scrolling");
+    }
+  } catch (error) {
+    console.error("Error initializing Lenis:", error);
+    console.warn("Falling back to default scrolling behavior");
+  }
+  
+  // Fallback smooth scrolling if Lenis is not available
+  if (!lenis) {
+    console.log("Using fallback smooth scrolling");
+    // Simple smooth scrolling fallback
+    document.documentElement.style.scrollBehavior = 'smooth';
+  }
 
   // Book Now Popup controls (single instance outside clones)
   const bookPopup = document.getElementById("book-now-popup");
@@ -3298,29 +3316,51 @@ const threshold = 5;
 // Start slightly away from 0 to avoid flicker
 requestAnimationFrame(() => {
   if ((window.scrollY || window.pageYOffset) <= threshold) {
-    lenis.scrollTo(threshold + 1, { immediate: true });
+    if (lenis) {
+      lenis.scrollTo(threshold + 1, { immediate: true });
+    } else {
+      window.scrollTo(0, threshold + 1);
+    }
   }
 });
 
-lenis.on("scroll", ({ scroll, limit }) => {
-  // Wrap from top → bottom
-  if (scroll <= threshold) {
-    lenis.scrollTo(limit - threshold - 1, { immediate: true });
-  }
-  // Wrap from bottom → top
-  else if (scroll >= limit - threshold) {
-    lenis.scrollTo(threshold + 1, { immediate: true });
-  }
-});
+if (lenis) {
+  lenis.on("scroll", ({ scroll, limit }) => {
+    // Wrap from top → bottom
+    if (scroll <= threshold) {
+      lenis.scrollTo(limit - threshold - 1, { immediate: true });
+    }
+    // Wrap from bottom → top
+    else if (scroll >= limit - threshold) {
+      lenis.scrollTo(threshold + 1, { immediate: true });
+    }
+  });
+}
 
 });
 
 
   // Inject a Tripletta-like loader without changing existing HTML/CSS
 (function () {
+  // Prevent multiple executions
+  if (window.preloaderInitialized) {
+    console.log("Preloader already initialized, skipping");
+    return;
+  }
+  window.preloaderInitialized = true;
+  
   try {
     const body = document.body;
     if (!body) return;
+
+    // Check if preloader already exists to prevent duplicates
+    const existingPreloader = document.getElementById("preloader");
+    if (existingPreloader) {
+      console.log("Preloader already exists, skipping creation");
+      return;
+    }
+    
+    console.log("Creating new preloader...");
 
     // Show loader on first navigation and reload, but skip bfcache/back-forward restores
     const navEntry = performance && performance.getEntriesByType
@@ -3359,6 +3399,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
       "will-change:transform,opacity",
     ].join(";");
     label.textContent = "Laden..."; // Set initial loading text
+    console.log("Preloader label set to 'Laden...'");
 
     frame.appendChild(label);
     overlay.appendChild(frame);
@@ -3380,6 +3421,7 @@ lenis.on("scroll", ({ scroll, limit }) => {
       overlay.style.backgroundColor = city.bg;
       label.style.color = city.fg;
       label.textContent = city.name; // Show city name when API data is available
+      console.log("Preloader label updated to city name:", city.name);
     }
 
     // Function to show "NO Data available" message
@@ -3576,8 +3618,11 @@ lenis.on("scroll", ({ scroll, limit }) => {
     }
     // hideOverlay is invoked by the ticker when it completes one full pass
   } catch (err) {
+    console.error("Preloader error:", err);
     const existing = document.getElementById("preloader");
     if (existing) existing.remove();
+    // Reset the initialization flag on error
+    window.preloaderInitialized = false;
   }
 })();
 

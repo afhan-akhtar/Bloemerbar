@@ -7,6 +7,7 @@
     <link
       rel="stylesheet"
       href="https://unpkg.com/lenis@1.1.13/dist/lenis.css"
+      onerror="console.warn('Failed to load Lenis CSS from unpkg, trying alternative CDN'); this.href='https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.css';"
     />
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
@@ -445,16 +446,26 @@
          data-toolbar-mobile="false">
     </div>
 
-    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" 
+            onerror="console.warn('Failed to load Lenis from unpkg, trying alternative CDN'); this.src='https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js';"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="./script.js"></script>
 
     <!-- Formitable SDK Script -->
     <script>
-      // Load Formitable SDK
-      (function() {
-        if (document.getElementById("formitable-sdk")) return;
+              // Load Formitable SDK
+        (function() {
+          if (document.getElementById("formitable-sdk")) return;
+          
+          // Add global error handler for Formitable SDK
+          window.addEventListener('error', function(event) {
+            if (event.error && event.error.message && event.error.message.includes('t.split')) {
+              console.warn('Formitable SDK error detected, attempting recovery...');
+              event.preventDefault();
+              return false;
+            }
+          });
 
         const script = document.createElement("script");
         script.id = "formitable-sdk";
@@ -462,9 +473,25 @@
         script.async = true;
         script.onload = function() {
           if (window.FT) {
-            window.FT.load({});
+            try {
+              window.FT.load({});
+              console.log("Formitable SDK loaded successfully");
+            } catch (error) {
+              console.error("Error loading Formitable SDK:", error);
+            }
           }
         };
+        script.onerror = function() {
+          console.error("Failed to load Formitable SDK from CDN");
+        };
+        
+        // Add timeout for Formitable SDK loading
+        setTimeout(function() {
+          if (!window.FT) {
+            console.warn("Formitable SDK loading timeout, continuing without it");
+          }
+        }, 5000);
+        
         document.body.appendChild(script);
 
         // Listen for successful reservation

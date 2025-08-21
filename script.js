@@ -1155,19 +1155,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const servicesBlock = findBlock(blocks, "block.service-list");
         const services = (servicesBlock && servicesBlock.Services) || [];
         
-        // Find specific services by title
-        const birthdayService = services.find(service => service.title === "BIRTHDAY");
-        const companyDrinksService = services.find(service => service.title === "COMPANY DRINKS");
-        const rentLocationService = services.find(service => service.title === "RENT A LOCATION");
-        const liveMusicService = services.find(service => service.title === "LIVE MUSIC");
-        
-        // Create items array with specific services in order
-        const items = [
-          birthdayService,
-          companyDrinksService,
-          rentLocationService,
-          liveMusicService
-        ];
+        // Use all available services from Strapi (up to 4)
+        const items = services.slice(0, 4);
         document.querySelectorAll('.quad-cta').forEach((section) => {
           const barLinks = section.querySelectorAll('.quad-cta__bar .quad-cta__link');
           const gridImgs = section.querySelectorAll('.quad-cta__grid .quad-cta__item img');
@@ -1176,58 +1165,54 @@ document.addEventListener("DOMContentLoaded", () => {
           const mobileLinks = section.querySelectorAll('.quad-cta__mobile-pairs .quad-cta__link-mobile');
           const mobileImgs = section.querySelectorAll('.quad-cta__mobile-pairs .quad-cta__item-mobile img');
           
-          // Fill titles/images for desktop; hide unused slots
+          // Always show all quad-cta elements regardless of Strapi data
           barLinks.forEach((link, i) => {
             const item = items[i];
             const span = link && link.querySelector('.quad-cta__text');
-            if (item && span) {
-              span.textContent = item.title || '';
-              link.style.display = '';
-            } else if (link) {
-              link.style.display = 'none';
+            if (span) {
+              span.textContent = item && item.title ? item.title : '';
             }
+            link.style.display = 'block';
           });
           
           gridImgs.forEach((img, i) => {
             const item = items[i];
             const parent = img && img.closest('.quad-cta__item');
             const imageUrl = item && item.image && item.image.url ? mediaUrl(item.image.url) : '';
-            if (item && imageUrl) {
-              img.src = imageUrl;
-              img.alt = item.title || '';
+            if (img) {
+              if (imageUrl) {
+                img.src = imageUrl;
+                img.alt = item && item.title ? item.title : '';
+              }
               img.loading = 'lazy';
               img.decoding = 'async';
-              if (parent) parent.style.display = '';
-            } else if (parent) {
-              parent.style.display = 'none';
             }
+            if (parent) parent.style.display = 'block';
           });
           
-          // Fill titles/images for mobile pairs; hide unused slots
+          // Always show all mobile quad-cta elements regardless of Strapi data
           mobileLinks.forEach((link, i) => {
             const item = items[i];
             const span = link && link.querySelector('.quad-cta__text');
-            if (item && span) {
-              span.textContent = item.title || '';
-              link.style.display = '';
-            } else if (link) {
-              link.style.display = 'none';
+            if (span) {
+              span.textContent = item && item.title ? item.title : '';
             }
+            link.style.display = 'block';
           });
           
           mobileImgs.forEach((img, i) => {
             const item = items[i];
             const parent = img && img.closest('.quad-cta__item-mobile');
             const imageUrl = item && item.image && item.image.url ? mediaUrl(item.image.url) : '';
-            if (item && imageUrl) {
-              img.src = imageUrl;
-              img.alt = item.title || '';
+            if (img) {
+              if (imageUrl) {
+                img.src = imageUrl;
+                img.alt = item && item.title ? item.title : '';
+              }
               img.loading = 'lazy';
               img.decoding = 'async';
-              if (parent) parent.style.display = '';
-            } else if (parent) {
-              parent.style.display = 'none';
             }
+            if (parent) parent.style.display = 'block';
           });
         });
       } catch (_) {}
@@ -1603,19 +1588,8 @@ document.addEventListener("DOMContentLoaded", () => {
           const services = (servicesBlock && servicesBlock.Services) || [];
           const events = (eventsBlock && eventsBlock.bingoEvents) || [];
           
-          // Find specific services by title
-          const birthdayService = services.find(service => service.title === "BIRTHDAY");
-          const companyDrinksService = services.find(service => service.title === "COMPANY DRINKS");
-          const rentLocationService = services.find(service => service.title === "RENT A LOCATION");
-          const liveMusicService = services.find(service => service.title === "LIVE MUSIC");
-          
-          // Create items array with specific services in order
-          const items = [
-            birthdayService,
-            companyDrinksService,
-            rentLocationService,
-            liveMusicService
-          ];
+          // Use all available services from Strapi (up to 4)
+          const items = services.slice(0, 4);
           document.querySelectorAll('.quad-cta').forEach((section) => {
             const barLinks = section.querySelectorAll('.quad-cta__bar .quad-cta__link');
             const gridImgs = section.querySelectorAll('.quad-cta__grid .quad-cta__item img');
@@ -1627,54 +1601,50 @@ document.addEventListener("DOMContentLoaded", () => {
             barLinks.forEach((link, i) => {
               const item = items[i];
               const span = link && link.querySelector('.quad-cta__text');
-              if (item && span) {
-                span.textContent = item.title || '';
-                link.style.display = '';
-              } else if (link) {
-                link.style.display = 'none';
+              if (span) {
+                span.textContent = item && item.title ? item.title : '';
               }
+              link.style.display = 'block';
             });
             
             gridImgs.forEach((img, i) => {
               const item = items[i];
               const parent = img && img.closest('.quad-cta__item');
               const imageUrl = item && item.image && item.image.url ? mediaUrl(item.image.url) : '';
-              if (item && imageUrl) {
-                img.src = imageUrl;
-                img.alt = item.title || '';
+              if (img) {
+                if (imageUrl) {
+                  img.src = imageUrl;
+                  img.alt = item && item.title ? item.title : '';
+                }
                 img.loading = 'lazy';
                 img.decoding = 'async';
-                if (parent) parent.style.display = '';
-              } else if (parent) {
-                parent.style.display = 'none';
               }
+              if (parent) parent.style.display = 'block';
             });
             
-            // Fill titles/images for mobile pairs; hide unused slots
+            // Always show all mobile quad-cta elements regardless of Strapi data
             mobileLinks.forEach((link, i) => {
               const item = items[i];
               const span = link && link.querySelector('.quad-cta__text');
-              if (item && span) {
-                span.textContent = item.title || '';
-                link.style.display = '';
-              } else if (link) {
-                link.style.display = 'none';
+              if (span) {
+                span.textContent = item && item.title ? item.title : '';
               }
+              link.style.display = 'block';
             });
             
             mobileImgs.forEach((img, i) => {
               const item = items[i];
               const parent = img && img.closest('.quad-cta__item-mobile');
               const imageUrl = item && item.image && item.image.url ? mediaUrl(item.image.url) : '';
-              if (item && imageUrl) {
-                img.src = imageUrl;
-                img.alt = item.title || '';
+              if (img) {
+                if (imageUrl) {
+                  img.src = imageUrl;
+                  img.alt = item && item.title ? item.title : '';
+                }
                 img.loading = 'lazy';
                 img.decoding = 'async';
-                if (parent) parent.style.display = '';
-              } else if (parent) {
-                parent.style.display = 'none';
               }
+              if (parent) parent.style.display = 'block';
             });
           });
         } catch (_) {}

@@ -520,12 +520,12 @@
               window.FT.load({});
               // console.log("Formitable SDK loaded successfully");
             } catch (error) {
-              console.error("Error loading Formitable SDK:", error);
+              // console.error("Error loading Formitable SDK:", error);
             }
           }
         };
         script.onerror = function() {
-          console.error("Failed to load Formitable SDK from CDN");
+          //  console.error("Failed to load Formitable SDK from CDN");
         };
         
         // Add timeout for Formitable SDK loading
@@ -982,8 +982,8 @@
           const bookPopupButtons = document.querySelectorAll('.book-popup__cta');
           const ftOpenButtons = document.querySelectorAll('a[href="#ft-open"]');
           
-          console.log(`Found ${bookPopupButtons.length} book-popup__cta buttons`);
-          console.log(`Found ${ftOpenButtons.length} #ft-open buttons`);
+          // console.log(`Found ${bookPopupButtons.length} book-popup__cta buttons`);
+          // console.log(`Found ${ftOpenButtons.length} #ft-open buttons`);
           
           bookPopupButtons.forEach((btn, i) => {
             // console.log(`Book Popup CTA ${i}:`, {

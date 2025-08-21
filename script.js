@@ -349,12 +349,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const validThemes = themeColors.filter(isValidTheme);
         
         if (validThemes.length === 0) {
-          console.error('❌ No valid themes found in Strapi API data');
+          //    console.error('❌ No valid themes found in Strapi API data');
           return;
         }
 
-        console.log(`✅ Found ${validThemes.length} valid themes from Strapi API`);
-        console.log('Theme IDs:', validThemes.map(t => t.id).join(', '));
+        // console.log(`✅ Found ${validThemes.length} valid themes from Strapi API`);
+        // console.log('Theme IDs:', validThemes.map(t => t.id).join(', '));
         
         // Count how many black themes were replaced
         const blackThemeCount = validThemes.filter(theme => 
@@ -367,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ).length;
         
         if (blackThemeCount > 0) {
-          console.log(`🎨 Will replace ${blackThemeCount} black theme(s) from Strapi with hardcoded blue theme`);
+          // console.log(`🎨 Will replace ${blackThemeCount} black theme(s) from Strapi with hardcoded blue theme`);
         }
         
         // Replace any black theme from Strapi with hardcoded blue theme
@@ -380,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
                parseInt(theme.primaryColor.slice(1, 3), 16) < 50 && 
                parseInt(theme.primaryColor.slice(3, 5), 16) < 50 && 
                parseInt(theme.primaryColor.slice(5, 7), 16) < 50)) {
-            console.log(`🔄 Replacing black theme (ID: ${theme.id}, color: ${theme.primaryColor}) with hardcoded blue theme`);
+            // console.log(`🔄 Replacing black theme (ID: ${theme.id}, color: ${theme.primaryColor}) with hardcoded blue theme`);
             return {
               ...theme,
               primaryColor: '#6A85C3',
@@ -407,8 +407,8 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
         
-        console.log(`🎨 Final theme count: ${finalThemeColors.length} (including teal theme)`);
-        console.log('Final Theme IDs:', finalThemeColors.map(t => t.id).join(', '));
+        // console.log(`🎨 Final theme count: ${finalThemeColors.length} (including teal theme)`);
+        // console.log('Final Theme IDs:', finalThemeColors.map(t => t.id).join(', '));
 
         // Function to apply theme to a main wrapper
         const applyThemeToMainWrapper = (mainWrapper, themeIndex) => {
@@ -417,13 +417,13 @@ document.addEventListener("DOMContentLoaded", () => {
           
           // Debug logging for teal theme
           if (theme.id === 92) {
-            console.log('🎨 Applying TEAL theme:', theme);
-            console.log('🎨 Teal theme colors:', {
-              primary: theme.primaryColor,
-              secondary: theme.secondaryColor,
-              background: theme.backgroundColor,
-              complementary: theme.complementary
-            });
+            // console.log('🎨 Applying TEAL theme:', theme);
+            // console.log('🎨 Teal theme colors:', {
+            //   primary: theme.primaryColor,
+            //   secondary: theme.secondaryColor,
+            //   background: theme.backgroundColor,
+            //   complementary: theme.complementary
+            // });
           }
           
           // Apply theme to the main wrapper itself
@@ -587,7 +587,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Function to apply themes to all main wrappers (original + clones)
         const applyThemesToAllMainWrappers = () => {
           const mainWrappers = document.querySelectorAll('.main-wrapper');
-          console.log(`🎨 Applying themes to ${mainWrappers.length} main wrapper(s) using ${finalThemeColors.length} available themes`);
+          // console.log(`🎨 Applying themes to ${mainWrappers.length} main wrapper(s) using ${finalThemeColors.length} available themes`);
           
           // Define the specific theme sequence: Pink → Blue → Orange → Purple → Teal → repeat
           const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5]; // 0=pink, 2=blue, 4=orange, 1=purple, 5=teal
@@ -608,7 +608,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             
             const themeForLogging = finalThemeColors[themeIndex % finalThemeColors.length];
-            console.log(`🎨 Main wrapper ${index}: applying theme ${themeForLogging.id} (${themeForLogging.primaryColor}) - ${index < 0 ? 'BACKWARD' : 'FORWARD'} scrolling`);
+            //  console.log(`🎨 Main wrapper ${index}: applying theme ${themeForLogging.id} (${themeForLogging.primaryColor}) - ${index < 0 ? 'BACKWARD' : 'FORWARD'} scrolling`);
             applyThemeToMainWrapper(wrapper, themeIndex);
           });
           
@@ -693,15 +693,15 @@ document.addEventListener("DOMContentLoaded", () => {
           top.style.borderBottomColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)';
         }
 
-        console.log('🎨 Dynamic theme system initialized from Strapi API!');
-        console.log(`Available themes: ${finalThemeColors.map(t => `ID ${t.id} (${t.primaryColor})`).join(', ')}`);
-        console.log('Theme sequence: Pink → Blue → Orange → Purple → Teal → repeat');
-        console.log('🎨 Backward scrolling: -1=Teal, -2=Purple, -3=Orange, -4=Blue, -5=Pink → repeat');
-        console.log('🎨 Forward scrolling: 0=Pink, 1=Blue, 2=Orange, 3=Purple, 4=Teal → repeat');
+        // console.log('🎨 Dynamic theme system initialized from Strapi API!');
+        // console.log(`Available themes: ${finalThemeColors.map(t => `ID ${t.id} (${t.primaryColor})`).join(', ')}`);
+        // console.log('Theme sequence: Pink → Blue → Orange → Purple → Teal → repeat');
+        // console.log('🎨 Backward scrolling: -1=Teal, -2=Purple, -3=Orange, -4=Blue, -5=Pink → repeat');
+        // console.log('🎨 Forward scrolling: 0=Pink, 1=Blue, 2=Orange, 3=Purple, 4=Teal → repeat');
         
         // Expose function for manual theme reapplication (for testing)
         window.reapplyThemes = () => {
-          console.log('🔄 Manually reapplying themes...');
+          // console.log('🔄 Manually reapplying themes...');
           applyThemesToAllMainWrappers();
           updatePinnedSectionBackgrounds();
           // Update book popup colors after manual theme reapplication
@@ -729,9 +729,9 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Expose function to show theme pattern
         window.showThemePattern = (count = 20) => {
-          console.log(`🎨 Theme pattern for ${count} wrappers (forward and backward sequences):`);
-          console.log('📈 Forward: 0=Pink, 1=Blue, 2=Orange, 3=Purple, 4=Teal → repeat');
-          console.log('📉 Backward: -1=Teal, -2=Purple, -3=Orange, -4=Blue, -5=Pink → repeat');
+          // console.log(`🎨 Theme pattern for ${count} wrappers (forward and backward sequences):`);
+          // console.log('📈 Forward: 0=Pink, 1=Blue, 2=Orange, 3=Purple, 4=Teal → repeat');
+          // console.log('📉 Backward: -1=Teal, -2=Purple, -3=Orange, -4=Blue, -5=Pink → repeat');
           
           const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5]; // 0=pink, 2=blue, 4=orange, 1=purple, 5=teal
           const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, blue, pink
@@ -754,13 +754,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             
             const theme = finalThemeColors[themeIndex];
-            console.log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor}) - ${themeName} ${i < 0 ? '(BACKWARD)' : '(FORWARD)'}`);
+            // console.log(`  Wrapper ${i}: Theme ${theme.id} (${theme.primaryColor}) - ${themeName} ${i < 0 ? '(BACKWARD)' : '(FORWARD)'}`);
           }
         };
         
         // Expose function to test the current theme sequence
         window.testThemeSequence = () => {
-          console.log('🧪 Testing current theme sequence (forward and backward)...');
+          // console.log('🧪 Testing current theme sequence (forward and backward)...');
           const mainWrappers = document.querySelectorAll('.main-wrapper');
           const themeSequence = [0, 2, 4, 1, 5, 0, 2, 4, 1, 5, 0, 2, 4, 1, 5];
           const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, blue, pink
@@ -785,13 +785,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const theme = finalThemeColors[themeIndex];
             const actualColor = getComputedStyle(wrapper).getPropertyValue('--primary-color').trim();
             
-            console.log(`  Wrapper ${index}: Expected ${themeName} (${theme.primaryColor}), Actual: ${actualColor} - ${actualColor === theme.primaryColor ? '✅' : '❌'} ${index < 0 ? '(BACKWARD)' : '(FORWARD)'}`);
+            //  console.log(`  Wrapper ${index}: Expected ${themeName} (${theme.primaryColor}), Actual: ${actualColor} - ${actualColor === theme.primaryColor ? '✅' : '❌'} ${index < 0 ? '(BACKWARD)' : '(FORWARD)'}`);
           });
         };
         
         // Expose function to test backward scrolling specifically
         window.testBackwardScrolling = () => {
-          console.log('🔄 Testing backward scrolling sequence...');
+          // console.log('🔄 Testing backward scrolling sequence...');
           const backwardSequence = [5, 1, 4, 2, 0]; // teal, purple, orange, blue, pink
           const themeNames = ['Teal', 'Purple', 'Orange', 'Blue', 'Pink'];
           
@@ -801,88 +801,88 @@ document.addEventListener("DOMContentLoaded", () => {
             const theme = finalThemeColors[themeIndex];
             const themeName = themeNames[backwardIndex];
             
-            console.log(`  Wrapper ${i}: ${themeName} (${theme.primaryColor})`);
+            //  console.log(`  Wrapper ${i}: ${themeName} (${theme.primaryColor})`);
           }
         };
         
         // Expose function to check pinned section status
         window.checkPinnedSectionStatus = () => {
-          console.log('🎯 Checking pinned section status...');
+          // console.log('🎯 Checking pinned section status...');
           const pinnedSections = document.querySelectorAll('.pinned');
           
           pinnedSections.forEach((section, index) => {
             const cards = section.querySelectorAll('.card');
             const visibleCards = Array.from(cards).filter(card => card.style.visibility !== 'hidden');
             
-            console.log(`Pinned section ${index}:`);
-            console.log(`  - Total cards: ${cards.length}`);
-            console.log(`  - Visible cards: ${visibleCards.length}`);
-            console.log(`  - Using multiple cards logic`);
+            // console.log(`Pinned section ${index}:`);
+            // console.log(`  - Total cards: ${cards.length}`);
+            // console.log(`  - Visible cards: ${visibleCards.length}`);
+            // console.log(`  - Using multiple cards logic`);
           });
         };
         
         // Expose function to check Zenchef restaurant ID
         window.checkZenchefRestaurantId = () => {
-          console.log('🍽️ Checking Zenchef restaurant ID...');
+          // console.log('🍽️ Checking Zenchef restaurant ID...');
           const ftWidget = document.getElementById('ft-widget');
           if (ftWidget) {
             const currentId = ftWidget.getAttribute('data-restaurant');
             const apiId = sett.zenchefRestaurantId;
-            console.log(`  - Current widget ID: ${currentId}`);
-            console.log(`  - API ID: ${apiId}`);
-            console.log(`  - Match: ${currentId === apiId ? '✅' : '❌'}`);
-            console.log(`  - Fallback ID: 67e30298`);
-            console.log(`  - Using fallback: ${!apiId ? 'Yes' : 'No'}`);
+            // console.log(`  - Current widget ID: ${currentId}`);
+            // console.log(`  - API ID: ${apiId}`);
+            // console.log(`  - Match: ${currentId === apiId ? '✅' : '❌'}`);
+            // console.log(`  - Fallback ID: 67e30298`);
+            // console.log(`  - Using fallback: ${!apiId ? 'Yes' : 'No'}`);
           } else {
-            console.log('  - Widget not found');
+            // console.log('  - Widget not found');
           }
         };
         
         // Expose function to test Zenchef integration
         window.testZenchefIntegration = () => {
-          console.log('🧪 Testing Zenchef integration...');
+          //      console.log('🧪 Testing Zenchef integration...');
           
           // Check if widget exists
           const ftWidget = document.getElementById('ft-widget');
           if (!ftWidget) {
-            console.log('❌ Zenchef widget not found');
+            // console.log('❌ Zenchef widget not found');
             return;
           }
           
           // Check current restaurant ID
           const currentId = ftWidget.getAttribute('data-restaurant');
-          console.log(`✅ Widget found with restaurant ID: ${currentId}`);
+          // console.log(`✅ Widget found with restaurant ID: ${currentId}`);
           
           // Check API data
           const apiId = sett.zenchefRestaurantId;
-          console.log(`📡 API restaurant ID: ${apiId || 'Not set'}`);
+          // console.log(`📡 API restaurant ID: ${apiId || 'Not set'}`);
           
           // Test setting a new ID
           const testId = 'test-restaurant-id';
           ftWidget.setAttribute('data-restaurant', testId);
-          console.log(`🧪 Set test ID: ${testId}`);
+          // console.log(`🧪 Set test ID: ${testId}`);
           
           // Verify it was set
           const newId = ftWidget.getAttribute('data-restaurant');
-          console.log(`✅ New ID verified: ${newId}`);
+          // console.log(`✅ New ID verified: ${newId}`);
           
           // Restore original ID
           const originalId = apiId || '67e30298';
           ftWidget.setAttribute('data-restaurant', originalId);
-          console.log(`🔄 Restored original ID: ${originalId}`);
+          // console.log(`🔄 Restored original ID: ${originalId}`);
           
-          console.log('✅ Zenchef integration test completed successfully');
+          // console.log('✅ Zenchef integration test completed successfully');
         };
         
         // Expose function to manually set restaurant ID for testing
         window.setRestaurantId = (newId) => {
-          console.log(`🔧 Manually setting restaurant ID to: ${newId}`);
+          // console.log(`🔧 Manually setting restaurant ID to: ${newId}`);
           const ftWidget = document.getElementById('ft-widget');
           if (ftWidget) {
             ftWidget.setAttribute('data-restaurant', newId);
-            console.log(`✅ Restaurant ID set to: ${ftWidget.getAttribute('data-restaurant')}`);
+            // console.log(`✅ Restaurant ID set to: ${ftWidget.getAttribute('data-restaurant')}`);
           } else {
-            console.log('❌ Widget not found');
+            // console.log('❌ Widget not found');
           }
         };
         
@@ -891,10 +891,10 @@ document.addEventListener("DOMContentLoaded", () => {
           const ftWidget = document.getElementById('ft-widget');
           if (ftWidget) {
             const currentId = ftWidget.getAttribute('data-restaurant');
-            console.log(`📋 Current restaurant ID: ${currentId}`);
+            // console.log(`📋 Current restaurant ID: ${currentId}`);
             return currentId;
           } else {
-            console.log('❌ Widget not found');
+            // console.log('❌ Widget not found');
             return null;
           }
         };
@@ -921,15 +921,15 @@ document.addEventListener("DOMContentLoaded", () => {
         // Apply theme colors to bg-title after theme application
         setTimeout(applyThemeToBgTitle, 100);
         
-        console.log('💡 Use window.reapplyThemes() to manually reapply themes');
-        console.log('💡 Use window.getThemeInfo() to see current theme assignments');
-        console.log('💡 Use window.showThemePattern(20) to see theme pattern for 20 wrappers');
-        console.log('💡 Use window.testThemeSequence() to test if current sequence is correct');
-        console.log('💡 Use window.testBackwardScrolling() to test backward scrolling sequence');
-        console.log('💡 Use window.checkZenchefRestaurantId() to check Zenchef restaurant ID status');
-        console.log('💡 Use window.testZenchefIntegration() to test Zenchef integration');
+        //  console.log('💡 Use window.reapplyThemes() to manually reapply themes');
+        // console.log('💡 Use window.getThemeInfo() to see current theme assignments');
+        // console.log('💡 Use window.showThemePattern(20) to see theme pattern for 20 wrappers');
+        // console.log('💡 Use window.testThemeSequence() to test if current sequence is correct');
+        // console.log('💡 Use window.testBackwardScrolling() to test backward scrolling sequence');
+        // console.log('💡 Use window.checkZenchefRestaurantId() to check Zenchef restaurant ID status');
+        // console.log('💡 Use window.testZenchefIntegration() to test Zenchef integration');
       } catch (e) {
-        console.error('Error initializing theme system:', e);
+        //      console.error('Error initializing theme system:', e);
       }
 
 
@@ -1307,11 +1307,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const ftWidget = document.getElementById('ft-widget');
         if (ftWidget && zenchefRestaurantId) {
           ftWidget.setAttribute('data-restaurant', zenchefRestaurantId);
-          console.log(`🍽️ Zenchef restaurant ID set from Strapi API: ${zenchefRestaurantId}`);
+          // console.log(`🍽️ Zenchef restaurant ID set from Strapi API: ${zenchefRestaurantId}`);
         } else if (!ftWidget) {
-          console.warn('⚠️ Zenchef widget not found in DOM');
+          // console.warn('⚠️ Zenchef widget not found in DOM');
         } else if (!zenchefRestaurantId) {
-          console.warn('⚠️ No Zenchef restaurant ID found in Strapi API, using fallback');
+          // console.warn('⚠️ No Zenchef restaurant ID found in Strapi API, using fallback');
         }
       } catch (error) {
         console.error('❌ Error setting Zenchef restaurant ID:', error);
@@ -1388,7 +1388,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
           }
           
-          console.log(`🎯 Pinned section rendered with ${visibleCardCount} visible card(s) from Strapi Gallery data`);
+          // console.log(`🎯 Pinned section rendered with ${visibleCardCount} visible card(s) from Strapi Gallery data`);
         }
 
         // Render into all current pinned sections (original and any existing clones)
@@ -1730,14 +1730,14 @@ document.addEventListener("DOMContentLoaded", () => {
           const ftWidget = document.getElementById('ft-widget');
           if (ftWidget && zenchefRestaurantId) {
             ftWidget.setAttribute('data-restaurant', zenchefRestaurantId);
-            console.log(`🍽️ Zenchef restaurant ID re-rendered from Strapi API: ${zenchefRestaurantId}`);
+            // console.log(`🍽️ Zenchef restaurant ID re-rendered from Strapi API: ${zenchefRestaurantId}`);
           } else if (!ftWidget) {
-            console.warn('⚠️ Zenchef widget not found in DOM during re-render');
+            // console.warn('⚠️ Zenchef widget not found in DOM during re-render');
           } else if (!zenchefRestaurantId) {
-            console.warn('⚠️ No Zenchef restaurant ID found in Strapi API during re-render, using fallback');
+            // console.warn('⚠️ No Zenchef restaurant ID found in Strapi API during re-render, using fallback');
           }
         } catch (error) {
-          console.error('❌ Error re-rendering Zenchef restaurant ID:', error);
+          // console.error('❌ Error re-rendering Zenchef restaurant ID:', error);
         }
 
         try {
@@ -1803,7 +1803,7 @@ document.addEventListener("DOMContentLoaded", () => {
               });
             }
             
-            console.log(`🎯 Pinned section re-rendered with ${visibleCardCount} visible card(s) from Strapi Gallery data`);
+            //  console.log(`🎯 Pinned section re-rendered with ${visibleCardCount} visible card(s) from Strapi Gallery data`);
           });
         } catch (_) {}
       };
@@ -1885,27 +1885,27 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         // Find all pinned sections in the newly created clones
         const allMainWrappers = document.querySelectorAll('.main-wrapper');
-        console.log(`🎯 Found ${allMainWrappers.length} main wrappers (including original)`);
+        // console.log(`🎯 Found ${allMainWrappers.length} main wrappers (including original)`);
         
         allMainWrappers.forEach((wrapper, wrapperIndex) => {
           // Skip the original wrapper (index 0) as it's already initialized
           if (wrapperIndex > 0) {
             const pinnedSections = wrapper.querySelectorAll('.pinned');
-            console.log(`🎯 Initializing ${pinnedSections.length} pinned sections in clone ${wrapperIndex}`);
+            // console.log(`🎯 Initializing ${pinnedSections.length} pinned sections in clone ${wrapperIndex}`);
             
             pinnedSections.forEach((pinnedSection, sectionIndex) => {
               // Initialize each pinned section in the cloned wrappers
               initPinnedSection(pinnedSection);
-              console.log(`🎯 Initialized pinned section ${sectionIndex + 1} in clone ${wrapperIndex}`);
+              // console.log(`🎯 Initialized pinned section ${sectionIndex + 1} in clone ${wrapperIndex}`);
             });
           }
         });
-        console.log('🎯 Completed initialization of pinned sections with image hover functionality for all cloned copies');
+        // console.log('🎯 Completed initialization of pinned sections with image hover functionality for all cloned copies');
       }, 100);
       
-      console.log(`🔄 Created ${copies} clones for infinite experience`);
+      // console.log(`🔄 Created ${copies} clones for infinite experience`);
     } catch (e) {
-      console.error('Error creating clones:', e);
+      //    console.error('Error creating clones:', e);
     }
   }
   
@@ -1951,18 +1951,18 @@ document.addEventListener("DOMContentLoaded", () => {
         lenis.raf(time * 1000);
       });
       gsap.ticker.lagSmoothing(0);
-      console.log("Lenis smooth scrolling initialized successfully");
+      // console.log("Lenis smooth scrolling initialized successfully");
     } else {
-      console.warn("Lenis library not available, using default scrolling");
+      // console.warn("Lenis library not available, using default scrolling");
     }
   } catch (error) {
-    console.error("Error initializing Lenis:", error);
-    console.warn("Falling back to default scrolling behavior");
+    // console.error("Error initializing Lenis:", error);
+    // console.warn("Falling back to default scrolling behavior");
   }
   
   // Fallback smooth scrolling if Lenis is not available
   if (!lenis) {
-    console.log("Using fallback smooth scrolling");
+    //  console.log("Using fallback smooth scrolling");
     // Simple smooth scrolling fallback
     document.documentElement.style.scrollBehavior = 'smooth';
   }
@@ -2149,30 +2149,30 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Test function to verify dynamic color theming
   window.testBookPopupColors = function() {
-    console.log('🧪 Testing book popup dynamic color theming...');
+    // console.log('🧪 Testing book popup dynamic color theming...');
     
     // Test opening the popup
     if (typeof window.openBookPopup === 'function') {
       window.openBookPopup();
-      console.log('✅ Book popup opened');
+      // console.log('✅ Book popup opened');
       
       // Test color update after a short delay
       setTimeout(() => {
         const descElement = document.querySelector('.book-popup__desc');
         if (descElement) {
-          console.log('🎨 Current book-popup__desc color:', descElement.style.color);
-          console.log('🎨 Current book-popup__desc font-weight:', descElement.style.fontWeight);
-          console.log('🎨 Current book-popup__desc text-shadow:', descElement.style.textShadow);
+          // console.log('🎨 Current book-popup__desc color:', descElement.style.color);
+          // console.log('🎨 Current book-popup__desc font-weight:', descElement.style.fontWeight);
+          // console.log('🎨 Current book-popup__desc text-shadow:', descElement.style.textShadow);
         }
         
         // Test manual color update
         if (typeof window.updateBookPopupColors === 'function') {
           window.updateBookPopupColors();
-          console.log('✅ Manual color update applied');
+          // console.log('✅ Manual color update applied');
         }
       }, 500);
     } else {
-      console.log('❌ openBookPopup function not found');
+      // console.log('❌ openBookPopup function not found');
     }
   };
 
@@ -2607,7 +2607,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Debug logging to track initialization
       const mainWrapper = pinnedSection.closest('.main-wrapper');
       const wrapperIndex = mainWrapper ? Array.from(document.querySelectorAll('.main-wrapper')).indexOf(mainWrapper) : 'unknown';
-      console.log(`🎯 Initializing pinned section in wrapper ${wrapperIndex}`);
+      // console.log(`🎯 Initializing pinned section in wrapper ${wrapperIndex}`);
       
       // Helper function to get theme-specific gradient
       function getThemeGradient() {
@@ -2682,7 +2682,7 @@ document.addEventListener("DOMContentLoaded", () => {
          const cardCount = cards.length;
      
      // Always use multiple cards logic - no single card special handling
-     console.log(`🎯 Pinned section has ${cardCount} cards - using multiple cards logic`);
+    //  console.log(`🎯 Pinned section has ${cardCount} cards - using multiple cards logic`);
     
     // Original complex pinned animation logic for multiple cards
     const pinnedHeight = window.innerHeight * (cardCount + 1);
@@ -2992,18 +2992,18 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Test function to verify image hover functionality
     window.testImageHover = function() {
-      console.log('🧪 Testing image hover functionality...');
+      // console.log('🧪 Testing image hover functionality...');
       document.querySelectorAll('.card').forEach((card, index) => {
         const img = card.querySelector('.card-image');
         const wrapper = card.closest('.main-wrapper');
         const wrapperIndex = wrapper ? Array.from(document.querySelectorAll('.main-wrapper')).indexOf(wrapper) : 'unknown';
         
-        console.log(`🧪 Card ${index + 1} in wrapper ${wrapperIndex}:`);
-        console.log(`  - Image element:`, img);
-        console.log(`  - Image src:`, img ? img.src : 'No image');
-        console.log(`  - Image display:`, img ? img.style.display : 'No image');
-        console.log(`  - Image opacity:`, img ? img.style.opacity : 'No image');
-        console.log(`  - Data images:`, card.dataset.images);
+        // console.log(`🧪 Card ${index + 1} in wrapper ${wrapperIndex}:`);
+        // console.log(`  - Image element:`, img);
+        // console.log(`  - Image src:`, img ? img.src : 'No image');
+        // console.log(`  - Image display:`, img ? img.style.display : 'No image');
+        // console.log(`  - Image opacity:`, img ? img.style.opacity : 'No image');
+        // console.log(`  - Data images:`, card.dataset.images);
       });
     };
     
@@ -3029,7 +3029,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll('.pinned').forEach((pinnedSection) => {
         initPinnedSection(pinnedSection);
       });
-      console.log('🎯 Initialized all pinned sections with image hover functionality');
+      // console.log('🎯 Initialized all pinned sections with image hover functionality');
     }
 
     // Listen for clone creation events to initialize pinned sections in new clones
@@ -3041,18 +3041,18 @@ document.addEventListener("DOMContentLoaded", () => {
           // Skip the original wrapper (index 0) as it's already initialized
           if (wrapperIndex > 0) {
             const pinnedSections = wrapper.querySelectorAll('.pinned');
-            console.log(`🎯 Found ${pinnedSections.length} pinned sections in clone ${wrapperIndex}`);
+            // console.log(`🎯 Found ${pinnedSections.length} pinned sections in clone ${wrapperIndex}`);
             pinnedSections.forEach((pinnedSection, sectionIndex) => {
-              console.log(`🎯 Initializing pinned section ${sectionIndex + 1} in clone ${wrapperIndex}`);
+              // console.log(`🎯 Initializing pinned section ${sectionIndex + 1} in clone ${wrapperIndex}`);
               initPinnedSection(pinnedSection);
             });
           }
         });
-        console.log('🎯 Completed initialization of pinned sections with image hover functionality for all cloned copies');
+        // console.log('🎯 Completed initialization of pinned sections with image hover functionality for all cloned copies');
         
         // Test the functionality after initialization
         setTimeout(() => {
-          console.log('🧪 Testing image hover functionality after clone initialization...');
+          // console.log('🧪 Testing image hover functionality after clone initialization...');
           window.testImageHover();
         }, 500);
       }, 100);
@@ -3118,7 +3118,7 @@ if (lenis) {
 (function () {
   // Prevent multiple executions
   if (window.preloaderInitialized) {
-    console.log("Preloader already initialized, skipping");
+    // console.log("Preloader already initialized, skipping");
     return;
   }
   window.preloaderInitialized = true;
@@ -3160,11 +3160,11 @@ if (lenis) {
       // Check if preloader already exists to prevent duplicates
       const existingPreloader = document.getElementById("preloader");
       if (existingPreloader) {
-        console.log("Preloader already exists, skipping creation");
+        // console.log("Preloader already exists, skipping creation");
         return;
       }
       
-      console.log("Creating new preloader after fonts loaded...");
+      // console.log("Creating new preloader after fonts loaded...");
 
       // Show loader on first navigation and reload, but skip bfcache/back-forward restores
       const navEntry = performance && performance.getEntriesByType
@@ -3203,7 +3203,7 @@ if (lenis) {
         "will-change:transform,opacity",
       ].join(";");
       label.textContent = "Laden..."; // Set initial loading text
-      console.log("Preloader label set to 'Laden...'");
+      // console.log("Preloader label set to 'Laden...'");
 
       frame.appendChild(label);
       overlay.appendChild(frame);
@@ -3225,7 +3225,7 @@ if (lenis) {
       overlay.style.backgroundColor = city.bg;
       label.style.color = city.fg;
       label.textContent = city.name; // Show city name when API data is available
-      console.log("Preloader label updated to city name:", city.name);
+      // console.log("Preloader label updated to city name:", city.name);
     }
 
     // Function to show "NO Data available" message
@@ -3323,7 +3323,7 @@ if (lenis) {
       // Set a maximum wait time to prevent infinite loading
       const maxWaitTimer = setTimeout(() => {
         if (!citiesLoaded) {
-          console.warn("Cities loading timeout - showing NO Data available message");
+          // console.warn("Cities loading timeout - showing NO Data available message");
           showNoDataMessage();
         }
       }, maxWaitTime);
@@ -3377,7 +3377,7 @@ if (lenis) {
           timerId = setTimeout(step, stepMs);
         } else {
           // No cities loaded, show NO Data available message
-          console.warn("No cities data available - showing NO Data available message");
+          // console.warn("No cities data available - showing NO Data available message");
           showNoDataMessage();
         }
       } catch (error) {
@@ -3385,7 +3385,7 @@ if (lenis) {
         // Clear the max wait timer on error
         clearTimeout(maxWaitTimer);
         // On error, show NO Data available message
-        console.warn("API error occurred - showing NO Data available message");
+        // console.warn("API error occurred - showing NO Data available message");
         showNoDataMessage();
       }
     })();

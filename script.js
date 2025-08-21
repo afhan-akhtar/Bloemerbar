@@ -1265,9 +1265,11 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (title) {
               card.style.visibility = '';
+              card.style.display = '';
               visibleCardCount++;
             } else {
               card.style.visibility = 'hidden';
+              card.style.display = 'none';
             }
           });
           
@@ -1282,13 +1284,18 @@ document.addEventListener("DOMContentLoaded", () => {
             });
           } else {
             // Show all cards if there are multiple visible cards
-            cards.forEach((card) => {
-              card.style.display = '';
+            cards.forEach((card, idx) => {
+              const g = gallery[idx];
+              const title = g && g.title ? g.title : '';
+              if (title) {
+                card.style.display = '';
+              } else {
+                card.style.display = 'none';
+              }
             });
           }
           
-              // Always use multiple cards logic - no single card special handling
-    console.log(`🎯 Pinned section rendered with ${visibleCardCount} visible card(s) - using multiple cards logic`);
+          console.log(`🎯 Pinned section rendered with ${visibleCardCount} visible card(s) from Strapi Gallery data`);
         }
 
         // Render into all current pinned sections (original and any existing clones)
@@ -1657,14 +1664,37 @@ document.addEventListener("DOMContentLoaded", () => {
               
               if (title) {
                 card.style.visibility = '';
+                card.style.display = '';
                 visibleCardCount++;
               } else {
                 card.style.visibility = 'hidden';
+                card.style.display = 'none';
               }
             });
             
-                    // Always use multiple cards logic - no single card special handling
-        console.log(`🎯 Pinned section re-rendered with ${visibleCardCount} visible card(s) - using multiple cards logic`);
+            // Hide remaining cards if there's only one visible card
+            if (visibleCardCount <= 1) {
+              cards.forEach((card, idx) => {
+                const g = gallery[idx];
+                const title = g && g.title ? g.title : '';
+                if (!title) {
+                  card.style.display = 'none';
+                }
+              });
+            } else {
+              // Show all cards if there are multiple visible cards
+              cards.forEach((card, idx) => {
+                const g = gallery[idx];
+                const title = g && g.title ? g.title : '';
+                if (title) {
+                  card.style.display = '';
+                } else {
+                  card.style.display = 'none';
+                }
+              });
+            }
+            
+            console.log(`🎯 Pinned section re-rendered with ${visibleCardCount} visible card(s) from Strapi Gallery data`);
           });
         } catch (_) {}
       };
@@ -2540,10 +2570,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const progressBar = pinnedSection.querySelector(".progress");
     const indicesContainer = pinnedSection.querySelector(".indices");
     const indices = pinnedSection.querySelectorAll(".index");
-    const cardCount = cards.length;
-    
-    // Always use multiple cards logic - no single card special handling
-    console.log(`🎯 Pinned section has ${cardCount} cards - using multiple cards logic`);
+         const cardCount = cards.length;
+     
+     // Always use multiple cards logic - no single card special handling
+     console.log(`🎯 Pinned section has ${cardCount} cards - using multiple cards logic`);
     
     // Original complex pinned animation logic for multiple cards
     const pinnedHeight = window.innerHeight * (cardCount + 1);

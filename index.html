@@ -4,6 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title></title>
+    
+    <!-- 
+      Font Loading Strategy to Prevent FOUT (Flash of Unstyled Text):
+      1. Preload font CSS with display=swap for immediate fallback
+      2. Use Font Loading API to detect when Oswald font is ready
+      3. Hide preloader content until fonts are loaded
+      4. Multiple fallbacks ensure preloader always shows
+      5. Prevents "Laden..." from appearing in wrong font during hard refresh
+    -->
+    <!-- Preload the font to prevent FOUT -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap"></noscript>
+    
+    <!-- Fallback font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <link
       rel="stylesheet"
       href="https://unpkg.com/lenis@1.1.13/dist/lenis.css"
@@ -11,6 +28,32 @@
     />
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    
+    <!-- Font loading detection script -->
+    <script>
+      // Font loading detection to prevent FOUT
+      function markFontsLoaded() {
+        document.documentElement.classList.add('fonts-loaded');
+      }
+      
+      if ('fonts' in document) {
+        Promise.all([
+          document.fonts.load('1em Oswald'),
+          document.fonts.load('900 1em Oswald')
+        ]).then(() => {
+          markFontsLoaded();
+        }).catch(() => {
+          // If font loading fails, still mark as loaded after a delay
+          setTimeout(markFontsLoaded, 1000);
+        });
+      } else {
+        // Fallback for browsers that don't support Font Loading API
+        setTimeout(markFontsLoaded, 500);
+      }
+      
+      // Additional fallback: mark fonts as loaded after 3 seconds regardless
+      setTimeout(markFontsLoaded, 3000);
+    </script>
   </head>
   <body>
     <!-- Theme Indicator (for testing) -->

@@ -3317,61 +3317,91 @@ if (lenis) {
   }
   window.preloaderInitialized = true;
   
-  try {
-    const body = document.body;
-    if (!body) return;
+  // Wait for fonts to load before showing preloader
+  function waitForFonts() {
+    return new Promise((resolve) => {
+      if (document.documentElement.classList.contains('fonts-loaded')) {
+        resolve();
+      } else {
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              if (document.documentElement.classList.contains('fonts-loaded')) {
+                observer.disconnect();
+                resolve();
+              }
+            }
+          });
+        });
+        
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['class']
+        });
+        
+        // Fallback timeout
+        setTimeout(resolve, 2000);
+      }
+    });
+  }
+  
+  // Initialize preloader after fonts are loaded
+  waitForFonts().then(() => {
+    try {
+      const body = document.body;
+      if (!body) return;
 
-    // Check if preloader already exists to prevent duplicates
-    const existingPreloader = document.getElementById("preloader");
-    if (existingPreloader) {
-      console.log("Preloader already exists, skipping creation");
-      return;
-    }
-    
-    console.log("Creating new preloader...");
+      // Check if preloader already exists to prevent duplicates
+      const existingPreloader = document.getElementById("preloader");
+      if (existingPreloader) {
+        console.log("Preloader already exists, skipping creation");
+        return;
+      }
+      
+      console.log("Creating new preloader after fonts loaded...");
 
-    // Show loader on first navigation and reload, but skip bfcache/back-forward restores
-    const navEntry = performance && performance.getEntriesByType
-      ? performance.getEntriesByType("navigation")[0]
-      : null;
-    const navType = (navEntry && navEntry.type) || (performance.navigation && performance.navigation.type);
-    const isBackForward = navType === "back_forward" || navType === 2; // 2 is legacy back_forward
-    if (isBackForward) {
-      return;
-    }
+      // Show loader on first navigation and reload, but skip bfcache/back-forward restores
+      const navEntry = performance && performance.getEntriesByType
+        ? performance.getEntriesByType("navigation")[0]
+        : null;
+      const navType = (navEntry && navEntry.type) || (performance.navigation && performance.navigation.type);
+      const isBackForward = navType === "back_forward" || navType === 2; // 2 is legacy back_forward
+      if (isBackForward) {
+        return;
+      }
 
-    // Create overlay
-    const overlay = document.createElement("div");
-    overlay.id = "preloader";
-    overlay.setAttribute("role", "status");
-    overlay.setAttribute("aria-live", "polite");
-    overlay.className = "preloader-overlay";
-    overlay.style.cssText = [
-      "background:#e3f2fd",
-      "opacity:1",
-      "transition:opacity 0.6s ease",
-    ].join(";");
+      // Create overlay
+      const overlay = document.createElement("div");
+      overlay.id = "preloader";
+      overlay.setAttribute("role", "status");
+      overlay.setAttribute("aria-live", "polite");
+      overlay.className = "preloader-overlay";
+      overlay.style.cssText = [
+        "background:#e3f2fd",
+        "opacity:1",
+        "transition:opacity 0.6s ease",
+      ].join(";");
 
-    // Ticker frame
-    const frame = document.createElement("div");
-    frame.className = "preloader-frame";
-    frame.style.cssText = [
-      "background:transparent",
-    ].join(";");
+      // Ticker frame
+      const frame = document.createElement("div");
+      frame.className = "preloader-frame";
+      frame.style.cssText = [
+        "background:transparent",
+      ].join(";");
 
-    // Current name
-    const label = document.createElement("span");
-    label.className = "preloader-label";
-    label.style.cssText = [
-      "color:#0d47a1",
-      "will-change:transform,opacity",
-    ].join(";");
-    label.textContent = "Laden..."; // Set initial loading text
-    console.log("Preloader label set to 'Laden...'");
+      // Current name
+      const label = document.createElement("span");
+      label.className = "preloader-label";
+      label.style.cssText = [
+        "color:#0d47a1",
+        "will-change:transform,opacity",
+      ].join(";");
+      label.textContent = "Laden..."; // Set initial loading text
+      console.log("Preloader label set to 'Laden...'");
 
-    frame.appendChild(label);
-    overlay.appendChild(frame);
-    body.appendChild(overlay);
+      frame.appendChild(label);
+      overlay.appendChild(frame);
+      body.appendChild(overlay);
 
     // Lock scroll during loader
     const previousOverflow = body.style.overflow;
@@ -3592,6 +3622,7 @@ if (lenis) {
     // Reset the initialization flag on error
     window.preloaderInitialized = false;
   }
+  }); // Close the waitForFonts().then() callback
 })();
 
   // ===== Scroll-Triggered Dynamic Lottie Reserveer Animation =====

@@ -1,5 +1,50 @@
 @import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap");
 
+/* Font loading state management */
+html:not(.fonts-loaded) .preloader-label {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif !important;
+  visibility: hidden;
+}
+
+html.fonts-loaded .preloader-label {
+  font-family: "Oswald", sans-serif !important;
+  visibility: visible;
+}
+
+/* Hide preloader content until fonts are loaded */
+html:not(.fonts-loaded) .preloader-overlay {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+html.fonts-loaded .preloader-overlay {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Fallback: Show preloader after 3 seconds if fonts haven't loaded */
+html:not(.fonts-loaded) .preloader-overlay {
+  animation: showPreloaderFallback 3s forwards;
+}
+
+@keyframes showPreloaderFallback {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Ensure preloader label is visible with fallback font */
+html:not(.fonts-loaded) .preloader-label {
+  animation: showLabelFallback 3s forwards;
+}
+
+@keyframes showLabelFallback {
+  0% { visibility: hidden; }
+  100% { 
+    visibility: visible;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif !important;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -1945,8 +1990,8 @@ section {
 }
 
 .brand-splash:hover .brand-illustration .svg-piece {
-  fill: var(--hover-color);
-  transform: scale(1.05);
+  fill: var(--primary-coral);
+  transform: scale(1.1);
   filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.2));
 }
 

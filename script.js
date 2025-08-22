@@ -9,20 +9,54 @@ window.scrollTo(0, 10);
 
 // Global API Response Handler Utility
 window.ApiResponseHandler = {
-  // Enhanced API response handler with proper validation
+  // Enhanced API response handler with proper validation and specific error handling
   async handleResponse(response, endpointName = 'API') {
     try {
       // Check if response exists and has proper status
       if (!response) {
-        return { success: false, error: 'No response received', data: null };
+        return { success: false, error: 'No response received', data: null, statusCode: null };
       }
       
-      // Check HTTP status code
+      // Check HTTP status code with specific handling for different status codes
       if (!response.ok) {
+        let errorMessage = `HTTP ${response.status} - ${response.statusText}`;
+        
+        // Provide more specific error messages for common status codes
+        switch (response.status) {
+          case 404:
+            errorMessage = `404 - Resource not found (${endpointName})`;
+            break;
+          case 403:
+            errorMessage = `403 - Access forbidden (${endpointName})`;
+            break;
+          case 401:
+            errorMessage = `401 - Unauthorized access (${endpointName})`;
+            break;
+          case 500:
+            errorMessage = `500 - Server error (${endpointName})`;
+            break;
+          case 502:
+            errorMessage = `502 - Bad gateway (${endpointName})`;
+            break;
+          case 503:
+            errorMessage = `503 - Service unavailable (${endpointName})`;
+            break;
+          case 504:
+            errorMessage = `504 - Gateway timeout (${endpointName})`;
+            break;
+          default:
+            if (response.status >= 400 && response.status < 500) {
+              errorMessage = `${response.status} - Client error (${endpointName})`;
+            } else if (response.status >= 500) {
+              errorMessage = `${response.status} - Server error (${endpointName})`;
+            }
+        }
+        
         return { 
           success: false, 
-          error: `HTTP ${response.status} - ${response.statusText}`, 
-          data: null 
+          error: errorMessage, 
+          data: null, 
+          statusCode: response.status 
         };
       }
       
@@ -31,7 +65,8 @@ window.ApiResponseHandler = {
         return { 
           success: false, 
           error: `Expected 200 OK, got ${response.status}`, 
-          data: null 
+          data: null, 
+          statusCode: response.status 
         };
       }
       
@@ -41,18 +76,18 @@ window.ApiResponseHandler = {
       });
       
       if (!jsonData) {
-        return { success: false, error: 'No JSON data received', data: null };
+        return { success: false, error: 'No JSON data received', data: null, statusCode: response.status };
       }
       
       // Validate data structure
       if (!jsonData.data) {
-        return { success: false, error: 'Missing data property', data: null };
+        return { success: false, error: 'Missing data property', data: null, statusCode: response.status };
       }
       
-      return { success: true, error: null, data: jsonData.data };
+      return { success: true, error: null, data: jsonData.data, statusCode: response.status };
       
     } catch (error) {
-      return { success: false, error: error.message, data: null };
+      return { success: false, error: error.message, data: null, statusCode: null };
     }
   },
 
@@ -111,20 +146,88 @@ window.ApiResponseHandler = {
     return response && response.status === 200 && response.ok;
   },
 
-  // Never show "No data available" for successful API responses
-  shouldShowNoDataMessage(response, data) {
-    // Never show "No data available" for 200 OK responses
+  // Enhanced error handling for different scenarios
+  shouldShowNoDataMessage(response, data, statusCode) {
+    // Show "No data available" for specific error conditions
+    if (statusCode === 404) {
+      return true; // Always show for 404 errors
+    }
+    
+    // Show for network errors or server errors
+    if (!response || !response.ok) {
+      return true;
+    }
+    
+    // Don't show for successful responses (200 OK)
     if (this.isSuccessfulResponse(response)) {
       return false;
     }
     
-    // Only show for actual errors (network, 4xx, 5xx)
-    return !response || !response.ok || response.status !== 200;
+    // Show for other client/server errors
+    return statusCode >= 400;
+  },
+
+  // Get user-friendly error message based on status code
+  getErrorMessage(statusCode, endpointName = 'API') {
+    switch (statusCode) {
+      case 404:
+        return 'Data not available';
+      case 403:
+        return 'Access denied';
+      case 401:
+        return 'Authentication required';
+      case 500:
+        return 'Server error';
+      case 502:
+      case 503:
+      case 504:
+        return 'Service temporarily unavailable';
+      default:
+        if (statusCode >= 400 && statusCode < 500) {
+          return 'Request error';
+        } else if (statusCode >= 500) {
+          return 'Server error';
+        }
+        return 'Connection error';
+    }
   },
 
   // Log API response details for debugging
   logApiResponse(endpointName, response, data) {
     // Silent logging - no console output
+  },
+
+  // Utility function to handle common API error scenarios
+  handleApiError(error, endpointName = 'API') {
+    if (error.statusCode) {
+      // HTTP error with status code
+      switch (error.statusCode) {
+        case 404:
+          return { message: 'Data not found', type: 'not_found', showError: true };
+        case 403:
+          return { message: 'Access denied', type: 'forbidden', showError: true };
+        case 401:
+          return { message: 'Authentication required', type: 'unauthorized', showError: true };
+        case 500:
+          return { message: 'Server error', type: 'server_error', showError: true };
+        case 502:
+        case 503:
+        case 504:
+          return { message: 'Service temporarily unavailable', type: 'service_unavailable', showError: true };
+        default:
+          if (error.statusCode >= 400 && error.statusCode < 500) {
+            return { message: 'Request error', type: 'client_error', showError: true };
+          } else if (error.statusCode >= 500) {
+            return { message: 'Server error', type: 'server_error', showError: true };
+          }
+      }
+    } else if (error.name === 'AbortError') {
+      return { message: 'Request timeout', type: 'timeout', showError: true };
+    } else if (error.name === 'TypeError' || error.message.includes('fetch')) {
+      return { message: 'Connection error', type: 'network', showError: true };
+    } else {
+      return { message: 'Unknown error', type: 'unknown', showError: false };
+    }
   }
 };
 
@@ -3483,47 +3586,84 @@ if (lenis) {
     }
 
       // Function to show "NO Data available" message (only for actual errors)
-  function showNoDataMessage() {
+  function showNoDataMessage(statusCode = null, errorType = 'general') {
     overlay.style.backgroundColor = "#f44336"; // Red background for error state
     label.style.color = "#ffffff";
+    
+    // Determine message based on error type and status code
+    let message = "No Data Available";
+    
+    if (statusCode === 404) {
+      message = "Data Not Found";
+    } else if (statusCode === 403) {
+      message = "Access Denied";
+    } else if (statusCode === 401) {
+      message = "Authentication Required";
+    } else if (statusCode >= 500) {
+      message = "Server Error";
+    } else if (errorType === 'network') {
+      message = "Connection Error";
+    } else if (errorType === 'timeout') {
+      message = "Request Timeout";
+    }
     
     // Use the same responsive font sizing as "Loading..." text
     const screenWidth = window.innerWidth;
     if (screenWidth <= 480) {
       // Small mobile devices
-      label.textContent = "No Data";
+      label.textContent = message;
       label.style.fontSize = "clamp(20px, 7vw, 60px)";
     } else if (screenWidth <= 600) {
       // Mobile devices
-      label.textContent = "No Data";
+      label.textContent = message;
       label.style.fontSize = "clamp(24px, 8vw, 80px)";
     } else if (screenWidth <= 768) {
       // Large mobile devices
-      label.textContent = "No Data";
+      label.textContent = message;
       label.style.fontSize = "clamp(28px, 9vw, 100px)";
     } else if (screenWidth <= 900) {
       // Tablet devices
-      label.textContent = "No Data Available";
+      label.textContent = message;
       label.style.fontSize = "clamp(32px, 10vw, 120px)";
     } else if (screenWidth <= 1200) {
       // Small laptop devices
-      label.textContent = "NO Data available";
+      label.textContent = message;
       label.style.fontSize = "clamp(45px, 20vw, 180px)";
     } else {
       // Large desktop devices
-      label.textContent = "NO Data available";
+      label.textContent = message;
       label.style.fontSize = "clamp(40px, 20vw, 200px)";
     }
     
-    // Stop any ongoing animations
+    // Stop any ongoing animations and prevent auto-hide
     if (timerId) {
       clearTimeout(timerId);
       timerId = null;
+    }
+    
+    // Clear any pending hide timers to keep error message visible
+    if (window.errorHideTimer) {
+      clearTimeout(window.errorHideTimer);
+      window.errorHideTimer = null;
+    }
+    
+    // Set a flag to prevent automatic hiding
+    window.errorState = true;
+  }
+
+  // Function to manually reset error state and hide overlay (if needed)
+  function resetErrorState() {
+    window.errorState = false;
+    if (typeof hideOverlay === "function") {
+      hideOverlay();
     }
   }
 
   // Function to handle successful API response (200 OK) gracefully
   function handleSuccessfulApiResponse() {
+    // Reset error state since we have successful data
+    window.errorState = false;
+    
     // Just hide the overlay and continue with the page
     if (typeof hideOverlay === "function") {
       setTimeout(hideOverlay, 400);
@@ -3603,24 +3743,33 @@ if (lenis) {
       
       try {
         const result = await timeout((async () => {
-          // Enhanced cities fetching with proper API response validation using global handler
-          try {
-            const settRes = await window.ApiResponseHandler.fetchWithTimeout(`${base}/api/sett`);
-            const result = await window.ApiResponseHandler.handleResponse(settRes, 'Cities API');
-            
-            if (!result.success) {
-              return null;
-            }
-            
-            const cities = Array.isArray(result.data.cities) ? result.data.cities : [];
-            const colors = Array.isArray(result.data.colors) ? result.data.colors : [];
-            const theme = colors && colors.length ? colors[0] : null;
-            
-            return { cities, theme };
-            
-          } catch (error) {
-            return null;
+                  // Enhanced cities fetching with proper API response validation using global handler
+        try {
+          const settRes = await window.ApiResponseHandler.fetchWithTimeout(`${base}/api/sett`);
+          const result = await window.ApiResponseHandler.handleResponse(settRes, 'Cities API');
+          
+          if (!result.success) {
+            // Return error information for proper handling
+            return { 
+              error: result.error, 
+              statusCode: result.statusCode,
+              success: false 
+            };
           }
+          
+          const cities = Array.isArray(result.data.cities) ? result.data.cities : [];
+          const colors = Array.isArray(result.data.colors) ? result.data.colors : [];
+          const theme = colors && colors.length ? colors[0] : null;
+          
+          return { cities, theme, success: true };
+          
+        } catch (error) {
+          return { 
+            error: error.message, 
+            statusCode: null,
+            success: false 
+          };
+        }
         })());
         
         // Mark API call as completed
@@ -3628,11 +3777,35 @@ if (lenis) {
 
         let cities = [];
         let theme = null;
-        if (result && Array.isArray(result.cities)) {
+        
+        // Check if we got an error response
+        if (result && !result.success) {
+          // Handle specific error cases - show error and keep it visible
+          if (result.statusCode === 404) {
+            showNoDataMessage(404, 'not_found');
+            // Don't hide overlay - keep error message visible
+            return;
+          } else if (result.statusCode >= 500) {
+            showNoDataMessage(result.statusCode, 'server_error');
+            // Don't hide overlay - keep error message visible
+            return;
+          } else if (result.statusCode >= 400) {
+            showNoDataMessage(result.statusCode, 'client_error');
+            // Don't hide overlay - keep error message visible
+            return;
+          } else {
+            // Network or other errors
+            showNoDataMessage(null, 'network');
+            // Don't hide overlay - keep error message visible
+            return;
+          }
+        }
+        
+        if (result && result.success && Array.isArray(result.cities)) {
           cities = result.cities;
           theme = result.theme || null;
-        } else if (window.__STRAPI__ && window.__STRAPI__.sett) {
-          // Fallback to already-fetched sett data if available
+        } else if (window.__STRAPI__ && window.__STRAPI__.sett && !window.errorState) {
+          // Only use fallback data if we're not in error state
           const sett = window.__STRAPI__.sett || {};
           cities = Array.isArray(sett.cities) ? sett.cities : [];
           const colors = Array.isArray(sett.colors) ? sett.colors : [];
@@ -3676,9 +3849,15 @@ if (lenis) {
         clearTimeout(maxWaitTimer);
         
         // Check if this was a network error or actual API failure
-        if (error.name === 'TypeError' || error.message.includes('fetch')) {
-          // Network error - show "No data available"
-          showNoDataMessage();
+        if (error.name === 'TypeError' || error.message.includes('fetch') || error.name === 'AbortError') {
+          // Network error or timeout - show appropriate error message and keep it visible
+          if (error.name === 'AbortError') {
+            showNoDataMessage(null, 'timeout');
+            // Don't hide overlay - keep error message visible
+          } else {
+            showNoDataMessage(null, 'network');
+            // Don't hide overlay - keep error message visible
+          }
         } else {
           // Other errors - just hide overlay and proceed
           if (typeof hideOverlay === "function") {
@@ -3690,6 +3869,11 @@ if (lenis) {
 
     // Hide overlay when ticker finishes
     function hideOverlay() {
+      // Don't hide if we're in error state
+      if (window.errorState) {
+        return;
+      }
+      
       if (timerId) clearTimeout(timerId);
       if (window.gsap) {
         gsap.to(overlay, {
@@ -4690,6 +4874,19 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://inspiring-trust-2ecc11cb4e.strapiapp.com";
       const response = await fetch(`${STRAPI_BASE}/api/audio?populate=*`);
+      
+      // Check for HTTP errors
+      if (!response.ok) {
+        if (response.status === 404) {
+          trackStatus.textContent = 'Audio not found';
+        } else if (response.status >= 500) {
+          trackStatus.textContent = 'Server error';
+        } else {
+          trackStatus.textContent = 'Failed to load audio';
+        }
+        return;
+      }
+      
       const data = await response.json();
       
       if (data.data && data.data.attributes && data.data.attributes.audioFile) {
@@ -4701,7 +4898,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     } catch (error) {
       console.error('Error loading audio from Strapi:', error);
-      trackStatus.textContent = 'Failed to load audio';
+      if (error.name === 'TypeError' || error.message.includes('fetch')) {
+        trackStatus.textContent = 'Connection error';
+      } else {
+        trackStatus.textContent = 'Failed to load audio';
+      }
     }
   }
   

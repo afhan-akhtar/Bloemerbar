@@ -448,7 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // === Strapi dynamic content integration ===
   (async function integrateStrapi() {
-    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://inspiring-trust-2ecc11cb4e.strapiapp.com";
+    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "";
     const endpoints = {
       sett: "/api/sett",
       global: "/api/global",
@@ -2472,7 +2472,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Comprehensive API response test function
   window.testApiResponses = async function() {
-    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://inspiring-trust-2ecc11cb4e.strapiapp.com";
+    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "";
     
     try {
       // Test Sett API
@@ -3711,7 +3711,7 @@ if (lenis) {
     }
     // Fetch cities from sett API first; start ticker only when data is ready (with a short timeout fallback)
     (async () => {
-      const base = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://inspiring-trust-2ecc11cb4e.strapiapp.com";
+      const base = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "";
       const timeoutMs = 3000; // Increased timeout for better reliability
       const maxWaitTime = 8000; // Increased maximum time to wait for cities before showing error
       
@@ -4872,7 +4872,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Load audio from Strapi API (example)
   async function loadAudioFromStrapi() {
     try {
-      const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://inspiring-trust-2ecc11cb4e.strapiapp.com";
+      const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "";
       const response = await fetch(`${STRAPI_BASE}/api/audio?populate=*`);
       
       // Check for HTTP errors

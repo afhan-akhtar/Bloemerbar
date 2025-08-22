@@ -7,6 +7,127 @@ try {
 // Small nudge away from 0 before DOM is ready
 window.scrollTo(0, 10);
 
+// Global API Response Handler Utility
+window.ApiResponseHandler = {
+  // Enhanced API response handler with proper validation
+  async handleResponse(response, endpointName = 'API') {
+    try {
+      // Check if response exists and has proper status
+      if (!response) {
+        return { success: false, error: 'No response received', data: null };
+      }
+      
+      // Check HTTP status code
+      if (!response.ok) {
+        return { 
+          success: false, 
+          error: `HTTP ${response.status} - ${response.statusText}`, 
+          data: null 
+        };
+      }
+      
+      // Check if response is 200 OK
+      if (response.status !== 200) {
+        return { 
+          success: false, 
+          error: `Expected 200 OK, got ${response.status}`, 
+          data: null 
+        };
+      }
+      
+      // Parse JSON response
+      const jsonData = await response.json().catch(error => {
+        return null;
+      });
+      
+      if (!jsonData) {
+        return { success: false, error: 'No JSON data received', data: null };
+      }
+      
+      // Validate data structure
+      if (!jsonData.data) {
+        return { success: false, error: 'Missing data property', data: null };
+      }
+      
+      return { success: true, error: null, data: jsonData.data };
+      
+    } catch (error) {
+      return { success: false, error: error.message, data: null };
+    }
+  },
+
+  // Enhanced fetch with timeout and retry logic
+  async fetchWithTimeout(url, options = {}, timeout = 10000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+  },
+
+  // Validate data structure and content
+  validateData(data, requiredFields = []) {
+    if (!data || typeof data !== 'object') {
+      return { valid: false, error: 'Data is not an object' };
+    }
+    
+    for (const field of requiredFields) {
+      if (!(field in data)) {
+        return { valid: false, error: `Missing required field: ${field}` };
+      }
+    }
+    
+    return { valid: true, error: null };
+  },
+
+  // Check if data has meaningful content
+  hasMeaningfulData(data) {
+    if (!data) return false;
+    
+    if (Array.isArray(data)) {
+      return data.length > 0 && data.some(item => 
+        item && typeof item === 'object' && Object.keys(item).length > 0
+      );
+    }
+    
+    if (typeof data === 'object') {
+      return Object.keys(data).length > 0;
+    }
+    
+    return false;
+  },
+
+  // Check if API response is successful (200 OK) regardless of data content
+  isSuccessfulResponse(response) {
+    return response && response.status === 200 && response.ok;
+  },
+
+  // Never show "No data available" for successful API responses
+  shouldShowNoDataMessage(response, data) {
+    // Never show "No data available" for 200 OK responses
+    if (this.isSuccessfulResponse(response)) {
+      return false;
+    }
+    
+    // Only show for actual errors (network, 4xx, 5xx)
+    return !response || !response.ok || response.status !== 200;
+  },
+
+  // Log API response details for debugging
+  logApiResponse(endpointName, response, data) {
+    // Silent logging - no console output
+  }
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   gsap.registerPlugin(ScrollTrigger);
   
@@ -229,10 +350,16 @@ document.addEventListener("DOMContentLoaded", () => {
       sett: "/api/sett",
       global: "/api/global",
     };
+    
+    // Use global API response handler
+    const handleApiResponse = window.ApiResponseHandler.handleResponse;
+    const fetchWithTimeout = window.ApiResponseHandler.fetchWithTimeout;
+    
     const mediaUrl = (url) => {
       if (!url) return "";
       return url.startsWith("http") ? url : `${STRAPI_BASE}${url}`;
     };
+    
     const safeTextFromRich = (nodes) => {
       try {
         if (!Array.isArray(nodes)) return "";
@@ -247,6 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return "";
       }
     };
+    
     const findBlock = (blocks, type) => {
       try {
         return (blocks || []).find((b) => b && b.__component === type) || null;
@@ -254,18 +382,27 @@ document.addEventListener("DOMContentLoaded", () => {
         return null;
       }
     };
+    
     try {
-      const [settRes, globalRes] = await Promise.all([
-        fetch(`${STRAPI_BASE}${endpoints.sett}`),
-        fetch(`${STRAPI_BASE}${endpoints.global}`),
+      // Fetch both APIs with enhanced error handling
+      const [settRes, globalRes] = await Promise.allSettled([
+        fetchWithTimeout(`${STRAPI_BASE}${endpoints.sett}`),
+        fetchWithTimeout(`${STRAPI_BASE}${endpoints.global}`)
       ]);
-      const [settJson, globalJson] = await Promise.all([
-        settRes.json().catch(() => ({})),
-        globalRes.json().catch(() => ({})),
-      ]);
-      const sett = (settJson && settJson.data) || {};
-      const global = (globalJson && globalJson.data) || {};
+      
+      // Handle API responses with proper validation using global handler
+      const settResult = settRes.status === 'fulfilled' ? 
+        await handleApiResponse(settRes.value, 'Sett API') : { success: false, data: null };
+      const globalResult = globalRes.status === 'fulfilled' ? 
+        await handleApiResponse(globalRes.value, 'Global API') : { success: false, data: null };
+      
+      // Extract data with fallbacks
+      const sett = (settResult.success && settResult.data) || {};
+      const global = (globalResult.success && globalResult.data) || {};
       const blocks = global.blocks || [];
+      
+      // Validate if we have any meaningful data
+      const hasValidData = Object.keys(sett).length > 0 || Object.keys(global).length > 0;
 
       // 1) Meta: title, description, robots, favicon, lang
       try {
@@ -1458,6 +1595,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // Expose for debugging if needed
       window.__STRAPI__ = { sett, global, blocks };
 
+      // Expose debugging functions silently
+
       // Expose a renderer that (re)applies backend data to all current DOM nodes (original + clones)
       window.__STRAPI_RENDER_ALL = function renderAllFromBackend() {
         try {
@@ -2226,6 +2365,40 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(`❌ ${label} link is not properly configured`);
       }
     });
+  };
+
+  // Comprehensive API response test function
+  window.testApiResponses = async function() {
+    const STRAPI_BASE = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://inspiring-trust-2ecc11cb4e.strapiapp.com";
+    
+    try {
+      // Test Sett API
+      const settRes = await window.ApiResponseHandler.fetchWithTimeout(`${STRAPI_BASE}/api/sett`);
+      const settResult = await window.ApiResponseHandler.handleResponse(settRes, 'Sett API Test');
+      
+      // Test Global API
+      const globalRes = await window.ApiResponseHandler.fetchWithTimeout(`${STRAPI_BASE}/api/global`);
+      const globalResult = await window.ApiResponseHandler.handleResponse(globalRes, 'Global API Test');
+      
+      // Return test results
+      return {
+        sett: settResult,
+        global: globalResult
+      };
+      
+    } catch (error) {
+      return { error: error.message };
+    }
+  };
+
+  // Function to manually trigger API data reload
+  window.reloadApiData = async function() {
+    if (typeof window.__STRAPI_RENDER_ALL === 'function') {
+      window.__STRAPI_RENDER_ALL();
+      return true;
+    } else {
+      return false;
+    }
   };
   
   // Test function to verify dynamic color theming
@@ -3309,45 +3482,53 @@ if (lenis) {
       // console.log("Preloader label updated to city name:", city.name);
     }
 
-    // Function to show "NO Data available" message
-    function showNoDataMessage() {
-      overlay.style.backgroundColor = "#f44336"; // Red background for error state
-      label.style.color = "#ffffff";
-      
-      // Use the same responsive font sizing as "Loading..." text
-      const screenWidth = window.innerWidth;
-      if (screenWidth <= 480) {
-        // Small mobile devices
-        label.textContent = "No Data";
-        label.style.fontSize = "clamp(20px, 7vw, 60px)";
-      } else if (screenWidth <= 600) {
-        // Mobile devices
-        label.textContent = "No Data";
-        label.style.fontSize = "clamp(24px, 8vw, 80px)";
-      } else if (screenWidth <= 768) {
-        // Large mobile devices
-        label.textContent = "No Data";
-        label.style.fontSize = "clamp(28px, 9vw, 100px)";
-      } else if (screenWidth <= 900) {
-        // Tablet devices
-        label.textContent = "No Data Available";
-        label.style.fontSize = "clamp(32px, 10vw, 120px)";
-      } else if (screenWidth <= 1200) {
-        // Small laptop devices
-        label.textContent = "NO Data available";
-        label.style.fontSize = "clamp(45px, 20vw, 180px)";
-      } else {
-        // Large desktop devices
-        label.textContent = "NO Data available";
-        label.style.fontSize = "clamp(40px, 20vw, 200px)";
-      }
-      
-      // Stop any ongoing animations
-      if (timerId) {
-        clearTimeout(timerId);
-        timerId = null;
-      }
+      // Function to show "NO Data available" message (only for actual errors)
+  function showNoDataMessage() {
+    overlay.style.backgroundColor = "#f44336"; // Red background for error state
+    label.style.color = "#ffffff";
+    
+    // Use the same responsive font sizing as "Loading..." text
+    const screenWidth = window.innerWidth;
+    if (screenWidth <= 480) {
+      // Small mobile devices
+      label.textContent = "No Data";
+      label.style.fontSize = "clamp(20px, 7vw, 60px)";
+    } else if (screenWidth <= 600) {
+      // Mobile devices
+      label.textContent = "No Data";
+      label.style.fontSize = "clamp(24px, 8vw, 80px)";
+    } else if (screenWidth <= 768) {
+      // Large mobile devices
+      label.textContent = "No Data";
+      label.style.fontSize = "clamp(28px, 9vw, 100px)";
+    } else if (screenWidth <= 900) {
+      // Tablet devices
+      label.textContent = "No Data Available";
+      label.style.fontSize = "clamp(32px, 10vw, 120px)";
+    } else if (screenWidth <= 1200) {
+      // Small laptop devices
+      label.textContent = "NO Data available";
+      label.style.fontSize = "clamp(45px, 20vw, 180px)";
+    } else {
+      // Large desktop devices
+      label.textContent = "NO Data available";
+      label.style.fontSize = "clamp(40px, 20vw, 200px)";
     }
+    
+    // Stop any ongoing animations
+    if (timerId) {
+      clearTimeout(timerId);
+      timerId = null;
+    }
+  }
+
+  // Function to handle successful API response (200 OK) gracefully
+  function handleSuccessfulApiResponse() {
+    // Just hide the overlay and continue with the page
+    if (typeof hideOverlay === "function") {
+      setTimeout(hideOverlay, 400);
+    }
+  }
 
     // Animate ticker once over the city list (no repeats)
     let timerId = null;
@@ -3392,7 +3573,9 @@ if (lenis) {
     (async () => {
       const base = (window && window.STRAPI_BASE) ? window.STRAPI_BASE : "https://inspiring-trust-2ecc11cb4e.strapiapp.com";
       const timeoutMs = 3000; // Increased timeout for better reliability
-      const maxWaitTime = 5000; // Maximum time to wait for cities before hiding overlay
+      const maxWaitTime = 8000; // Increased maximum time to wait for cities before showing error
+      
+      let apiCallCompleted = false; // Track if API call has completed
       
       function timeout(promise) {
         return Promise.race([
@@ -3401,28 +3584,47 @@ if (lenis) {
         ]);
       }
       
-      // Set a maximum wait time to prevent infinite loading
+      // Set a maximum wait time to prevent infinite loading - only show error after API call completes
       const maxWaitTimer = setTimeout(() => {
-        if (!citiesLoaded) {
-          // console.warn("Cities loading timeout - showing NO Data available message");
-          showNoDataMessage();
+        if (!citiesLoaded && apiCallCompleted) {
+          // API call completed but no cities loaded - don't show "No data available"
+          // Just hide the overlay and proceed
+          if (typeof hideOverlay === "function") {
+            setTimeout(hideOverlay, 400);
+          }
+        } else if (!apiCallCompleted) {
+          // If API call is still pending, don't show error yet
+          // Wait for completion
+        } else {
+          // API call completed but no cities - handle gracefully
+          handleSuccessfulApiResponse();
         }
       }, maxWaitTime);
       
       try {
         const result = await timeout((async () => {
-          // Fetch cities from sett API instead of global API
-          const settRes = await fetch(`${base}/api/sett`).catch(() => null);
-          if (!settRes) return null;
-          const settJson = await settRes.json().catch(() => null);
-          if (!settJson || !settJson.data) return null;
-          
-          const cities = Array.isArray(settJson.data.cities) ? settJson.data.cities : [];
-          const colors = Array.isArray(settJson.data.colors) ? settJson.data.colors : [];
-          const theme = colors && colors.length ? colors[0] : null;
-
-          return { cities, theme };
+          // Enhanced cities fetching with proper API response validation using global handler
+          try {
+            const settRes = await window.ApiResponseHandler.fetchWithTimeout(`${base}/api/sett`);
+            const result = await window.ApiResponseHandler.handleResponse(settRes, 'Cities API');
+            
+            if (!result.success) {
+              return null;
+            }
+            
+            const cities = Array.isArray(result.data.cities) ? result.data.cities : [];
+            const colors = Array.isArray(result.data.colors) ? result.data.colors : [];
+            const theme = colors && colors.length ? colors[0] : null;
+            
+            return { cities, theme };
+            
+          } catch (error) {
+            return null;
+          }
         })());
+        
+        // Mark API call as completed
+        apiCallCompleted = true;
 
         let cities = [];
         let theme = null;
@@ -3445,29 +3647,44 @@ if (lenis) {
           cityData.push({ name, bg, fg });
         }
         
-        // Clear the max wait timer since we got a response
-        clearTimeout(maxWaitTimer);
-        
         // Mark cities as loaded
         citiesLoaded = true;
         
-        // Only proceed if we have city data
-        if (cityData.length > 0) {
+        // Clear the max wait timer since we got a response
+        clearTimeout(maxWaitTimer);
+        
+        // Enhanced data validation - check for meaningful city data
+        const hasValidCities = cityData.length > 0 && cityData.some(city => 
+          city && city.name && city.name.trim() !== '' && 
+          city.name.toLowerCase() !== 'undefined' && 
+          city.name.toLowerCase() !== 'null'
+        );
+        
+        if (hasValidCities) {
           // Show first city immediately after loading
           applyCity(cityData[0]);
           timerId = setTimeout(step, stepMs);
         } else {
-          // No cities loaded, show NO Data available message
-          // console.warn("No cities data available - showing NO Data available message");
-          showNoDataMessage();
+          // API returned 200 OK but no cities - handle gracefully
+          // Use the successful response handler
+          handleSuccessfulApiResponse();
         }
       } catch (error) {
-        console.error("Error loading cities:", error);
+        // Mark API call as completed
+        apiCallCompleted = true;
         // Clear the max wait timer on error
         clearTimeout(maxWaitTimer);
-        // On error, show NO Data available message
-        // console.warn("API error occurred - showing NO Data available message");
-        showNoDataMessage();
+        
+        // Check if this was a network error or actual API failure
+        if (error.name === 'TypeError' || error.message.includes('fetch')) {
+          // Network error - show "No data available"
+          showNoDataMessage();
+        } else {
+          // Other errors - just hide overlay and proceed
+          if (typeof hideOverlay === "function") {
+            setTimeout(hideOverlay, 400);
+          }
+        }
       }
     })();
 

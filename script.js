@@ -3607,33 +3607,9 @@ if (lenis) {
       message = "Request Timeout";
     }
     
-    // Use the same responsive font sizing as "Loading..." text
-    const screenWidth = window.innerWidth;
-    if (screenWidth <= 480) {
-      // Small mobile devices
-      label.textContent = message;
-      label.style.fontSize = "clamp(20px, 7vw, 60px)";
-    } else if (screenWidth <= 600) {
-      // Mobile devices
-      label.textContent = message;
-      label.style.fontSize = "clamp(24px, 8vw, 80px)";
-    } else if (screenWidth <= 768) {
-      // Large mobile devices
-      label.textContent = message;
-      label.style.fontSize = "clamp(28px, 9vw, 100px)";
-    } else if (screenWidth <= 900) {
-      // Tablet devices
-      label.textContent = message;
-      label.style.fontSize = "clamp(32px, 10vw, 120px)";
-    } else if (screenWidth <= 1200) {
-      // Small laptop devices
-      label.textContent = message;
-      label.style.fontSize = "clamp(45px, 20vw, 180px)";
-    } else {
-      // Large desktop devices
-      label.textContent = message;
-      label.style.fontSize = "clamp(40px, 20vw, 200px)";
-    }
+    // Use the same font size as cities for consistency
+    label.textContent = message;
+    label.style.fontSize = "clamp(36px, 14vw, 220px)";
     
     // Stop any ongoing animations and prevent auto-hide
     if (timerId) {

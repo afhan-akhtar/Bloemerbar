@@ -209,6 +209,14 @@ body { overflow-x: hidden; }
 .main-wrapper {
   transition: all 0.8s ease;
   position: relative;
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Show main wrapper after preloader completes */
+.main-wrapper.loaded {
+  opacity: 1;
+  visibility: visible;
 }
 
 .main-wrapper::before {

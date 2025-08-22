@@ -3476,6 +3476,11 @@ if (lenis) {
   // Prevent multiple executions
   if (window.preloaderInitialized) {
     // console.log("Preloader already initialized, skipping");
+    // Show main wrapper if preloader is already initialized
+    const mainWrappers = document.querySelectorAll('.main-wrapper');
+    mainWrappers.forEach(wrapper => {
+      wrapper.classList.add('loaded');
+    });
     return;
   }
   window.preloaderInitialized = true;
@@ -3518,6 +3523,11 @@ if (lenis) {
       const existingPreloader = document.getElementById("preloader");
       if (existingPreloader) {
         // console.log("Preloader already exists, skipping creation");
+        // Show main wrapper if preloader already exists
+        const mainWrappers = document.querySelectorAll('.main-wrapper');
+        mainWrappers.forEach(wrapper => {
+          wrapper.classList.add('loaded');
+        });
         return;
       }
       
@@ -3530,6 +3540,11 @@ if (lenis) {
       const navType = (navEntry && navEntry.type) || (performance.navigation && performance.navigation.type);
       const isBackForward = navType === "back_forward" || navType === 2; // 2 is legacy back_forward
       if (isBackForward) {
+        // Show main wrapper for back/forward navigation
+        const mainWrappers = document.querySelectorAll('.main-wrapper');
+        mainWrappers.forEach(wrapper => {
+          wrapper.classList.add('loaded');
+        });
         return;
       }
 
@@ -3630,6 +3645,13 @@ if (lenis) {
   // Function to manually reset error state and hide overlay (if needed)
   function resetErrorState() {
     window.errorState = false;
+    
+    // Show main wrapper when resetting error state
+    const mainWrappers = document.querySelectorAll('.main-wrapper');
+    mainWrappers.forEach(wrapper => {
+      wrapper.classList.add('loaded');
+    });
+    
     if (typeof hideOverlay === "function") {
       hideOverlay();
     }
@@ -3640,7 +3662,12 @@ if (lenis) {
     // Reset error state since we have successful data
     window.errorState = false;
     
-    // Just hide the overlay and continue with the page
+    // Show main wrapper and hide the overlay
+    const mainWrappers = document.querySelectorAll('.main-wrapper');
+    mainWrappers.forEach(wrapper => {
+      wrapper.classList.add('loaded');
+    });
+    
     if (typeof hideOverlay === "function") {
       setTimeout(hideOverlay, 400);
     }
@@ -3704,7 +3731,11 @@ if (lenis) {
       const maxWaitTimer = setTimeout(() => {
         if (!citiesLoaded && apiCallCompleted) {
           // API call completed but no cities loaded - don't show "No data available"
-          // Just hide the overlay and proceed
+          // Show main wrapper and hide the overlay
+          const mainWrappers = document.querySelectorAll('.main-wrapper');
+          mainWrappers.forEach(wrapper => {
+            wrapper.classList.add('loaded');
+          });
           if (typeof hideOverlay === "function") {
             setTimeout(hideOverlay, 400);
           }
@@ -3835,7 +3866,11 @@ if (lenis) {
             // Don't hide overlay - keep error message visible
           }
         } else {
-          // Other errors - just hide overlay and proceed
+          // Other errors - show main wrapper and hide overlay
+          const mainWrappers = document.querySelectorAll('.main-wrapper');
+          mainWrappers.forEach(wrapper => {
+            wrapper.classList.add('loaded');
+          });
           if (typeof hideOverlay === "function") {
             setTimeout(hideOverlay, 400);
           }
@@ -3851,6 +3886,13 @@ if (lenis) {
       }
       
       if (timerId) clearTimeout(timerId);
+      
+      // Show main wrapper before hiding preloader
+      const mainWrappers = document.querySelectorAll('.main-wrapper');
+      mainWrappers.forEach(wrapper => {
+        wrapper.classList.add('loaded');
+      });
+      
       if (window.gsap) {
         gsap.to(overlay, {
           yPercent: -100,
@@ -3883,6 +3925,13 @@ if (lenis) {
     console.error("Preloader error:", err);
     const existing = document.getElementById("preloader");
     if (existing) existing.remove();
+    
+    // Show main wrapper even if preloader fails
+    const mainWrappers = document.querySelectorAll('.main-wrapper');
+    mainWrappers.forEach(wrapper => {
+      wrapper.classList.add('loaded');
+    });
+    
     // Reset the initialization flag on error
     window.preloaderInitialized = false;
   }
